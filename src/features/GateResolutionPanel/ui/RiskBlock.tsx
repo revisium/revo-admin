@@ -10,7 +10,7 @@ const RISK_TONE: Record<'low' | 'medium' | 'high', StatusTone> = {
 }
 
 export const RiskBlock = ({ risks }: { readonly risks: InboxItemDetail['riskSummary'] }) => (
-  <Stack gap="3" p="3.5" borderWidth="1px" borderColor="border" borderRadius="card" bg="bg.1">
+  <Stack gap="3" p="3.5" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
     <HStack gap="2" color="fg.2">
       <ShieldAlert size={14} />
       <Text textStyle="semibold-xs" textTransform="uppercase" letterSpacing="0.04em">

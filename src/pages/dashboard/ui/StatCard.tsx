@@ -27,7 +27,7 @@ export const StatCard = ({ def, count }: { readonly def: StatDef; readonly count
       gradientTo={def.accent ? 'bg.1' : undefined}
       borderWidth="1px"
       borderColor={def.accent ? 'brand.softBorder' : 'border'}
-      borderRadius="card"
+      borderRadius="warmCard"
       boxShadow="sh-1"
       p="4"
       transition="transform 150ms, box-shadow 150ms, border-color 150ms"
@@ -35,7 +35,7 @@ export const StatCard = ({ def, count }: { readonly def: StatDef; readonly count
         textDecoration: 'none',
         transform: 'translateY(-2px)',
         boxShadow: 'sh-2',
-        borderColor: 'border.strong',
+        borderColor: 'border.warmStrong',
       }}
     >
       <Link to={def.to}>

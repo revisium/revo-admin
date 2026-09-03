@@ -11,7 +11,7 @@ export const DecideCallout = ({ count }: { readonly count: number }) => (
     gradientTo="bg.1"
     borderWidth="1px"
     borderColor="brand.softBorder"
-    borderRadius="card"
+    borderRadius="warmCard"
     boxShadow="sh-1"
     p="4.5"
     transition="transform 150ms, box-shadow 150ms"

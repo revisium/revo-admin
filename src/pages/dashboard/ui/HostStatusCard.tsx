@@ -30,7 +30,7 @@ export const HostStatusCard = ({
   statusTone,
   stats,
 }: HostStatusCardProps) => (
-  <Box bg="bg.1" borderWidth="1px" borderColor="border" borderRadius="card" boxShadow="sh-1" overflow="hidden">
+  <Box bg="bg.1" borderWidth="1px" borderColor="border" borderRadius="warmCard" boxShadow="sh-1" overflow="hidden">
     <Flex
       align="center"
       justify="space-between"

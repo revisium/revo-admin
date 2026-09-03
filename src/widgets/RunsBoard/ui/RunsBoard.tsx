@@ -88,7 +88,7 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
           gap="2"
           bg="bg.1"
           borderWidth="1px"
-          borderColor="border.strong"
+          borderColor="border.warmStrong"
           borderRadius="btn"
           color="fg.2"
           _focusWithin={{ borderColor: 'brand.500' }}
@@ -126,7 +126,7 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
           bg="bg.1"
           borderWidth="1px"
           borderColor="border"
-          borderRadius="card"
+          borderRadius="warmCard"
           boxShadow="sh-1"
           overflow="hidden"
         >

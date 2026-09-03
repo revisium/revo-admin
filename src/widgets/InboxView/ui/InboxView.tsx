@@ -14,7 +14,7 @@ const DetailCard = ({ children }: { readonly children: React.ReactNode }) => (
     bg="bg.1"
     borderWidth="1px"
     borderColor="border"
-    borderRadius="card"
+    borderRadius="warmCard"
     boxShadow="sh-1"
     overflow="hidden"
     position={{ xl: 'sticky' }}

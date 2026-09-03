@@ -195,7 +195,7 @@ const ProjectAvatar = ({
         bg="bg.inset"
         color={tone === 'all' ? 'brand.500' : 'fg.2'}
         borderWidth="1px"
-        borderColor="border.strong"
+        borderColor="border.warmStrong"
         flexShrink="0"
       >
         {tone === 'all' ? <Layers size={15} /> : <Scan size={15} />}
@@ -279,8 +279,8 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
             borderColor="border"
             borderRadius="9px"
             boxShadow="none"
-            _hover={{ bg: 'bg.2', borderColor: 'border.strong' }}
-            _expanded={{ bg: 'bg.2', borderColor: 'border.strong', boxShadow: 'sh-glow' }}
+            _hover={{ bg: 'bg.2', borderColor: 'border.warmStrong' }}
+            _expanded={{ bg: 'bg.2', borderColor: 'border.warmStrong', boxShadow: 'sh-glow' }}
             title={collapsed ? 'Switch project' : undefined}
           >
             <ProjectAvatar initials={switcher.selectedInitials} tone={switcher.selectedTone} />
@@ -309,7 +309,7 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
             p="1.5"
             bg="bg.2"
             borderWidth="1px"
-            borderColor="border.strong"
+            borderColor="border.warmStrong"
             borderRadius="11px"
             boxShadow="sh-3"
           >
@@ -421,7 +421,7 @@ const SearchField = (props: { readonly full?: boolean }) => (
     px="2.5"
     gap="2"
     borderWidth="1px"
-    borderColor="border.strong"
+    borderColor="border.warmStrong"
     bg="bg.1"
     borderRadius="btn"
     color="fg.2"

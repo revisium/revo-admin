@@ -60,7 +60,7 @@ const secondaryButton = {
   bg: 'bg.1',
   color: 'fg.1',
   borderWidth: '1px',
-  borderColor: 'border.strong',
+  borderColor: 'border.warmStrong',
   borderRadius: 'btn',
   _hover: { bg: 'blackAlpha.50', color: 'fg.0' },
 } as const
@@ -181,7 +181,7 @@ const RunSummaryStrip = ({ run, steps }: { readonly run: TaskRun; readonly steps
     bg="bg.1"
     borderWidth="1px"
     borderColor="border"
-    borderRadius="card"
+    borderRadius="warmCard"
     boxShadow="sh-1"
     overflow="hidden"
   >

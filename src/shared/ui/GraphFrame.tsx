@@ -98,7 +98,7 @@ export const GraphFrame = ({ height, children, contentWidth, framed = true }: Gr
           pointerEvents="none"
           zIndex="2"
         >
-          <Box ref={thumbRef} h="full" w="72%" borderRadius="pill" bg="border.strong" />
+          <Box ref={thumbRef} h="full" w="72%" borderRadius="pill" bg="border.warmStrong" />
         </Box>
       ) : null}
     </Box>

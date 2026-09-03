@@ -17,7 +17,7 @@ const OptionButton = chakra('button', {
     bg: 'bg.1',
     cursor: 'pointer',
     transition: 'border-color 150ms, background 150ms',
-    _hover: { borderColor: 'border.strong' },
+    _hover: { borderColor: 'border.warmStrong' },
   },
 })
 
@@ -44,7 +44,7 @@ export const QuestionBody = ({ detail }: { readonly detail: InboxItemDetail }) =
                 boxSize="18px"
                 borderRadius="full"
                 borderWidth="1px"
-                borderColor={active ? 'brand.500' : 'border.strong'}
+                borderColor={active ? 'brand.500' : 'border.warmStrong'}
                 flexShrink="0"
               >
                 {active ? <Box boxSize="9px" borderRadius="full" bg="brand.500" /> : null}
