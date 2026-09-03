@@ -37,7 +37,8 @@ import {
   runDetailSteps,
 } from 'src/shared/fixtures'
 import type { Attempt, RunDetailStep, RunEvent, TaskRun } from 'src/shared/fixtures'
-import { AvatarInitials, Card, CostMeter, RoleToken, StatusBadge, TagList, toneForStatus } from 'src/shared/ui'
+import { Card, CostMeter, RoleToken, StatusBadge, TagList, toneForStatus } from 'src/shared/ui'
+import { Avatar } from 'src/shared/ui/kit'
 import { routes } from 'src/shared/config'
 
 interface RunDetailPageProps {
@@ -140,7 +141,9 @@ const RunHeader = ({ run }: { readonly run: TaskRun }) => (
           <StatusBadge status={run.status} />
           <TagList items={run.repos} />
           <HStack gap="2" color="fg.secondary" textStyle="caption">
-            <AvatarInitials label={initials(run.createdBy)} system={run.createdBy === 'orchestrator'} />
+            <Avatar size="xs" shape="circle" tone={run.createdBy === 'orchestrator' ? 'muted' : 'brand'}>
+              {initials(run.createdBy)}
+            </Avatar>
             <Text className="mono">{run.createdBy}</Text>
           </HStack>
           <HStack gap="1.5" color="fg.muted" textStyle="caption">

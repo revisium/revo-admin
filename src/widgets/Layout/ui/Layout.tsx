@@ -45,6 +45,7 @@ import {
 } from 'src/shared/fixtures'
 import { useViewModel } from 'src/shared/lib'
 import { BrandLogo } from 'src/shared/ui'
+import { Avatar, type IAvatarProps } from 'src/shared/ui/kit'
 import { ProjectSwitcherViewModel, type LayoutProjectTone } from '../model/ProjectSwitcherViewModel'
 import { routes } from 'src/shared/config'
 
@@ -179,47 +180,33 @@ const BrandWord = () => (
   </HStack>
 )
 
+const AVATAR_TONE: Record<LayoutProjectTone, IAvatarProps['tone']> = {
+  all: 'accent',
+  system: 'system',
+  failed: 'muted',
+  role: 'muted',
+  waiting: 'muted',
+}
+
+const projectAvatarContent = (tone: LayoutProjectTone, initials: string): ReactNode => {
+  if (tone === 'all') return <Layers size={15} />
+  if (tone === 'system') return <Scan size={15} />
+  return initials
+}
+
 const ProjectAvatar = ({
   initials,
   tone,
-  size = '26px',
+  size = 'sm',
 }: {
   readonly initials: string
   readonly tone: LayoutProjectTone
-  readonly size?: string
-}) => {
-  if (tone === 'all' || tone === 'system') {
-    return (
-      <Center
-        boxSize={size}
-        borderRadius="8px"
-        bg="bg.subtle"
-        color={tone === 'all' ? 'action.primary.bg' : 'fg.secondary'}
-        borderWidth="1px"
-        borderColor="border.strong"
-        flexShrink="0"
-      >
-        {tone === 'all' ? <Layers size={15} /> : <Scan size={15} />}
-      </Center>
-    )
-  }
-
-  return (
-    <Center
-      boxSize={size}
-      borderRadius="8px"
-      bg="bg.subtle"
-      color="fg.secondary"
-      borderWidth="1px"
-      borderColor="border.structural"
-      textStyle="caption"
-      textTransform="lowercase"
-      flexShrink="0"
-    >
-      {initials}
-    </Center>
-  )
-}
+  readonly size?: NonNullable<IAvatarProps['size']>
+}) => (
+  <Avatar size={size} tone={AVATAR_TONE[tone]}>
+    {projectAvatarContent(tone, initials)}
+  </Avatar>
+)
 
 const ProjectMenuRow = ({
   active,
@@ -326,7 +313,7 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
               active={switcher.allProjectsSelected}
               onSelect={() => selectProject('all', routes.projects())}
             >
-              <ProjectAvatar initials="all" tone="all" size="22px" />
+              <ProjectAvatar initials="all" tone="all" size="xs" />
               <Text flex="1" textStyle="bodyStrong" color="fg.default">
                 All projects
               </Text>
@@ -343,7 +330,7 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
                 active={switcher.selectedProjectId === project.id}
                 onSelect={() => selectProject(project.id, `/projects/${project.id}`)}
               >
-                <ProjectAvatar initials={project.initials} tone={project.tone} size="22px" />
+                <ProjectAvatar initials={project.initials} tone={project.tone} size="xs" />
                 <Text flex="1" textStyle="bodyStrong" color="fg.default">
                   {project.label}
                 </Text>
@@ -356,7 +343,7 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
             ))}
             <Box h="1px" bg="border.structural" mx="1" my="1.5" />
             <ProjectMenuRow value="control-plane" onSelect={() => selectProject('control-plane', routes.methodRoles())}>
-              <ProjectAvatar initials="sys" tone="system" size="22px" />
+              <ProjectAvatar initials="sys" tone="system" size="xs" />
               <Stack gap="0" flex="1" minW="0">
                 <Text textStyle="bodyStrong" color="fg.default">
                   Control plane
@@ -392,19 +379,10 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
   )
 })
 
-const Avatar = () => (
-  <Center
-    boxSize="30px"
-    borderRadius="full"
-    bgGradient="to-br"
-    gradientFrom="action.primary.bg"
-    gradientTo="action.primary.hoverBg"
-    color="action.primary.fg"
-    textStyle="bodyStrong"
-    flexShrink="0"
-  >
+const UserAvatar = () => (
+  <Avatar size="md" shape="circle" tone="brand">
     ka
-  </Center>
+  </Avatar>
 )
 
 // Search field — visual only (⌘K). In the topbar at lg+, and inside the drawer on smaller screens.
@@ -708,7 +686,7 @@ const MobileNavDrawer = ({
                 _hover={{ bg: 'blackAlpha.50', textDecoration: 'none' }}
               >
                 <Link to={routes.home()} onClick={onClose}>
-                  <Avatar />
+                  <UserAvatar />
                   <Stack gap="0" minW="0">
                     <Text textStyle="body" color="fg.secondary">
                       ka
@@ -866,7 +844,7 @@ const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly 
         </Button>
         <Box display={{ base: 'none', lg: 'block' }} w="1px" h="26px" bg="border" />
         <Box display={{ base: 'none', lg: 'flex' }}>
-          <Avatar />
+          <UserAvatar />
         </Box>
       </HStack>
     </Flex>
