@@ -4,7 +4,7 @@ import { skeletonRecipe } from './skeleton.recipe'
 type SkeletonVariantProps = RecipeVariantProps<typeof skeletonRecipe>
 
 interface SkeletonProps {
-  readonly shape?: SkeletonVariantProps['shape']
+  readonly shape?: NonNullable<SkeletonVariantProps['shape']>
   readonly width?: string
 }
 

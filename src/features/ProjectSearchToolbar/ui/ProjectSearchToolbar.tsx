@@ -1,5 +1,5 @@
 import { Box, chakra } from '@chakra-ui/react'
-import { type ChangeEvent, type FormEvent } from 'react'
+import { type ChangeEvent, type SubmitEvent } from 'react'
 import { FormField } from 'src/shared/ui/components'
 import { Checkbox, TextInput } from 'src/shared/ui/kit'
 
@@ -24,7 +24,7 @@ export const ProjectSearchToolbar = ({
 }: ProjectSearchToolbarProps) => {
   // The <form> exists for correct semantics and keyboard behaviour, but onSubmit is
   // prevented: filtering is live as the user types, and there is nothing to submit.
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
   }
 

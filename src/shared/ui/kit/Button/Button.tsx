@@ -18,7 +18,7 @@ type NativeButtonProps = Omit<
 >
 
 interface ButtonProps extends NativeButtonProps {
-  readonly variant?: ButtonVariantProps['variant']
+  readonly variant?: NonNullable<ButtonVariantProps['variant']>
   readonly busy?: boolean
   readonly busyLabel?: string
   readonly children: ReactNode
