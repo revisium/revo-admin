@@ -1,8 +1,15 @@
 import { Box } from '@chakra-ui/react'
 import type { BoxProps } from '@chakra-ui/react'
 
-// Warm surface container (.card in the prototype): bg.1 surface, hairline
-// border, card radius, sh-1 elevation.
+// Surface container (.card in the prototype): plain surface, hairline border, card radius.
 export const Card = (props: BoxProps) => (
-  <Box bg="bg.1" borderWidth="1px" borderColor="border" borderRadius="warmCard" boxShadow="sh-1" p="5" {...props} />
+  <Box
+    bg="bg.surface"
+    borderWidth="1px"
+    borderColor="border.structural"
+    borderRadius="card"
+    boxShadow="popover"
+    p="5"
+    {...props}
+  />
 )

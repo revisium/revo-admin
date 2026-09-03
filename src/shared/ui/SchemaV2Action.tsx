@@ -7,11 +7,11 @@ export const SchemaV2Action = () => (
     h="34px"
     px="3.5"
     gap="2"
-    bg="bg.1"
-    color="fg.0"
+    bg="bg.surface"
+    color="fg.default"
     borderWidth="1px"
-    borderColor="border.warmStrong"
-    borderRadius="btn"
+    borderColor="border.strong"
+    borderRadius="control"
     disabled
     _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
   >

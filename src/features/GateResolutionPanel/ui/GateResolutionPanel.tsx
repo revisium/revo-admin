@@ -26,9 +26,9 @@ const PanelHead = ({ detail }: { readonly detail: InboxItemDetail }) => {
       gap="3"
       p="4"
       borderBottomWidth="1px"
-      borderColor="border"
+      borderColor="border.structural"
       bgGradient="to-b"
-      gradientFrom="brand.tint"
+      gradientFrom="bg.subtle"
       gradientTo="transparent"
     >
       <HStack gap="3" minW="0" align="start">
@@ -36,10 +36,10 @@ const PanelHead = ({ detail }: { readonly detail: InboxItemDetail }) => {
           boxSize="36px"
           borderRadius="10px"
           flexShrink="0"
-          color={question ? 'status.running.fg' : 'accent.gate.fg'}
-          bg={question ? 'status.running.bg' : 'accent.gate.bg'}
+          color={question ? 'status.running.fg' : 'fg.secondary'}
+          bg="bg.subtle"
           borderWidth="1px"
-          borderColor={question ? 'status.running.border' : 'accent.gate.border'}
+          borderColor="border.structural"
         >
           {question ? <MessageCircleQuestion size={19} /> : <DoorOpen size={19} />}
         </Center>
@@ -50,25 +50,25 @@ const PanelHead = ({ detail }: { readonly detail: InboxItemDetail }) => {
               h="20px"
               display="inline-flex"
               alignItems="center"
-              borderRadius="chip"
-              textStyle="semibold-micro"
+              borderRadius="control"
+              textStyle="caption"
               textTransform="uppercase"
               letterSpacing="0.04em"
-              color={question ? 'status.running.fg' : 'accent.gate.fg'}
-              bg={question ? 'status.running.bg' : 'accent.gate.bg'}
+              color={question ? 'status.running.fg' : 'fg.secondary'}
+              bg="bg.subtle"
             >
               {question ? 'question' : 'human gate'}
             </Span>
-            <Text textStyle="semibold-body" color="fg.0" whiteSpace="nowrap">
+            <Text textStyle="bodyStrong" color="fg.default" whiteSpace="nowrap">
               {TITLE[detail.gateType]}
             </Text>
           </HStack>
           <ChakraLink
             asChild
             mt="1"
-            color="fg.2"
-            textStyle="regular-sm"
-            _hover={{ color: 'fg.0', textDecoration: 'none' }}
+            color="fg.secondary"
+            textStyle="small"
+            _hover={{ color: 'fg.default', textDecoration: 'none' }}
           >
             <Link to={`/runs/${run.id}`}>
               <HStack gap="1.5" minW="0">
@@ -79,37 +79,48 @@ const PanelHead = ({ detail }: { readonly detail: InboxItemDetail }) => {
           </ChakraLink>
         </Box>
       </HStack>
-      <Text className="mono" textStyle="regular-xs" color="fg.3" flexShrink="0">
+      <Text className="mono" textStyle="caption" color="fg.muted" flexShrink="0">
         {detail.runId}
       </Text>
     </Flex>
   )
 }
 
-const GHOST = { bg: 'transparent', color: 'fg.1', _hover: { bg: 'blackAlpha.50', color: 'fg.0' } } as const
+const GHOST = {
+  bg: 'transparent',
+  color: 'fg.secondary',
+  _hover: { bg: 'action.secondary.hoverBg', color: 'fg.default' },
+} as const
 const SECONDARY = {
-  bg: 'bg.1',
-  color: 'fg.1',
+  bg: 'bg.surface',
+  color: 'fg.secondary',
   borderWidth: '1px',
-  borderColor: 'border.warmStrong',
-  _hover: { bg: 'bg.2', borderColor: 'fg.3' },
+  borderColor: 'border.strong',
+  _hover: { bg: 'bg.surface', borderColor: 'fg.muted' },
 } as const
 const DANGER = {
-  bg: 'bg.1',
+  bg: 'bg.surface',
   color: 'status.failed.fg',
   borderWidth: '1px',
-  borderColor: 'status.failed.border',
-  _hover: { bg: 'status.failed.bg' },
+  borderColor: 'border.structural',
+  _hover: { bg: 'bg.subtle' },
 } as const
-const SUCCESS = { bg: 'status.success.fg', color: 'white', _hover: { filter: 'brightness(1.06)' } } as const
-const BTN = { size: 'sm', h: '36px', px: '3.5', gap: '1.5', borderRadius: 'btn' } as const
+// The confirming action is the one primary control in this panel. It is filled with the
+// primary ink, not with a status colour: green here would read as "succeeded", which is a
+// state the run has not reached yet.
+const SUCCESS = {
+  bg: 'action.primary.bg',
+  color: 'action.primary.fg',
+  _hover: { bg: 'action.primary.hoverBg' },
+} as const
+const BTN = { size: 'sm', h: '36px', px: '3.5', gap: '1.5', borderRadius: 'control' } as const
 
 const PanelActions = ({ detail }: { readonly detail: InboxItemDetail }) => {
   const merge = detail.gateType === 'merge_gate'
 
   if (detail.gateType === 'answer_question') {
     return (
-      <Flex gap="2" justify="flex-end" wrap="wrap" p="4" borderTopWidth="1px" borderColor="border">
+      <Flex gap="2" justify="flex-end" wrap="wrap" p="4" borderTopWidth="1px" borderColor="border.structural">
         <Button {...BTN} {...GHOST} onClick={notify('Skipped for now')}>
           Skip
         </Button>
@@ -122,7 +133,7 @@ const PanelActions = ({ detail }: { readonly detail: InboxItemDetail }) => {
   }
 
   return (
-    <Flex gap="2" justify="space-between" wrap="wrap" p="4" borderTopWidth="1px" borderColor="border">
+    <Flex gap="2" justify="space-between" wrap="wrap" p="4" borderTopWidth="1px" borderColor="border.structural">
       <Flex gap="2" wrap="wrap">
         <Button {...BTN} {...DANGER} onClick={notify(merge ? 'Merge blocked' : 'Plan rejected')}>
           <X size={15} />

@@ -1,8 +1,9 @@
 import { Stack } from '@chakra-ui/react'
 import { MethodTabs } from 'src/features/MethodTabs'
 import { ROLES } from 'src/shared/fixtures'
-import { PageHeader, SchemaV2Action } from 'src/shared/ui'
+import { SchemaV2Action } from 'src/shared/ui'
 import { RolesList } from 'src/widgets/RolesList'
+import { PageHeader } from 'src/shared/ui/components'
 
 interface MethodRoleDetailPageProps {
   readonly roleId: string

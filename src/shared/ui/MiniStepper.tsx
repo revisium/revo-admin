@@ -27,13 +27,13 @@ export const MiniStepper = ({ done, total, status }: MiniStepperProps) => {
             w="14px"
             h="5px"
             borderRadius="2px"
-            bg={filled ? `dot.${segTone}` : 'bg.inset'}
+            bg={filled ? `dot.${segTone}` : 'bg.subtle'}
             borderWidth={filled ? '0' : '1px'}
-            borderColor="border"
+            borderColor="border.structural"
           />
         )
       })}
-      <Text as="span" className="mono" ml="1" textStyle="regular-micro" color="fg.3">
+      <Text as="span" className="mono" ml="1" textStyle="caption" color="fg.muted">
         {done}/{total}
       </Text>
     </HStack>

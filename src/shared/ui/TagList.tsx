@@ -10,7 +10,7 @@ interface TagListProps {
 export const TagList = ({ items, emptyLabel = '—' }: TagListProps) => {
   if (items.length === 0) {
     return (
-      <Text textStyle="regular-sm" color="fg.3">
+      <Text textStyle="small" color="fg.muted">
         {emptyLabel}
       </Text>
     )
@@ -22,14 +22,14 @@ export const TagList = ({ items, emptyLabel = '—' }: TagListProps) => {
         <WrapItem key={item}>
           <Badge
             className="mono"
-            textStyle="regular-xs"
+            textStyle="caption"
             px="2"
             py="0.5"
-            borderRadius="chip"
+            borderRadius="control"
             borderWidth="1px"
-            color="fg.1"
-            bg="bg.inset"
-            borderColor="border"
+            color="fg.secondary"
+            bg="bg.subtle"
+            borderColor="border.structural"
             whiteSpace="nowrap"
           >
             {item}

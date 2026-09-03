@@ -38,6 +38,7 @@ import {
 } from 'src/shared/fixtures'
 import type { Attempt, RunDetailStep, RunEvent, TaskRun } from 'src/shared/fixtures'
 import { AvatarInitials, Card, CostMeter, RoleToken, StatusBadge, TagList, toneForStatus } from 'src/shared/ui'
+import { routes } from 'src/shared/config'
 
 interface RunDetailPageProps {
   readonly runId: string
@@ -57,22 +58,22 @@ const secondaryButton = {
   h: '36px',
   px: '3.5',
   gap: '2',
-  bg: 'bg.1',
-  color: 'fg.1',
+  bg: 'bg.surface',
+  color: 'fg.secondary',
   borderWidth: '1px',
-  borderColor: 'border.warmStrong',
-  borderRadius: 'btn',
-  _hover: { bg: 'blackAlpha.50', color: 'fg.0' },
+  borderColor: 'border.strong',
+  borderRadius: 'control',
+  _hover: { bg: 'blackAlpha.50', color: 'fg.default' },
 } as const
 
 const primaryButton = {
   h: '36px',
   px: '3.5',
   gap: '2',
-  bg: 'brand.500',
-  color: 'brand.on',
-  borderRadius: 'btn',
-  _hover: { bg: 'brand.hover' },
+  bg: 'fg.default',
+  color: 'action.primary.fg',
+  borderRadius: 'control',
+  _hover: { bg: 'action.primary.hoverBg' },
 } as const
 
 const RunActions = ({ run }: { readonly run: TaskRun }) => {
@@ -80,7 +81,8 @@ const RunActions = ({ run }: { readonly run: TaskRun }) => {
   const progressLabel = run.status === 'failed' ? 'Re-run' : 'Pause'
   const showProgressAction = run.status === 'running' || run.status === 'planning' || run.status === 'failed'
   const gateLabel = run.status === 'awaiting_approval' ? 'Resolve gate' : 'Open gate'
-  const gateTarget = run.status === 'awaiting_approval' ? '/inbox/ibx_merge_01' : '/inbox/ibx_plan_01'
+  const gateTarget =
+    run.status === 'awaiting_approval' ? routes.inboxItem('ibx_merge_01') : routes.inboxItem('ibx_plan_01')
 
   return (
     <HStack gap="2" wrap="wrap" justify={{ base: 'flex-start', lg: 'flex-end' }}>
@@ -113,35 +115,35 @@ const RunHeader = ({ run }: { readonly run: TaskRun }) => (
     <ChakraLink
       asChild
       alignSelf="flex-start"
-      color="fg.2"
-      textStyle="medium-xs"
-      _hover={{ color: 'fg.0', textDecoration: 'none' }}
+      color="fg.secondary"
+      textStyle="caption"
+      _hover={{ color: 'fg.default', textDecoration: 'none' }}
     >
-      <Link to="/runs">Back to runs</Link>
+      <Link to={routes.runs()}>Back to runs</Link>
     </ChakraLink>
     <Flex align="flex-start" justify="space-between" gap="6" direction={{ base: 'column', lg: 'row' }}>
       <Stack gap="3" minW="0">
-        <HStack gap="2" color="fg.2" textStyle="regular-xs" wrap="wrap">
-          <Text className="mono" color="brand.500" fontWeight="650">
+        <HStack gap="2" color="fg.secondary" textStyle="caption" wrap="wrap">
+          <Text className="mono" color="fg.default" fontWeight="650">
             {run.id}
           </Text>
-          <Span color="fg.3">·</Span>
+          <Span color="fg.muted">·</Span>
           <Text className="mono">{run.scope}</Text>
         </HStack>
-        <Text textStyle="bold-xxl" color="fg.0" lineHeight="1.12" letterSpacing="-0.025em" maxW="760px">
+        <Text textStyle="pageTitle" color="fg.default" lineHeight="1.12" letterSpacing="-0.025em" maxW="760px">
           {run.title}
         </Text>
-        <Text textStyle="regular-body" color="fg.2" maxW="680px">
+        <Text textStyle="body" color="fg.secondary" maxW="680px">
           {run.description}
         </Text>
         <HStack gap="3" wrap="wrap">
           <StatusBadge status={run.status} />
           <TagList items={run.repos} />
-          <HStack gap="2" color="fg.1" textStyle="regular-xs">
+          <HStack gap="2" color="fg.secondary" textStyle="caption">
             <AvatarInitials label={initials(run.createdBy)} system={run.createdBy === 'orchestrator'} />
             <Text className="mono">{run.createdBy}</Text>
           </HStack>
-          <HStack gap="1.5" color="fg.3" textStyle="regular-xs">
+          <HStack gap="1.5" color="fg.muted" textStyle="caption">
             <Clock3 size={13} />
             <Text>{absTime(run.createdAt)}</Text>
           </HStack>
@@ -178,11 +180,11 @@ const summaryCells = (run: TaskRun, steps: ReadonlyArray<RunDetailStep>): Readon
 const RunSummaryStrip = ({ run, steps }: { readonly run: TaskRun; readonly steps: ReadonlyArray<RunDetailStep> }) => (
   <Grid
     templateColumns={{ base: '1fr', sm: 'repeat(2, minmax(0, 1fr))', xl: 'repeat(4, minmax(0, 1fr))' }}
-    bg="bg.1"
+    bg="bg.surface"
     borderWidth="1px"
-    borderColor="border"
-    borderRadius="warmCard"
-    boxShadow="sh-1"
+    borderColor="border.structural"
+    borderRadius="card"
+    boxShadow="popover"
     overflow="hidden"
   >
     {summaryCells(run, steps).map((cell) => {
@@ -193,20 +195,20 @@ const RunSummaryStrip = ({ run, steps }: { readonly run: TaskRun; readonly steps
           gap="1.5"
           p="4"
           borderRightWidth={{ xl: '1px' }}
-          borderColor="border"
+          borderColor="border.structural"
           _last={{ borderRightWidth: '0' }}
         >
-          <HStack gap="1.5" color="fg.2" textStyle="regular-xs">
+          <HStack gap="1.5" color="fg.secondary" textStyle="caption">
             <Icon size={13} />
             <Text>{cell.label}</Text>
           </HStack>
           <HStack gap="2" minW="0">
             {cell.tone ? <Box boxSize="2" borderRadius="full" bg={`dot.${cell.tone}`} flexShrink="0" /> : null}
-            <Text className={cell.mono ? 'mono' : undefined} textStyle="semibold-md" color="fg.0" truncate>
+            <Text className={cell.mono ? 'mono' : undefined} textStyle="componentTitle" color="fg.default" truncate>
               {cell.value}
             </Text>
             {cell.sub ? (
-              <Text className="mono" textStyle="regular-xs" color="fg.3" flexShrink="0">
+              <Text className="mono" textStyle="caption" color="fg.muted" flexShrink="0">
                 {cell.sub}
               </Text>
             ) : null}
@@ -228,10 +230,10 @@ const CurrentStepCard = ({ steps }: { readonly steps: ReadonlyArray<RunDetailSte
         <HStack gap="3" align="start">
           <RoleToken name={current.role} size={34} />
           <Stack gap="0.5" flex="1" minW="0">
-            <Text textStyle="semibold-md" color="fg.0">
+            <Text textStyle="componentTitle" color="fg.default">
               {current.label}
             </Text>
-            <Text className="mono" textStyle="regular-xs" color="fg.3">
+            <Text className="mono" textStyle="caption" color="fg.muted">
               attempt #{attempt.attemptNo} · {attempt.modelProfile}
             </Text>
           </Stack>
@@ -242,13 +244,13 @@ const CurrentStepCard = ({ steps }: { readonly steps: ReadonlyArray<RunDetailSte
           px="3"
           py="2.5"
           borderRadius="9px"
-          bg="brand.tint"
+          bg="bg.subtle"
           borderWidth="1px"
-          borderColor="brand.softBorder"
-          color="brand.ink"
-          textStyle="regular-xs"
+          borderColor="border.structural"
+          color="fg.default"
+          textStyle="caption"
         >
-          <Box boxSize="2" borderRadius="full" bg="brand.500" />
+          <Box boxSize="2" borderRadius="full" bg="dot.running" />
           <Text className="mono">implementing changelog generation step...</Text>
         </HStack>
         <HStack gap="2" wrap="wrap">
@@ -263,9 +265,9 @@ const CurrentStepCard = ({ steps }: { readonly steps: ReadonlyArray<RunDetailSte
 }
 
 const Metric = ({ label, value }: { readonly label: string; readonly value: string }) => (
-  <HStack gap="1.5" px="2.5" py="1.5" bg="bg.inset" borderRadius="7px" textStyle="regular-xs">
-    <Text color="fg.3">{label}</Text>
-    <Text className="mono tnum" color="fg.0" fontWeight="620">
+  <HStack gap="1.5" px="2.5" py="1.5" bg="bg.subtle" borderRadius="7px" textStyle="caption">
+    <Text color="fg.muted">{label}</Text>
+    <Text className="mono tnum" color="fg.default" fontWeight="620">
       {value}
     </Text>
   </HStack>
@@ -288,11 +290,11 @@ const eventTone = (event: RunEvent): string => {
 
 const ActivityFeed = () => (
   <Card p="0" overflow="hidden">
-    <HStack h="42px" px="4" borderBottomWidth="1px" borderColor="border" justify="space-between">
-      <Text textStyle="semibold-sm" color="fg.0">
+    <HStack h="42px" px="4" borderBottomWidth="1px" borderColor="border.structural" justify="space-between">
+      <Text textStyle="bodyStrong" color="fg.default">
         Activity
       </Text>
-      <Text textStyle="regular-xs" color="fg.3">
+      <Text textStyle="caption" color="fg.muted">
         {RUN_EVENTS_DESC.length} events
       </Text>
     </HStack>
@@ -309,7 +311,7 @@ const ActivityFeed = () => (
             px="4"
             py="3"
             borderBottomWidth="1px"
-            borderColor="border.subtle"
+            borderColor="border.structural"
             _last={{ borderBottomWidth: '0' }}
           >
             <Box
@@ -317,27 +319,27 @@ const ActivityFeed = () => (
               placeItems="center"
               boxSize="26px"
               borderRadius="8px"
-              bg={`status.${tone}.bg`}
+              bg={'bg.subtle'}
               color={`status.${tone}.fg`}
               borderWidth="1px"
-              borderColor={`status.${tone}.border`}
+              borderColor={'border.structural'}
             >
               <Icon size={13} />
             </Box>
             <Stack gap="0.5" minW="0">
               <HStack gap="2" minW="0">
-                <Text className="mono" textStyle="medium-xs" color="fg.0" truncate>
+                <Text className="mono" textStyle="caption" color="fg.default" truncate>
                   {event.type}
                 </Text>
-                <Text textStyle="regular-xs" color="fg.3" flexShrink="0">
+                <Text textStyle="caption" color="fg.muted" flexShrink="0">
                   {event.actor}
                 </Text>
               </HStack>
-              <Text className="mono" textStyle="regular-micro" color="fg.3" truncate>
+              <Text className="mono" textStyle="caption" color="fg.muted" truncate>
                 {event.payloadSummary}
               </Text>
             </Stack>
-            <Text textStyle="regular-xs" color="fg.3" whiteSpace="nowrap">
+            <Text textStyle="caption" color="fg.muted" whiteSpace="nowrap">
               {relTime(event.createdAt)}
             </Text>
           </Grid>
@@ -350,16 +352,16 @@ const ActivityFeed = () => (
 const PipelineTab = ({ steps }: { readonly steps: ReadonlyArray<RunDetailStep> }) => (
   <Grid templateColumns={{ base: '1fr', xl: 'minmax(0, 1fr) 320px' }} gap="5" alignItems="start">
     <Card p="0" overflow="hidden">
-      <HStack px="4" py="3.5" justify="space-between" borderBottomWidth="1px" borderColor="border" gap="4">
+      <HStack px="4" py="3.5" justify="space-between" borderBottomWidth="1px" borderColor="border.structural" gap="4">
         <Stack gap="0.5">
-          <Text textStyle="semibold-md" color="fg.0">
+          <Text textStyle="componentTitle" color="fg.default">
             Pipeline
           </Text>
-          <Text className="mono" textStyle="regular-xs" color="fg.3">
+          <Text className="mono" textStyle="caption" color="fg.muted">
             feature-default · 6 steps · review loop enabled
           </Text>
         </Stack>
-        <HStack gap="1.5" color="brand.ink" textStyle="regular-xs" flexShrink="0">
+        <HStack gap="1.5" color="fg.default" textStyle="caption" flexShrink="0">
           <Sparkles size={13} />
           <Text>current step pulses</Text>
         </HStack>
@@ -393,9 +395,9 @@ const AttemptTableHeader = () => (
     alignItems="center"
     h="40px"
     px="4.5"
-    bg="bg.inset"
+    bg="bg.subtle"
     borderBottomWidth="1px"
-    borderColor="border"
+    borderColor="border.structural"
     css={attemptGridCss}
   >
     <AttemptHeaderCell>#</AttemptHeaderCell>
@@ -419,8 +421,8 @@ const AttemptHeaderCell = ({
   readonly textAlign?: 'left' | 'right'
 }) => (
   <Text
-    textStyle="semibold-sm"
-    color="fg.3"
+    textStyle="bodyStrong"
+    color="fg.muted"
     fontSize="11.5px"
     textTransform="uppercase"
     letterSpacing=".04em"
@@ -441,12 +443,12 @@ const AttemptNote = ({ attempt }: { readonly attempt: Attempt }) => {
       mb="3.5"
       px="3.5"
       py="3"
-      bg="bg.inset"
+      bg="bg.subtle"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.structural"
       borderRadius="9px"
-      color="fg.1"
-      textStyle="regular-xs"
+      color="fg.secondary"
+      textStyle="caption"
     >
       {attempt.error ? (
         <HStack gap="2" align="flex-start" color="status.failed.fg">
@@ -460,9 +462,9 @@ const AttemptNote = ({ attempt }: { readonly attempt: Attempt }) => {
             px="1.5"
             py="0.5"
             borderRadius="4px"
-            bg="status.waiting.bg"
+            bg="bg.subtle"
             borderWidth="1px"
-            borderColor="status.waiting.border"
+            borderColor="border.structural"
             color="status.waiting.fg"
             fontSize="10px"
             fontWeight="700"
@@ -484,27 +486,33 @@ const AttemptsTab = () => (
     <Card p="0" overflow="hidden">
       <AttemptTableHeader />
       {RUN_ATTEMPTS.map((attempt) => (
-        <Box key={attempt.id} bg="bg.1" borderBottomWidth="1px" borderColor="border" _last={{ borderBottomWidth: '0' }}>
+        <Box
+          key={attempt.id}
+          bg="bg.surface"
+          borderBottomWidth="1px"
+          borderColor="border.structural"
+          _last={{ borderBottomWidth: '0' }}
+        >
           <Grid templateColumns={ATTEMPT_COLUMNS} gap="3" alignItems="center" px="4.5" py="3.5" css={attemptGridCss}>
-            <Text className="mono tnum" textStyle="medium-xs" color="fg.3">
+            <Text className="mono tnum" textStyle="caption" color="fg.muted">
               #{attempt.attemptNo}
             </Text>
             <HStack gap="2.5" minW="0">
               <RoleToken name={attempt.stepLabel} size={24} />
-              <Text textStyle="medium-sm" color="fg.0" truncate>
+              <Text textStyle="body" color="fg.default" truncate>
                 {attempt.stepLabel}
               </Text>
             </HStack>
             <Box>
               <StatusBadge status={attempt.status} size="sm" />
             </Box>
-            <Text className="mono" textStyle="regular-xs" color="fg.1" truncate css={modelColumnCss}>
+            <Text className="mono" textStyle="caption" color="fg.secondary" truncate css={modelColumnCss}>
               {attempt.modelProfile}
             </Text>
-            <Text className="mono tnum" textStyle="regular-xs" color="fg.1" css={tokensColumnCss}>
-              {formatTokens(attempt.inputTokens)} <Span color="fg.3">/</Span> {formatTokens(attempt.outputTokens)}
+            <Text className="mono tnum" textStyle="caption" color="fg.secondary" css={tokensColumnCss}>
+              {formatTokens(attempt.inputTokens)} <Span color="fg.muted">/</Span> {formatTokens(attempt.outputTokens)}
             </Text>
-            <Text className="mono tnum" textStyle="medium-sm" color="fg.0" textAlign="right" css={costColumnCss}>
+            <Text className="mono tnum" textStyle="body" color="fg.default" textAlign="right" css={costColumnCss}>
               {formatRunCost(attempt.costAmount)}
             </Text>
           </Grid>
@@ -528,39 +536,39 @@ const CostTab = () => (
             px="4"
             py="3"
             borderBottomWidth="1px"
-            borderColor="border.subtle"
+            borderColor="border.structural"
           >
-            <Text textStyle="medium-sm" color="fg.0" truncate>
+            <Text textStyle="body" color="fg.default" truncate>
               {row.attemptLabel}
             </Text>
             <Text
               className="mono"
-              textStyle="regular-xs"
-              color="fg.2"
+              textStyle="caption"
+              color="fg.secondary"
               css={{ '@container (max-width: 760px)': { display: 'none' } }}
             >
               {row.modelProfile}
             </Text>
             <Text
               className="mono tnum"
-              textStyle="regular-xs"
-              color="fg.2"
+              textStyle="caption"
+              color="fg.secondary"
               css={{ '@container (max-width: 640px)': { display: 'none' } }}
             >
               {formatTokens(row.inputTokens)}
             </Text>
             <Text
               className="mono tnum"
-              textStyle="regular-xs"
-              color="fg.2"
+              textStyle="caption"
+              color="fg.secondary"
               css={{ '@container (max-width: 640px)': { display: 'none' } }}
             >
               {formatTokens(row.outputTokens)}
             </Text>
-            <Box h="7px" borderRadius="pill" bg="bg.inset" overflow="hidden">
-              <Box h="full" w={costShare(row.costAmount, RUN_COST_TOTALS.maxAmount)} bg="brand.500" />
+            <Box h="7px" borderRadius="pill" bg="bg.subtle" overflow="hidden">
+              <Box h="full" w={costShare(row.costAmount, RUN_COST_TOTALS.maxAmount)} bg="fg.default" />
             </Box>
-            <Text className="mono tnum" textStyle="medium-sm" color="fg.1" textAlign="right">
+            <Text className="mono tnum" textStyle="body" color="fg.secondary" textAlign="right">
               {formatRunCost(row.costAmount)}
             </Text>
           </Grid>
@@ -571,37 +579,37 @@ const CostTab = () => (
           alignItems="center"
           px="4"
           py="3.5"
-          bg="bg.inset"
+          bg="bg.subtle"
         >
-          <Text textStyle="semibold-sm" color="fg.0">
+          <Text textStyle="bodyStrong" color="fg.default">
             Run total
           </Text>
           <Text
             className="mono"
-            textStyle="regular-xs"
-            color="fg.2"
+            textStyle="caption"
+            color="fg.secondary"
             css={{ '@container (max-width: 760px)': { display: 'none' } }}
           >
             {RUN_COST_TOTALS.attempts} attempts
           </Text>
           <Text
             className="mono tnum"
-            textStyle="regular-xs"
-            color="fg.2"
+            textStyle="caption"
+            color="fg.secondary"
             css={{ '@container (max-width: 640px)': { display: 'none' } }}
           >
             {formatTokens(RUN_COST_TOTALS.inputTokens)}
           </Text>
           <Text
             className="mono tnum"
-            textStyle="regular-xs"
-            color="fg.2"
+            textStyle="caption"
+            color="fg.secondary"
             css={{ '@container (max-width: 640px)': { display: 'none' } }}
           >
             {formatTokens(RUN_COST_TOTALS.outputTokens)}
           </Text>
           <Box />
-          <Text className="mono tnum" textStyle="semibold-sm" color="fg.0" textAlign="right">
+          <Text className="mono tnum" textStyle="bodyStrong" color="fg.default" textAlign="right">
             {formatRunCost(RUN_COST_TOTALS.amount)}
           </Text>
         </Grid>
@@ -609,11 +617,11 @@ const CostTab = () => (
     </Box>
     <Card>
       <Stack gap="4">
-        <Text textStyle="semibold-md" color="fg.0">
+        <Text textStyle="componentTitle" color="fg.default">
           Budget
         </Text>
         <CostMeter spent={RUN_BUDGET.spent} limit={RUN_BUDGET.limit} estimate={RUN_BUDGET.estimate} />
-        <Grid templateColumns="1fr 1fr" gap="3" textStyle="regular-xs">
+        <Grid templateColumns="1fr 1fr" gap="3" textStyle="caption">
           <BudgetField label="Per-attempt cap" value="$1.50" />
           <BudgetField
             label="Tokens total"
@@ -636,9 +644,9 @@ const BudgetField = ({
   readonly value: string
   readonly mono?: boolean
 }) => (
-  <Stack gap="1" p="3" bg="bg.inset" borderRadius="8px">
-    <Text color="fg.3">{label}</Text>
-    <Text className={mono ? 'mono' : undefined} color="fg.0" fontWeight="600">
+  <Stack gap="1" p="3" bg="bg.subtle" borderRadius="8px">
+    <Text color="fg.muted">{label}</Text>
+    <Text className={mono ? 'mono' : undefined} color="fg.default" fontWeight="600">
       {value}
     </Text>
   </Stack>
@@ -658,7 +666,7 @@ export const RunDetailPage = ({ runId }: RunDetailPageProps) => {
             <Tabs.Trigger key={tab.id} value={tab.id}>
               {tab.label}
               {'count' in tab ? (
-                <Span className="mono tnum" color="fg.3" ml="1.5">
+                <Span className="mono tnum" color="fg.muted" ml="1.5">
                   {tab.count}
                 </Span>
               ) : null}

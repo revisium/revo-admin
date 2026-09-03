@@ -8,13 +8,13 @@ export const AvatarInitials = ({ label, system = false }: { readonly label: stri
     boxSize="22px"
     borderRadius="full"
     flexShrink="0"
-    textStyle="semibold-micro"
+    textStyle="caption"
     textTransform="lowercase"
-    color={system ? 'fg.2' : 'brand.on'}
-    bg={system ? 'bg.inset' : undefined}
+    color={system ? 'fg.secondary' : 'action.primary.fg'}
+    bg={system ? 'bg.subtle' : undefined}
     bgGradient={system ? undefined : 'to-br'}
-    gradientFrom={system ? undefined : 'brand.500'}
-    gradientTo={system ? undefined : 'brand.press'}
+    gradientFrom={system ? undefined : 'fg.default'}
+    gradientTo={system ? undefined : 'action.primary.hoverBg'}
     borderWidth={system ? '1px' : '0'}
     borderColor={system ? 'border' : undefined}
   >

@@ -76,15 +76,15 @@ const ADR_LINKED_COUNTS: Readonly<Record<number, number>> = {
   2: 1,
   9: 1,
 }
-const ADR_ROW_HOVER_BG = 'brand.tint'
+const ADR_ROW_HOVER_BG = 'bg.subtle'
 
 const projectToneStyles = (
   tone: ProjectTone,
 ): { readonly bg: string; readonly fg: string; readonly border: string } => {
-  if (tone === 'teal') return { bg: 'accent.role.bg', fg: 'accent.role.fg', border: 'accent.role.border' }
-  if (tone === 'plum') return { bg: 'status.waiting.bg', fg: 'status.waiting.fg', border: 'status.waiting.border' }
-  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.warmStrong' }
-  return { bg: 'brand.soft', fg: 'brand.ink', border: 'brand.softBorder' }
+  if (tone === 'teal') return { bg: 'bg.subtle', fg: 'fg.secondary', border: 'border.structural' }
+  if (tone === 'plum') return { bg: 'bg.subtle', fg: 'status.waiting.fg', border: 'border.structural' }
+  if (tone === 'system') return { bg: 'bg.subtle', fg: 'fg.secondary', border: 'border.strong' }
+  return { bg: 'bg.subtle', fg: 'fg.default', border: 'border.structural' }
 }
 
 const ProjectAvatar = ({ project, size = '46px' }: { readonly project: ProjectRow; readonly size?: string }) => {
@@ -136,11 +136,11 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
       <ProjectAvatar project={project} size="50px" />
       <Stack gap="1.5" minW="0">
         <HStack gap="3" align="baseline" wrap="wrap">
-          <Text className="mono" textStyle="regular-sm" color="fg.3">
+          <Text className="mono" textStyle="small" color="fg.muted">
             {project.org} /
           </Text>
           <Text
-            color="fg.0"
+            color="fg.default"
             fontSize={{ base: '28px', lg: '26px' }}
             fontWeight="720"
             lineHeight="1.08"
@@ -149,7 +149,7 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
             {project.name}
           </Text>
         </HStack>
-        <Text textStyle="regular-body" color="fg.2" maxW="760px">
+        <Text textStyle="body" color="fg.secondary" maxW="760px">
           {project.description}
         </Text>
       </Stack>
@@ -160,12 +160,12 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
         h="34px"
         px="3"
         gap="2"
-        bg="bg.1"
-        color="fg.1"
+        bg="bg.surface"
+        color="fg.secondary"
         borderWidth="1px"
-        borderColor="border.warmStrong"
-        borderRadius="btn"
-        _hover={{ bg: 'blackAlpha.50', color: 'fg.0' }}
+        borderColor="border.strong"
+        borderRadius="control"
+        _hover={{ bg: 'blackAlpha.50', color: 'fg.default' }}
       >
         <GitBranch size={14} />
         <Span className="mono">{project.defaultBranch}</Span>
@@ -175,12 +175,12 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
         h="34px"
         px="3"
         gap="2"
-        bg="bg.inset"
+        bg="bg.subtle"
         borderWidth="1px"
-        borderColor="border"
-        borderRadius="btn"
-        color="fg.2"
-        textStyle="regular-xs"
+        borderColor="border.structural"
+        borderRadius="control"
+        color="fg.secondary"
+        textStyle="caption"
       >
         <History size={13} />
         <Span className="mono">{project.headRev}</Span>
@@ -190,12 +190,12 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
         h="34px"
         px="3.5"
         gap="2"
-        bg="bg.1"
-        color="fg.0"
+        bg="bg.surface"
+        color="fg.default"
         borderWidth="1px"
-        borderColor="border.warmStrong"
-        borderRadius="btn"
-        boxShadow="sh-1"
+        borderColor="border.strong"
+        borderRadius="control"
+        boxShadow="popover"
         disabled
         _hover={{ bg: 'blackAlpha.50' }}
         _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
@@ -221,7 +221,7 @@ const DetailTabs = ({
     gap="0"
     overflowX="auto"
     borderBottomWidth="1px"
-    borderColor="border"
+    borderColor="border.structural"
     css={{ scrollbarWidth: 'none' }}
   >
     {tabs.map((tab) => {
@@ -239,11 +239,11 @@ const DetailTabs = ({
           gap="2"
           flexShrink="0"
           borderBottomWidth="2px"
-          borderColor={active ? 'brand.500' : 'transparent'}
+          borderColor={active ? 'action.primary.bg' : 'transparent'}
           bg="transparent"
-          color={active ? 'fg.0' : 'fg.2'}
-          textStyle={active ? 'semibold-sm' : 'medium-sm'}
-          _hover={{ color: 'fg.0', textDecoration: 'none' }}
+          color={active ? 'fg.default' : 'fg.secondary'}
+          textStyle={active ? 'bodyStrong' : 'body'}
+          _hover={{ color: 'fg.default', textDecoration: 'none' }}
           _focusVisible={{ outlineWidth: '2px', outlineColor: 'blue.500', outlineOffset: '-2px' }}
         >
           <Link to={to}>
@@ -258,9 +258,9 @@ const DetailTabs = ({
                 alignItems="center"
                 justifyContent="center"
                 borderRadius="pill"
-                bg="bg.inset"
-                color="fg.3"
-                textStyle="medium-xs"
+                bg="bg.subtle"
+                color="fg.muted"
+                textStyle="caption"
               >
                 {tab.count}
               </Span>
@@ -286,17 +286,17 @@ const StatCard = ({
       <Center
         boxSize="32px"
         borderRadius="8px"
-        bg="brand.tint"
-        color="brand.500"
+        bg="bg.subtle"
+        color="action.primary.bg"
         borderWidth="1px"
-        borderColor="brand.softBorder"
+        borderColor="border.structural"
       >
         <Icon size={15} />
       </Center>
-      <Text className="tnum" color="fg.0" fontSize="30px" fontWeight="700" lineHeight="1">
+      <Text className="tnum" color="fg.default" fontSize="30px" fontWeight="700" lineHeight="1">
         {value}
       </Text>
-      <Text color="fg.2" textStyle="regular-xs">
+      <Text color="fg.secondary" textStyle="caption">
         {label}
       </Text>
     </Stack>
@@ -313,11 +313,16 @@ const SectionHead = ({
   readonly action?: string
 }) => (
   <HStack justify="space-between" mb="3">
-    <Text textStyle="semibold-md" color="fg.0">
+    <Text textStyle="componentTitle" color="fg.default">
       {title}
     </Text>
     {to ? (
-      <ChakraLink asChild color="fg.2" textStyle="medium-xs" _hover={{ color: 'brand.500', textDecoration: 'none' }}>
+      <ChakraLink
+        asChild
+        color="fg.secondary"
+        textStyle="caption"
+        _hover={{ color: 'action.primary.bg', textDecoration: 'none' }}
+      >
         <Link to={to}>
           {action ?? 'All'}
           <ArrowRight size={13} />
@@ -332,11 +337,11 @@ const TagPill = ({ children }: { readonly children: ReactNode }) => (
     px="2"
     py="0.5"
     borderRadius="pill"
-    bg="bg.inset"
+    bg="bg.subtle"
     borderWidth="1px"
-    borderColor="border"
-    color="fg.2"
-    textStyle="regular-micro"
+    borderColor="border.structural"
+    color="fg.secondary"
+    textStyle="caption"
     whiteSpace="nowrap"
   >
     {children}
@@ -353,7 +358,7 @@ const AdrStatusBadge = ({
   const palette = {
     accepted: { fg: 'status.success.fg', bg: 'status.success.bg', border: 'status.success.border' },
     proposed: { fg: 'status.waiting.fg', bg: 'status.waiting.bg', border: 'status.waiting.border' },
-    superseded: { fg: 'fg.2', bg: 'bg.inset', border: 'border.warmStrong' },
+    superseded: { fg: 'fg.secondary', bg: 'bg.surface', border: 'border.strong' },
   }[status]
 
   return (
@@ -363,12 +368,12 @@ const AdrStatusBadge = ({
       display="inline-flex"
       alignItems="center"
       width="fit-content"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-xs"
+      textStyle="caption"
       textTransform="capitalize"
       whiteSpace="nowrap"
     >
@@ -396,21 +401,21 @@ const compactDecisionStatus = (
     return {
       label: 'Awaiting Gate',
       fg: 'status.waiting.fg',
-      bg: 'status.waiting.bg',
-      border: 'status.waiting.border',
+      bg: 'bg.subtle',
+      border: 'border.structural',
       dot: 'dot.waiting',
     }
   }
 
   if (status === 'superseded') {
-    return { label: 'Superseded', fg: 'fg.2', bg: 'bg.inset', border: 'border.warmStrong', dot: 'dot.muted' }
+    return { label: 'Superseded', fg: 'fg.secondary', bg: 'bg.subtle', border: 'border.strong', dot: 'dot.muted' }
   }
 
   return {
     label: 'Committed',
     fg: 'status.success.fg',
-    bg: 'status.success.bg',
-    border: 'status.success.border',
+    bg: 'bg.subtle',
+    border: 'border.structural',
     dot: 'dot.success',
   }
 }
@@ -425,12 +430,12 @@ const CompactDecisionStatus = ({ status }: { readonly status: ProjectAdr['status
       px="2.5"
       gap="1.5"
       width="fit-content"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-sm"
+      textStyle="body"
       whiteSpace="nowrap"
     >
       <Box boxSize="1.5" borderRadius="full" bg={palette.dot} />
@@ -448,6 +453,8 @@ const knowledgeStatusMeta = (
   readonly border: string
   readonly dot: string
 } => {
+  // Each state carries its own surface and border, not just a differently coloured word: three
+  // badges sharing one fill were told apart only by a 6px dot.
   if (status === 'in-review') {
     return {
       label: 'In Review',
@@ -458,13 +465,15 @@ const knowledgeStatusMeta = (
     }
   }
 
+  // Draft is the empty state of the scale, so it stays on the plain surface with a strong
+  // hairline — an outline against the two filled states.
   if (status === 'draft') {
     return {
       label: 'Draft',
-      fg: 'fg.2',
-      bg: 'bg.inset',
-      border: 'border.warmStrong',
-      dot: 'dot.muted',
+      fg: 'fg.secondary',
+      bg: 'bg.surface',
+      border: 'border.strong',
+      dot: 'dot.neutral',
     }
   }
 
@@ -486,12 +495,12 @@ const KnowledgeStatusBadge = ({ status }: { readonly status: NonNullable<Project
       h="6"
       px="2.5"
       gap="1.5"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-sm"
+      textStyle="body"
       whiteSpace="nowrap"
     >
       <Box boxSize="1.5" borderRadius="full" bg={palette.dot} />
@@ -502,8 +511,8 @@ const KnowledgeStatusBadge = ({ status }: { readonly status: NonNullable<Project
 
 const MemoryKindBadge = ({ kind }: { readonly kind: ProjectMemoryTable['kind'] }) => {
   const palette = {
-    decision: { fg: 'brand.ink', bg: 'brand.soft', border: 'brand.softBorder' },
-    domain: { fg: 'accent.role.fg', bg: 'accent.role.bg', border: 'accent.role.border' },
+    decision: { fg: 'fg.default', bg: 'bg.surface', border: 'border.strong' },
+    domain: { fg: 'fg.secondary', bg: 'bg.subtle', border: 'border.structural' },
     operational: { fg: 'status.running.fg', bg: 'status.running.bg', border: 'status.running.border' },
     risk: { fg: 'status.failed.fg', bg: 'status.failed.bg', border: 'status.failed.border' },
   }[kind]
@@ -514,12 +523,12 @@ const MemoryKindBadge = ({ kind }: { readonly kind: ProjectMemoryTable['kind'] }
       h="5"
       display="inline-flex"
       alignItems="center"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-xs"
+      textStyle="caption"
       textTransform="capitalize"
       whiteSpace="nowrap"
     >
@@ -530,11 +539,11 @@ const MemoryKindBadge = ({ kind }: { readonly kind: ProjectMemoryTable['kind'] }
 
 const ActivityKindBadge = ({ kind }: { readonly kind: ProjectActivityEvent['kind'] }) => {
   const palette = {
-    adr: { fg: 'brand.ink', bg: 'brand.soft', border: 'brand.softBorder' },
-    knowledge: { fg: 'accent.role.fg', bg: 'accent.role.bg', border: 'accent.role.border' },
-    memory: { fg: 'status.running.fg', bg: 'status.running.bg', border: 'status.running.border' },
-    repo: { fg: 'fg.2', bg: 'bg.inset', border: 'border' },
-    run: { fg: 'status.success.fg', bg: 'status.success.bg', border: 'status.success.border' },
+    adr: { fg: 'fg.default', bg: 'bg.subtle', border: 'border.structural' },
+    knowledge: { fg: 'fg.secondary', bg: 'bg.subtle', border: 'border.structural' },
+    memory: { fg: 'status.running.fg', bg: 'bg.subtle', border: 'border.structural' },
+    repo: { fg: 'fg.secondary', bg: 'bg.subtle', border: 'border' },
+    run: { fg: 'status.success.fg', bg: 'bg.subtle', border: 'border.structural' },
   }[kind]
 
   return (
@@ -543,12 +552,12 @@ const ActivityKindBadge = ({ kind }: { readonly kind: ProjectActivityEvent['kind
       h="5"
       display="inline-flex"
       alignItems="center"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-xs"
+      textStyle="caption"
       textTransform="capitalize"
       whiteSpace="nowrap"
     >
@@ -560,19 +569,26 @@ const ActivityKindBadge = ({ kind }: { readonly kind: ProjectActivityEvent['kind
 const RepoList = ({ repositories }: { readonly repositories: ReadonlyArray<ProjectRepository> }) => (
   <Card p="0" overflow="hidden">
     {repositories.map((repo) => (
-      <HStack key={repo.id} gap="3" px="4" py="3" borderBottomWidth="1px" borderColor="border.subtle">
-        <Center boxSize="28px" borderRadius="8px" bg="bg.inset" borderWidth="1px" borderColor="border" color="fg.2">
+      <HStack key={repo.id} gap="3" px="4" py="3" borderBottomWidth="1px" borderColor="border.structural">
+        <Center
+          boxSize="28px"
+          borderRadius="8px"
+          bg="bg.subtle"
+          borderWidth="1px"
+          borderColor="border.structural"
+          color="fg.secondary"
+        >
           <GitBranch size={14} />
         </Center>
         <Stack gap="0.5" minW="0" flex="1">
-          <Text className="mono" textStyle="medium-sm" color="fg.0" truncate>
+          <Text className="mono" textStyle="body" color="fg.default" truncate>
             {repo.name}
           </Text>
-          <Text textStyle="regular-xs" color="fg.2" truncate>
+          <Text textStyle="caption" color="fg.secondary" truncate>
             {repo.description}
           </Text>
         </Stack>
-        <Text className="mono" textStyle="regular-xs" color="fg.3" flexShrink="0">
+        <Text className="mono" textStyle="caption" color="fg.muted" flexShrink="0">
           {repo.openPRs} PR · {repo.branches} br
         </Text>
       </HStack>
@@ -592,7 +608,7 @@ const revisionStatus = (status: ProjectAdr['status']): ProjectAdr['status'] =>
 const linkedCountForAdr = (adr: ProjectAdr): number => ADR_LINKED_COUNTS[adr.number] ?? 0
 
 const AdrTableHeaderCell = ({ children }: { readonly children: ReactNode }) => (
-  <Text color="fg.3" fontSize="11.5px" fontWeight="600" textTransform="uppercase" letterSpacing="0">
+  <Text color="fg.muted" fontSize="11.5px" fontWeight="600" textTransform="uppercase" letterSpacing="0">
     {children}
   </Text>
 )
@@ -612,9 +628,9 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
             alignItems="center"
             h="40px"
             px="4.5"
-            bg="bg.inset"
+            bg="bg.subtle"
             borderBottomWidth="1px"
-            borderColor="border"
+            borderColor="border.structural"
             css={{
               '@container (max-width: 760px)': {
                 gridTemplateColumns: '96px minmax(0, 1fr) 116px 110px',
@@ -645,7 +661,7 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                 py="2.5"
                 minH="72px"
                 borderBottomWidth="1px"
-                borderColor="border"
+                borderColor="border.structural"
                 color="inherit"
                 textDecoration="none"
                 _hover={{ bg: ADR_ROW_HOVER_BG }}
@@ -658,11 +674,11 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                 }}
               >
                 <Link to={adrHref(adr.projectId, adr)}>
-                  <Text className="mono" color="brand.500" textStyle="semibold-sm">
+                  <Text className="mono" color="action.primary.bg" textStyle="bodyStrong">
                     {formatAdrNumber(adr.number)}
                   </Text>
                   <Stack gap="1" minW="0">
-                    <Text color="fg.0" textStyle="semibold-sm" lineHeight="1.25">
+                    <Text color="fg.default" textStyle="bodyStrong" lineHeight="1.25">
                       {adr.title}
                     </Text>
                     <HStack gap="1.5" wrap="wrap">
@@ -670,7 +686,7 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                         <TagPill key={tag}>{tag}</TagPill>
                       ))}
                       {linkedCount > 0 ? (
-                        <Text className="mono" textStyle="regular-xs" color="fg.3">
+                        <Text className="mono" textStyle="caption" color="fg.muted">
                           ⌘ {linkedCount}
                         </Text>
                       ) : null}
@@ -680,11 +696,11 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                   <CompactDecisionStatus status={revisionStatus(adr.status)} />
                   <HStack gap="2" minW="0" css={{ '@container (max-width: 760px)': { display: 'none' } }}>
                     <AvatarInitials label={ownerInitials(adr.owner)} system={adr.owner === 'orchestrator'} />
-                    <Text color="fg.1" textStyle="regular-sm" truncate>
+                    <Text color="fg.secondary" textStyle="small" truncate>
                       {adr.owner}
                     </Text>
                   </HStack>
-                  <Text color="fg.3" textStyle="regular-sm" whiteSpace="nowrap">
+                  <Text color="fg.muted" textStyle="small" whiteSpace="nowrap">
                     {relTime(adr.createdAt)}
                   </Text>
                 </Link>
@@ -708,13 +724,13 @@ const RecentDecisionList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr>
         px="4"
         py="3.5"
         borderBottomWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
         _last={{ borderBottomWidth: '0' }}
       >
-        <Text className="mono" color="brand.500" textStyle="semibold-sm">
+        <Text className="mono" color="action.primary.bg" textStyle="bodyStrong">
           {formatAdrNumber(adr.number)}
         </Text>
-        <Text color="fg.0" textStyle="regular-body" fontWeight="500" truncate>
+        <Text color="fg.default" textStyle="body" fontWeight="500" truncate>
           {adr.title}
         </Text>
         <Box display={{ base: 'none', md: 'block' }}>
@@ -770,7 +786,7 @@ const KnowledgeArticleCard = ({
       h="100%"
       color="inherit"
       _hover={{ textDecoration: 'none' }}
-      _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '3px' }}
+      _focusVisible={{ outline: '2px solid', outlineColor: 'action.primary.bg', outlineOffset: '3px' }}
     >
       <Link to={knowledgeArticleHref(projectId, article)}>
         <Card
@@ -781,27 +797,27 @@ const KnowledgeArticleCard = ({
           display="flex"
           flexDirection="column"
           transition="border-color 150ms, transform 150ms"
-          _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
+          _hover={{ borderColor: 'border.strong', transform: 'translateY(-1px)' }}
         >
           <Stack gap="3" h="100%">
             <HStack gap="3" align="start">
               <Stack gap="2" minW="0" flex="1">
-                <Text textStyle="semibold-md" color="fg.0" lineHeight="1.25">
+                <Text textStyle="componentTitle" color="fg.default" lineHeight="1.25">
                   {article.title}
                 </Text>
-                <Text textStyle="regular-sm" color="fg.2" lineHeight="1.45">
+                <Text textStyle="small" color="fg.secondary" lineHeight="1.45">
                   {article.summary}
                 </Text>
               </Stack>
               <KnowledgeStatusBadge status={status} />
             </HStack>
-            <HStack mt="auto" gap="2" minW="0" color="fg.3" textStyle="regular-xs">
+            <HStack mt="auto" gap="2" minW="0" color="fg.muted" textStyle="caption">
               <Text className="mono" whiteSpace="nowrap">
                 v{version}
               </Text>
               <Span>·</Span>
               <AvatarInitials label={ownerInitials(article.owner)} system={article.owner === 'orchestrator'} />
-              <Text color="fg.2" truncate minW="0">
+              <Text color="fg.secondary" truncate minW="0">
                 {article.owner}
               </Text>
               <Text ml="auto" whiteSpace="nowrap">
@@ -830,9 +846,9 @@ const KnowledgeCategorySection = ({
 
   return (
     <Stack gap="3">
-      <HStack gap="2" color="fg.2">
+      <HStack gap="2" color="fg.secondary">
         <Icon size={15} />
-        <Text textStyle="semibold-sm" textTransform="uppercase" letterSpacing="0" color="fg.2">
+        <Text textStyle="bodyStrong" textTransform="uppercase" letterSpacing="0" color="fg.secondary">
           {category.label}
         </Text>
       </HStack>
@@ -873,11 +889,11 @@ const KnowledgeList = ({
 }
 
 const KnowledgeDocSection = ({ title, children }: { readonly title: string; readonly children: ReactNode }) => (
-  <Box borderTopWidth="1px" borderColor="border" pt="4">
-    <Text color="fg.0" textStyle="semibold-sm" mb="2">
+  <Box borderTopWidth="1px" borderColor="border.structural" pt="4">
+    <Text color="fg.default" textStyle="bodyStrong" mb="2">
       {title}
     </Text>
-    <Box color="fg.2" textStyle="regular-sm" lineHeight="1.6">
+    <Box color="fg.secondary" textStyle="small" lineHeight="1.6">
       {children}
     </Box>
   </Box>
@@ -902,11 +918,11 @@ const KnowledgeArticleDetail = ({
         display="inline-flex"
         alignItems="center"
         gap="2"
-        color="fg.2"
+        color="fg.secondary"
         fontSize="18px"
         fontWeight="520"
         lineHeight="1"
-        _hover={{ color: 'fg.0', textDecoration: 'none' }}
+        _hover={{ color: 'fg.default', textDecoration: 'none' }}
       >
         <Link to={`/projects/${project.id}/knowledge`}>
           <ChevronLeft size={19} />
@@ -921,10 +937,10 @@ const KnowledgeArticleDetail = ({
                 <AccentKnowledgeCategory category={category} />
                 <KnowledgeStatusBadge status={status} />
               </HStack>
-              <Text color="fg.0" fontSize={{ base: '25px', md: '28px' }} fontWeight="720" lineHeight="1.1">
+              <Text color="fg.default" fontSize={{ base: '25px', md: '28px' }} fontWeight="720" lineHeight="1.1">
                 {article.title}
               </Text>
-              <Text color="fg.2" textStyle="regular-body" lineHeight="1.55" maxW="760px">
+              <Text color="fg.secondary" textStyle="body" lineHeight="1.55" maxW="760px">
                 {article.summary}
               </Text>
             </Stack>
@@ -956,14 +972,14 @@ const KnowledgeArticleDetail = ({
         <Stack gap="4">
           <Card p="5">
             <Stack gap="3">
-              <HStack gap="2" color="fg.1">
+              <HStack gap="2" color="fg.secondary">
                 <History size={15} />
-                <Text textStyle="semibold-md">Version</Text>
+                <Text textStyle="componentTitle">Version</Text>
               </HStack>
-              <Text className="mono" color="fg.0" textStyle="semibold-sm">
+              <Text className="mono" color="fg.default" textStyle="bodyStrong">
                 v{version} · committed head
               </Text>
-              <Text color="fg.2" textStyle="regular-sm" lineHeight="1.5">
+              <Text color="fg.secondary" textStyle="small" lineHeight="1.5">
                 Versioned data in Revisium. Edits open a draft; committing creates a new revision with diff and review.
               </Text>
               <Stack gap="2">
@@ -972,11 +988,11 @@ const KnowledgeArticleDetail = ({
                   h="34px"
                   px="3.5"
                   gap="2"
-                  bg="bg.1"
-                  color="fg.0"
+                  bg="bg.surface"
+                  color="fg.default"
                   borderWidth="1px"
-                  borderColor="border.warmStrong"
-                  borderRadius="btn"
+                  borderColor="border.strong"
+                  borderRadius="control"
                   disabled
                   _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
                 >
@@ -989,10 +1005,10 @@ const KnowledgeArticleDetail = ({
                   px="3.5"
                   gap="2"
                   bg="transparent"
-                  color="fg.1"
+                  color="fg.secondary"
                   borderWidth="1px"
-                  borderColor="border"
-                  borderRadius="btn"
+                  borderColor="border.structural"
+                  borderRadius="control"
                   disabled
                   _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
                 >
@@ -1004,21 +1020,21 @@ const KnowledgeArticleDetail = ({
           </Card>
           <Card p="5">
             <Stack gap="3">
-              <Text color="fg.0" textStyle="semibold-md">
+              <Text color="fg.default" textStyle="componentTitle">
                 Article metadata
               </Text>
               <Stack gap="0">
                 <AdrDetailMetaRow label="Owner">
                   <HStack gap="2" minW="0">
                     <AvatarInitials label={ownerInitials(article.owner)} system={article.owner === 'orchestrator'} />
-                    <Text color="fg.1" textStyle="regular-sm" truncate>
+                    <Text color="fg.secondary" textStyle="small" truncate>
                       {article.owner}
                     </Text>
                   </HStack>
                 </AdrDetailMetaRow>
                 <AdrDetailMetaRow label="Updated">{relTime(article.updatedAt)}</AdrDetailMetaRow>
                 <AdrDetailMetaRow label="Repository">
-                  <Text className="mono" color="fg.1" textStyle="regular-xs" truncate>
+                  <Text className="mono" color="fg.secondary" textStyle="caption" truncate>
                     {article.repo}
                   </Text>
                 </AdrDetailMetaRow>
@@ -1045,12 +1061,12 @@ const AccentKnowledgeCategory = ({
       h="6"
       px="2.5"
       gap="1.5"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
-      borderColor="brand.softBorder"
-      bg="brand.soft"
-      color="brand.ink"
-      textStyle="medium-sm"
+      borderColor="border.structural"
+      bg="bg.subtle"
+      color="fg.default"
+      textStyle="body"
       whiteSpace="nowrap"
     >
       <Icon size={13} />
@@ -1086,25 +1102,32 @@ const MemoryTableCard = ({
     py="3"
     borderRadius="9px"
     borderWidth="1px"
-    borderColor={active ? 'brand.softBorder' : 'border'}
-    bg={active ? 'brand.soft' : 'bg.1'}
+    borderColor={active ? 'border.structural' : 'border'}
+    bg={active ? 'bg.subtle' : 'bg.surface'}
     color="inherit"
-    _hover={{ borderColor: 'border.warmStrong', textDecoration: 'none' }}
-    _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '2px' }}
+    _hover={{ borderColor: 'border.strong', textDecoration: 'none' }}
+    _focusVisible={{ outline: '2px solid', outlineColor: 'action.primary.bg', outlineOffset: '2px' }}
   >
     <Link to={memoryTableHref(projectId, table)}>
-      <Center boxSize="32px" borderRadius="8px" bg="bg.inset" borderWidth="1px" borderColor="border" color="fg.2">
+      <Center
+        boxSize="32px"
+        borderRadius="8px"
+        bg="bg.subtle"
+        borderWidth="1px"
+        borderColor="border.structural"
+        color="fg.secondary"
+      >
         <Database size={15} />
       </Center>
       <Stack gap="0.5" minW="0">
-        <Text className="mono" textStyle="semibold-sm" color="fg.0" truncate>
+        <Text className="mono" textStyle="bodyStrong" color="fg.default" truncate>
           {table.name}
         </Text>
-        <Text textStyle="regular-xs" color="fg.2" truncate>
+        <Text textStyle="caption" color="fg.secondary" truncate>
           {table.description}
         </Text>
       </Stack>
-      <Text className="mono tnum" color="fg.3" textStyle="regular-xs">
+      <Text className="mono tnum" color="fg.muted" textStyle="caption">
         {table.records}
       </Text>
     </Link>
@@ -1120,10 +1143,10 @@ const MemorySchema = () => {
   ] as const
 
   return (
-    <Box borderTopWidth="1px" borderColor="border" pt="4">
-      <HStack gap="2" color="fg.1" mb="3">
+    <Box borderTopWidth="1px" borderColor="border.structural" pt="4">
+      <HStack gap="2" color="fg.secondary" mb="3">
         <Layers3 size={14} />
-        <Text textStyle="semibold-sm">Schema · {columns.length} columns</Text>
+        <Text textStyle="bodyStrong">Schema · {columns.length} columns</Text>
       </HStack>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, minmax(0, 1fr))' }} gap="2.5">
         {columns.map((column) => (
@@ -1134,27 +1157,19 @@ const MemorySchema = () => {
             py="2.5"
             borderRadius="8px"
             borderWidth="1px"
-            borderColor="border"
-            bg="bg.inset"
+            borderColor="border.structural"
+            bg="bg.subtle"
             minW="0"
           >
-            <Text className="mono" textStyle="medium-xs" color="fg.0" truncate>
+            <Text className="mono" textStyle="caption" color="fg.default" truncate>
               {column.name}
             </Text>
             {column.primary ? (
-              <Span px="1.5" borderRadius="4px" bg="brand.soft" color="brand.ink" textStyle="semibold-micro">
+              <Span px="1.5" borderRadius="4px" bg="bg.subtle" color="fg.default" textStyle="caption">
                 pk
               </Span>
             ) : null}
-            <Span
-              ml="auto"
-              px="2"
-              h="5"
-              borderRadius="chip"
-              bg="accent.role.bg"
-              color="accent.role.fg"
-              textStyle="medium-xs"
-            >
+            <Span ml="auto" px="2" h="5" borderRadius="control" bg="bg.subtle" color="fg.secondary" textStyle="caption">
               {column.type}
             </Span>
           </HStack>
@@ -1165,11 +1180,11 @@ const MemorySchema = () => {
 }
 
 const MemorySampleRows = ({ table }: { readonly table: ProjectMemoryTable }) => (
-  <Box borderTopWidth="1px" borderColor="border" pt="4" containerType="inline-size">
-    <HStack gap="2" color="fg.1" mb="3">
+  <Box borderTopWidth="1px" borderColor="border.structural" pt="4" containerType="inline-size">
+    <HStack gap="2" color="fg.secondary" mb="3">
       <Terminal size={14} />
-      <Text textStyle="semibold-sm">Sample rows</Text>
-      <Text className="mono" color="fg.3" textStyle="regular-micro">
+      <Text textStyle="bodyStrong">Sample rows</Text>
+      <Text className="mono" color="fg.muted" textStyle="caption">
         read by agents at buildContext
       </Text>
     </HStack>
@@ -1181,9 +1196,9 @@ const MemorySampleRows = ({ table }: { readonly table: ProjectMemoryTable }) => 
         h="38px"
         alignItems="center"
         px="4"
-        bg="bg.inset"
+        bg="bg.subtle"
         borderBottomWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
       >
         <RepoHeaderCell>fact_id</RepoHeaderCell>
         <RepoHeaderCell>source</RepoHeaderCell>
@@ -1200,24 +1215,24 @@ const MemorySampleRows = ({ table }: { readonly table: ProjectMemoryTable }) => 
           px="4"
           py="3"
           borderBottomWidth="1px"
-          borderColor="border.subtle"
+          borderColor="border.structural"
           _last={{ borderBottomWidth: '0' }}
         >
-          <Text className="mono" color="fg.1" textStyle="regular-xs" truncate>
+          <Text className="mono" color="fg.secondary" textStyle="caption" truncate>
             {fact.id}
           </Text>
           <MemorySourceBadge source={fact.source} />
-          <Text className="mono" color="fg.1" textStyle="regular-xs" truncate>
+          <Text className="mono" color="fg.secondary" textStyle="caption" truncate>
             {fact.sourceId}
           </Text>
-          <Text color="fg.1" textStyle="regular-sm" lineHeight="1.45">
+          <Text color="fg.secondary" textStyle="small" lineHeight="1.45">
             {fact.text}
           </Text>
         </Grid>
       ))}
     </Card>
     {table.records > table.facts.length ? (
-      <Text mt="2.5" color="fg.3" textStyle="regular-xs">
+      <Text mt="2.5" color="fg.muted" textStyle="caption">
         +{table.records - table.facts.length} more rows
       </Text>
     ) : null}
@@ -1226,9 +1241,9 @@ const MemorySampleRows = ({ table }: { readonly table: ProjectMemoryTable }) => 
 
 const MemorySourceBadge = ({ source }: { readonly source: ProjectMemoryFact['source'] }) => {
   const palette = {
-    adr: { fg: 'brand.ink', bg: 'brand.soft', border: 'brand.softBorder' },
-    manual: { fg: 'accent.role.fg', bg: 'accent.role.bg', border: 'accent.role.border' },
-    run: { fg: 'status.running.fg', bg: 'status.running.bg', border: 'status.running.border' },
+    adr: { fg: 'fg.default', bg: 'bg.subtle', border: 'border.structural' },
+    manual: { fg: 'fg.secondary', bg: 'bg.subtle', border: 'border.structural' },
+    run: { fg: 'status.running.fg', bg: 'bg.subtle', border: 'border.structural' },
   }[source]
 
   return (
@@ -1238,12 +1253,12 @@ const MemorySourceBadge = ({ source }: { readonly source: ProjectMemoryFact['sou
       display="inline-flex"
       alignItems="center"
       width="fit-content"
-      borderRadius="chip"
+      borderRadius="control"
       borderWidth="1px"
       color={palette.fg}
       bg={palette.bg}
       borderColor={palette.border}
-      textStyle="medium-xs"
+      textStyle="caption"
     >
       {source}
     </Span>
@@ -1253,24 +1268,31 @@ const MemorySourceBadge = ({ source }: { readonly source: ProjectMemoryFact['sou
 const MemoryTableDetail = ({ table }: { readonly table: ProjectMemoryTable }) => (
   <Card p="0" overflow="hidden">
     <Stack gap="0">
-      <Box px="5" py="4.5" borderBottomWidth="1px" borderColor="border.subtle">
+      <Box px="5" py="4.5" borderBottomWidth="1px" borderColor="border.structural">
         <HStack gap="3" justify="space-between" align="start">
           <HStack gap="3" minW="0" align="start">
-            <Center boxSize="38px" borderRadius="9px" bg="bg.inset" borderWidth="1px" borderColor="border" color="fg.2">
+            <Center
+              boxSize="38px"
+              borderRadius="9px"
+              bg="bg.subtle"
+              borderWidth="1px"
+              borderColor="border.structural"
+              color="fg.secondary"
+            >
               <Database size={18} />
             </Center>
             <Stack gap="1" minW="0">
-              <Text className="mono" textStyle="semibold-md" color="fg.0" truncate>
+              <Text className="mono" textStyle="componentTitle" color="fg.default" truncate>
                 {table.name}
               </Text>
-              <Text textStyle="regular-sm" color="fg.2" lineHeight="1.5">
+              <Text textStyle="small" color="fg.secondary" lineHeight="1.5">
                 {table.description}
               </Text>
             </Stack>
           </HStack>
           <Stack align="flex-end" gap="2" flexShrink="0">
             <MemoryKindBadge kind={table.kind} />
-            <Text className="mono" color="fg.3" textStyle="regular-xs">
+            <Text className="mono" color="fg.muted" textStyle="caption">
               {table.records} rows
             </Text>
           </Stack>
@@ -1279,7 +1301,7 @@ const MemoryTableDetail = ({ table }: { readonly table: ProjectMemoryTable }) =>
       <Grid
         templateColumns={{ base: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }}
         borderBottomWidth="1px"
-        borderColor="border.subtle"
+        borderColor="border.structural"
       >
         <MemoryMetric label="Records" value={table.records} />
         <MemoryMetric label="Owner" value={table.owner} />
@@ -1318,10 +1340,10 @@ const MemoryBrowser = ({
     <Grid templateColumns={{ base: '1fr', xl: 'minmax(270px, 0.5fr) minmax(0, 1.5fr)' }} gap="5" alignItems="start">
       <Stack gap="3">
         <HStack justify="space-between" align="center">
-          <Text color="fg.2" textStyle="semibold-sm">
+          <Text color="fg.secondary" textStyle="bodyStrong">
             Tables
           </Text>
-          <Text className="mono tnum" color="fg.3" textStyle="regular-xs">
+          <Text className="mono tnum" color="fg.muted" textStyle="caption">
             {tables.length}
           </Text>
         </HStack>
@@ -1349,23 +1371,28 @@ const MemoryMetric = ({
     py="3"
     borderRightWidth="1px"
     borderBottomWidth={{ base: '1px', md: '0' }}
-    borderColor="border.subtle"
+    borderColor="border.structural"
   >
-    <Text color="fg.3" textStyle="regular-micro">
+    <Text color="fg.muted" textStyle="caption">
       {label}
     </Text>
     {to ? (
       <ChakraLink
         asChild
         className="mono"
-        color="fg.1"
-        textStyle="medium-xs"
-        _hover={{ color: 'brand.500', textDecoration: 'none' }}
+        color="fg.secondary"
+        textStyle="caption"
+        _hover={{ color: 'action.primary.bg', textDecoration: 'none' }}
       >
         <Link to={to}>{value}</Link>
       </ChakraLink>
     ) : (
-      <Text className={typeof value === 'number' ? 'mono tnum' : 'mono'} color="fg.1" textStyle="medium-xs" truncate>
+      <Text
+        className={typeof value === 'number' ? 'mono tnum' : 'mono'}
+        color="fg.secondary"
+        textStyle="caption"
+        truncate
+      >
         {value}
       </Text>
     )}
@@ -1387,17 +1414,17 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
           px="4.5"
           py="4"
           borderBottomWidth="1px"
-          borderColor="border.subtle"
+          borderColor="border.structural"
           _last={{ borderBottomWidth: '0' }}
         >
           <HStack gap="3" align="start" minW="0">
             <Center
               boxSize="32px"
               borderRadius="full"
-              bg="bg.inset"
+              bg="bg.subtle"
               borderWidth="1px"
-              borderColor="border"
-              color="fg.2"
+              borderColor="border.structural"
+              color="fg.secondary"
               flexShrink="0"
             >
               <CircleDot size={15} />
@@ -1405,11 +1432,11 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
             <Stack gap="1.5" minW="0">
               <HStack gap="2" wrap="wrap">
                 <ActivityKindBadge kind={event.kind} />
-                <Text textStyle="semibold-sm" color="fg.0">
+                <Text textStyle="bodyStrong" color="fg.default">
                   {event.title}
                 </Text>
               </HStack>
-              <Text textStyle="regular-sm" color="fg.2" lineHeight="1.5">
+              <Text textStyle="small" color="fg.secondary" lineHeight="1.5">
                 {event.summary}
               </Text>
               <HStack gap="2" wrap="wrap">
@@ -1417,9 +1444,9 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
                 {event.runId ? (
                   <ChakraLink
                     asChild
-                    color="fg.2"
-                    textStyle="medium-xs"
-                    _hover={{ color: 'brand.500', textDecoration: 'none' }}
+                    color="fg.secondary"
+                    textStyle="caption"
+                    _hover={{ color: 'action.primary.bg', textDecoration: 'none' }}
                   >
                     <Link to={`/runs/${event.runId}`}>{event.runId}</Link>
                   </ChakraLink>
@@ -1430,11 +1457,11 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
           <Stack gap="1" align={{ base: 'flex-start', lg: 'flex-end' }}>
             <HStack gap="1.5">
               <AvatarInitials label={event.actor} system={event.actor === 'orchestrator'} />
-              <Text className="mono" textStyle="regular-xs" color="fg.1">
+              <Text className="mono" textStyle="caption" color="fg.secondary">
                 {event.actor}
               </Text>
             </HStack>
-            <Text className="mono" textStyle="regular-xs" color="fg.3">
+            <Text className="mono" textStyle="caption" color="fg.muted">
               {absTime(event.createdAt)}
             </Text>
           </Stack>
@@ -1447,9 +1474,9 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
 const activityPreviewStyle = (
   kind: ProjectActivityEvent['kind'],
 ): { readonly color: string; readonly bg: string; readonly icon: ReactNode } => {
-  if (kind === 'run') return { color: 'accent.role.fg', bg: 'accent.role.bg', icon: <CircleDot size={14} /> }
-  if (kind === 'repo') return { color: 'status.running.fg', bg: 'status.running.bg', icon: <GitBranch size={14} /> }
-  return { color: 'fg.2', bg: 'bg.inset', icon: <History size={14} /> }
+  if (kind === 'run') return { color: 'fg.secondary', bg: 'bg.subtle', icon: <CircleDot size={14} /> }
+  if (kind === 'repo') return { color: 'status.running.fg', bg: 'bg.subtle', icon: <GitBranch size={14} /> }
+  return { color: 'fg.secondary', bg: 'bg.subtle', icon: <History size={14} /> }
 }
 
 const ActivityPreviewIcon = ({ kind }: { readonly kind: ProjectActivityEvent['kind'] }) => {
@@ -1461,7 +1488,7 @@ const ActivityPreviewIcon = ({ kind }: { readonly kind: ProjectActivityEvent['ki
       borderRadius="8px"
       bg={style.bg}
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.structural"
       color={style.color}
       flexShrink="0"
     >
@@ -1480,23 +1507,23 @@ const RecentActivityPreview = ({ events }: { readonly events: ReadonlyArray<Proj
         px="4"
         py="3.5"
         borderBottomWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
         _last={{ borderBottomWidth: '0' }}
       >
         <ActivityPreviewIcon kind={event.kind} />
         <Stack gap="1" minW="0">
-          <Text color="fg.0" textStyle="medium-sm" lineHeight="1.3">
+          <Text color="fg.default" textStyle="body" lineHeight="1.3">
             {event.title}
           </Text>
-          <HStack gap="2" wrap="wrap" color="fg.3" textStyle="regular-xs">
+          <HStack gap="2" wrap="wrap" color="fg.muted" textStyle="caption">
             <Span
               className="mono"
               px="2"
               py="0.5"
               borderRadius="4px"
-              bg="bg.inset"
+              bg="bg.subtle"
               borderWidth="1px"
-              borderColor="border"
+              borderColor="border.structural"
             >
               {event.target}
             </Span>
@@ -1518,15 +1545,15 @@ const ProjectMetaRow = ({ label, children }: { readonly label: string; readonly 
     alignItems="start"
     py="3"
     borderBottomWidth="1px"
-    borderColor="border"
+    borderColor="border.structural"
     _last={{ borderBottomWidth: '0' }}
   >
-    <Text textStyle="regular-body" color="fg.2" whiteSpace="nowrap">
+    <Text textStyle="body" color="fg.secondary" whiteSpace="nowrap">
       {label}
     </Text>
     <Box minW="0">
       {typeof children === 'string' ? (
-        <Text textStyle="regular-body" color="fg.0" overflowWrap="anywhere">
+        <Text textStyle="body" color="fg.default" overflowWrap="anywhere">
           {children}
         </Text>
       ) : (
@@ -1539,11 +1566,11 @@ const ProjectMetaRow = ({ label, children }: { readonly label: string; readonly 
 const ProjectMeta = ({ project }: { readonly project: ProjectRow }) => (
   <Card>
     <Stack gap="3">
-      <Text textStyle="semibold-sm" color="fg.0">
+      <Text textStyle="bodyStrong" color="fg.default">
         Project
       </Text>
       <ProjectMetaRow label="Key">
-        <Text className="mono" textStyle="regular-xs" color="fg.0" lineHeight="1.45" overflowWrap="anywhere">
+        <Text className="mono" textStyle="caption" color="fg.default" lineHeight="1.45" overflowWrap="anywhere">
           {project.key}
         </Text>
       </ProjectMetaRow>
@@ -1585,16 +1612,16 @@ const ActiveRuns = ({ project }: { readonly project: ProjectRow }) => {
             gap="3"
             pr="4"
             borderBottomWidth="1px"
-            borderColor="border.subtle"
-            _hover={{ bg: 'brand.tint', textDecoration: 'none' }}
+            borderColor="border.structural"
+            _hover={{ bg: 'bg.subtle', textDecoration: 'none' }}
           >
             <Link to={`/runs/${run.id}`}>
               <Box alignSelf="stretch" bg={`dot.${toneForStatus(run.status)}`} />
               <Stack gap="0.5" minW="0" py="3">
-                <Text textStyle="medium-xs" color="fg.0" lineHeight="1.25">
+                <Text textStyle="caption" color="fg.default" lineHeight="1.25">
                   {run.title}
                 </Text>
-                <Text className="mono" textStyle="regular-micro" color="fg.3">
+                <Text className="mono" textStyle="caption" color="fg.muted">
                   {run.id}
                 </Text>
               </Stack>
@@ -1664,7 +1691,7 @@ const KnowledgeTab = ({
 }) => (
   <Stack gap="5">
     <HStack justify="space-between" align="center" gap="4" wrap="wrap">
-      <Text color="fg.2" textStyle="regular-sm">
+      <Text color="fg.secondary" textStyle="small">
         {articles.length} articles · versioned in <Span className="mono">{project.key}</Span>
       </Text>
       <Button
@@ -1672,12 +1699,12 @@ const KnowledgeTab = ({
         h="34px"
         px="3.5"
         gap="2"
-        bg="bg.1"
-        color="fg.0"
+        bg="bg.surface"
+        color="fg.default"
         borderWidth="1px"
-        borderColor="border.warmStrong"
-        borderRadius="btn"
-        boxShadow="sh-1"
+        borderColor="border.strong"
+        borderRadius="control"
+        boxShadow="popover"
         disabled
         _hover={{ bg: 'blackAlpha.50' }}
         _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
@@ -1721,9 +1748,9 @@ const RepositoriesTab = ({ repositories }: { readonly repositories: ReadonlyArra
         alignItems="center"
         h="40px"
         px="4.5"
-        bg="bg.inset"
+        bg="bg.subtle"
         borderBottomWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
         css={{ '@container (max-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 88px 88px' } }}
       >
         <RepoHeaderCell>Repository</RepoHeaderCell>
@@ -1742,30 +1769,37 @@ const RepositoriesTab = ({ repositories }: { readonly repositories: ReadonlyArra
           px="4.5"
           py="3"
           borderBottomWidth="1px"
-          borderColor="border"
+          borderColor="border.structural"
           _last={{ borderBottomWidth: '0' }}
           css={{ '@container (max-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 88px 88px' } }}
         >
           <HStack gap="3" minW="0">
-            <Center boxSize="30px" borderRadius="8px" bg="bg.inset" borderWidth="1px" borderColor="border" color="fg.2">
+            <Center
+              boxSize="30px"
+              borderRadius="8px"
+              bg="bg.subtle"
+              borderWidth="1px"
+              borderColor="border.structural"
+              color="fg.secondary"
+            >
               <GitBranch size={15} />
             </Center>
             <Stack gap="0.5" minW="0">
-              <Text className="mono" textStyle="medium-sm" color="fg.0" truncate>
+              <Text className="mono" textStyle="body" color="fg.default" truncate>
                 {repo.name}
               </Text>
-              <Text textStyle="regular-xs" color="fg.2" truncate>
+              <Text textStyle="caption" color="fg.secondary" truncate>
                 {repo.description}
               </Text>
             </Stack>
           </HStack>
           <HStack gap="2" minW="0" css={{ '@container (max-width: 860px)': { display: 'none' } }}>
             <Box boxSize="2" borderRadius="full" bg="dot.running" flexShrink="0" />
-            <Text textStyle="regular-xs" color="fg.1" truncate>
+            <Text textStyle="caption" color="fg.secondary" truncate>
               {repo.language}
             </Text>
           </HStack>
-          <Text className="mono tnum" textStyle="regular-xs" color="fg.1">
+          <Text className="mono tnum" textStyle="caption" color="fg.secondary">
             {repo.branches}
           </Text>
           <HStack
@@ -1776,23 +1810,23 @@ const RepositoriesTab = ({ repositories }: { readonly repositories: ReadonlyArra
             gap="1"
             borderRadius="pill"
             borderWidth="1px"
-            borderColor="status.success.border"
-            bg="status.success.bg"
+            borderColor="border.structural"
+            bg="bg.subtle"
             color="status.success.fg"
-            textStyle="medium-xs"
+            textStyle="caption"
           >
             <GitPullRequest size={13} />
             <Span className="mono tnum">{repo.openPRs}</Span>
           </HStack>
           <Text
             className="mono tnum"
-            textStyle="regular-xs"
-            color="fg.1"
+            textStyle="caption"
+            color="fg.secondary"
             css={{ '@container (max-width: 860px)': { display: 'none' } }}
           >
             {repo.commits}
           </Text>
-          <Text textStyle="regular-xs" color="fg.3" css={{ '@container (max-width: 860px)': { display: 'none' } }}>
+          <Text textStyle="caption" color="fg.muted" css={{ '@container (max-width: 860px)': { display: 'none' } }}>
             {relTime(repo.lastActivity)}
           </Text>
         </Grid>
@@ -1808,7 +1842,7 @@ const RepoHeaderCell = ({
   readonly children: ReactNode
   readonly css?: Record<string, unknown>
 }) => (
-  <Text color="fg.3" fontSize="11.5px" fontWeight="600" textTransform="uppercase" letterSpacing="0" css={css}>
+  <Text color="fg.muted" fontSize="11.5px" fontWeight="600" textTransform="uppercase" letterSpacing="0" css={css}>
     {children}
   </Text>
 )
@@ -1823,10 +1857,10 @@ const AdrDetailMetaRow = ({ label, children }: { readonly label: string; readonl
     alignItems="center"
     py="3"
     borderBottomWidth="1px"
-    borderColor="border"
+    borderColor="border.structural"
     _last={{ borderBottomWidth: '0' }}
   >
-    <Text color="fg.2" textStyle="regular-sm">
+    <Text color="fg.secondary" textStyle="small">
       {label}
     </Text>
     <Box minW="0">{children}</Box>
@@ -1842,9 +1876,9 @@ const AdrSection = ({
   readonly comments?: number
   readonly title: string
 }) => (
-  <Box borderTopWidth="1px" borderColor="border" pt="4">
+  <Box borderTopWidth="1px" borderColor="border.structural" pt="4">
     <HStack gap="2" mb="2">
-      <Text color="fg.0" textStyle="semibold-sm">
+      <Text color="fg.default" textStyle="bodyStrong">
         {title}
       </Text>
       {comments ? (
@@ -1853,19 +1887,19 @@ const AdrSection = ({
           h="5"
           px="2"
           gap="1"
-          borderRadius="chip"
-          bg="bg.inset"
+          borderRadius="control"
+          bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
-          color="fg.3"
-          textStyle="regular-micro"
+          borderColor="border.structural"
+          color="fg.muted"
+          textStyle="caption"
         >
           <Command size={11} />
           {comments}
         </HStack>
       ) : null}
     </HStack>
-    <Box color="fg.2" textStyle="regular-sm" lineHeight="1.6">
+    <Box color="fg.secondary" textStyle="small" lineHeight="1.6">
       {children}
     </Box>
   </Box>
@@ -1881,24 +1915,24 @@ const AdrLinkedRun = ({ adr }: { readonly adr: ProjectAdr }) => (
     p="3.5"
     borderRadius="10px"
     borderWidth="1px"
-    borderColor="brand.softBorder"
-    bg="brand.soft"
+    borderColor="border.structural"
+    bg="bg.subtle"
     color="inherit"
-    _hover={{ textDecoration: 'none', borderColor: 'brand.500' }}
+    _hover={{ textDecoration: 'none', borderColor: 'action.primary.bg' }}
   >
     <Link to={`/runs/${adr.runId}`}>
-      <Center boxSize="34px" borderRadius="8px" bg="bg.1" color="brand.500">
+      <Center boxSize="34px" borderRadius="8px" bg="bg.surface" color="action.primary.bg">
         <GitBranch size={16} />
       </Center>
       <Stack gap="0.5" minW="0">
-        <Text color="fg.0" textStyle="semibold-sm">
+        <Text color="fg.default" textStyle="bodyStrong">
           Linked to a run
         </Text>
-        <Text color="fg.2" textStyle="regular-xs">
+        <Text color="fg.secondary" textStyle="caption">
           Authored during task execution; reviewers can trace the decision back to the run.
         </Text>
       </Stack>
-      <HStack gap="1.5" color="brand.500" textStyle="medium-xs">
+      <HStack gap="1.5" color="action.primary.bg" textStyle="caption">
         <Span className="mono">{adr.runId}</Span>
         <ArrowRight size={13} />
       </HStack>
@@ -1919,20 +1953,20 @@ const AdrOption = ({
     p="3"
     borderRadius="9px"
     borderWidth="1px"
-    borderColor={chosen ? 'brand.softBorder' : 'border'}
-    bg={chosen ? 'brand.soft' : 'bg.inset'}
+    borderColor={chosen ? 'fg.default' : 'border.structural'}
+    bg="bg.subtle"
   >
     <HStack gap="2" mb="1">
       {chosen ? (
-        <Center boxSize="18px" borderRadius="full" bg="brand.500" color="brand.on">
+        <Center boxSize="18px" borderRadius="full" bg="action.primary.bg" color="action.primary.fg">
           <Check size={12} />
         </Center>
       ) : null}
-      <Text color="fg.0" textStyle="semibold-sm">
+      <Text color="fg.default" textStyle="bodyStrong">
         {title}
       </Text>
     </HStack>
-    <Text color="fg.2" textStyle="regular-sm" lineHeight="1.5">
+    <Text color="fg.secondary" textStyle="small" lineHeight="1.5">
       {note}
     </Text>
   </Box>
@@ -1948,11 +1982,11 @@ const AdrReviewPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
   return (
     <Card p="5">
       <Stack gap="3">
-        <Text color="fg.0" textStyle="semibold-md">
+        <Text color="fg.default" textStyle="componentTitle">
           Review
         </Text>
         <CompactDecisionStatus status={status} />
-        <Text color="fg.2" textStyle="regular-sm" lineHeight="1.5">
+        <Text color="fg.secondary" textStyle="small" lineHeight="1.5">
           {note}
         </Text>
         {adr.status === 'proposed' ? (
@@ -1964,7 +1998,7 @@ const AdrReviewPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
               gap="2"
               bg="status.success.fg"
               color="white"
-              borderRadius="btn"
+              borderRadius="control"
               disabled
               _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
             >
@@ -1976,11 +2010,11 @@ const AdrReviewPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
               h="34px"
               px="3.5"
               gap="2"
-              bg="bg.1"
-              color="fg.0"
+              bg="bg.surface"
+              color="fg.default"
               borderWidth="1px"
-              borderColor="border.warmStrong"
-              borderRadius="btn"
+              borderColor="border.strong"
+              borderRadius="control"
               disabled
               _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
             >
@@ -2003,9 +2037,9 @@ const AdrHistoryPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
 
   return (
     <Card p="0" overflow="hidden">
-      <HStack gap="2" px="4" py="3.5" borderBottomWidth="1px" borderColor="border">
+      <HStack gap="2" px="4" py="3.5" borderBottomWidth="1px" borderColor="border.structural">
         <History size={14} />
-        <Text color="fg.0" textStyle="semibold-sm">
+        <Text color="fg.default" textStyle="bodyStrong">
           Version history
         </Text>
       </HStack>
@@ -2017,17 +2051,21 @@ const AdrHistoryPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
             gap="3"
             py="3"
             borderBottomWidth="1px"
-            borderColor="border.subtle"
+            borderColor="border.structural"
             _last={{ borderBottomWidth: '0' }}
           >
-            <Text className="mono" color={revision.id === 'head' ? 'brand.500' : 'fg.3'} textStyle="medium-xs">
+            <Text
+              className="mono"
+              color={revision.id === 'head' ? 'action.primary.bg' : 'fg.muted'}
+              textStyle="caption"
+            >
               {revision.rev}
             </Text>
             <Stack gap="0.5" minW="0">
-              <Text color="fg.0" textStyle="regular-sm">
+              <Text color="fg.default" textStyle="small">
                 {revision.label}
               </Text>
-              <Text color="fg.3" textStyle="regular-xs">
+              <Text color="fg.muted" textStyle="caption">
                 {adr.owner} · {relTime(revision.time)}
               </Text>
             </Stack>
@@ -2046,11 +2084,11 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
       display="inline-flex"
       alignItems="center"
       gap="2"
-      color="fg.2"
+      color="fg.secondary"
       fontSize="18px"
       fontWeight="520"
       lineHeight="1"
-      _hover={{ color: 'fg.0', textDecoration: 'none' }}
+      _hover={{ color: 'fg.default', textDecoration: 'none' }}
     >
       <Link to={`/projects/${project.id}/adrs`}>
         <ChevronLeft size={19} />
@@ -2063,10 +2101,10 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
           <Stack gap="3">
             <HStack gap="3" justify="space-between" align="start" wrap="wrap">
               <Stack gap="1.5" minW="0">
-                <Text className="mono" color="brand.500" textStyle="semibold-sm">
+                <Text className="mono" color="action.primary.bg" textStyle="bodyStrong">
                   {formatAdrNumber(adr.number)}
                 </Text>
-                <Text color="fg.0" fontSize="26px" fontWeight="720" lineHeight="1.1">
+                <Text color="fg.default" fontSize="26px" fontWeight="720" lineHeight="1.1">
                   {adr.title}
                 </Text>
               </Stack>
@@ -2075,7 +2113,7 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
                 <CompactDecisionStatus status={revisionStatus(adr.status)} />
               </HStack>
             </HStack>
-            <Text color="fg.2" textStyle="regular-body" lineHeight="1.55" maxW="760px">
+            <Text color="fg.secondary" textStyle="body" lineHeight="1.55" maxW="760px">
               {adr.summary}
             </Text>
           </Stack>
@@ -2117,10 +2155,10 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
               />
             </Stack>
           </AdrSection>
-          <Box borderTopWidth="1px" borderColor="border" pt="4">
+          <Box borderTopWidth="1px" borderColor="border.structural" pt="4">
             <HStack gap="2" mb="3">
               <Command size={14} />
-              <Text color="fg.0" textStyle="semibold-sm">
+              <Text color="fg.default" textStyle="bodyStrong">
                 Add a comment
               </Text>
             </HStack>
@@ -2129,10 +2167,10 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
               p="3"
               borderRadius="9px"
               borderWidth="1px"
-              borderColor="border"
-              bg="bg.inset"
-              color="fg.3"
-              textStyle="regular-sm"
+              borderColor="border.structural"
+              bg="bg.subtle"
+              color="fg.muted"
+              textStyle="small"
             >
               Leave a review comment...
             </Box>
@@ -2142,9 +2180,9 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
               h="34px"
               px="3.5"
               gap="2"
-              bg="brand.500"
-              color="brand.on"
-              borderRadius="btn"
+              bg="action.primary.bg"
+              color="action.primary.fg"
+              borderRadius="control"
               disabled
               _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
             >
@@ -2159,30 +2197,30 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
         <AdrHistoryPanel adr={adr} />
         <Card p="5">
           <Stack gap="3">
-            <Text color="fg.0" textStyle="semibold-md">
+            <Text color="fg.default" textStyle="componentTitle">
               ADR metadata
             </Text>
             <Stack gap="0">
               <AdrDetailMetaRow label="Author">
                 <HStack gap="2" minW="0">
                   <AvatarInitials label={ownerInitials(adr.owner)} system={adr.owner === 'orchestrator'} />
-                  <Text color="fg.1" textStyle="regular-sm" truncate>
+                  <Text color="fg.secondary" textStyle="small" truncate>
                     {adr.owner}
                   </Text>
                 </HStack>
               </AdrDetailMetaRow>
               <AdrDetailMetaRow label="Updated">{relTime(adr.createdAt)}</AdrDetailMetaRow>
               <AdrDetailMetaRow label="Repository">
-                <Text className="mono" color="fg.1" textStyle="regular-xs" truncate>
+                <Text className="mono" color="fg.secondary" textStyle="caption" truncate>
                   {adr.repo}
                 </Text>
               </AdrDetailMetaRow>
               <AdrDetailMetaRow label="Run">
                 <ChakraLink
                   asChild
-                  color="brand.500"
-                  textStyle="medium-xs"
-                  _hover={{ color: 'brand.hover', textDecoration: 'none' }}
+                  color="action.primary.bg"
+                  textStyle="caption"
+                  _hover={{ color: 'action.primary.hoverBg', textDecoration: 'none' }}
                 >
                   <Link to={`/runs/${adr.runId}`}>{adr.runId}</Link>
                 </ChakraLink>

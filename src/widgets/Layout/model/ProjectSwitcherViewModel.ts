@@ -20,12 +20,16 @@ const layoutTone = (tone: ProjectTone): LayoutProjectTone => {
   return 'failed'
 }
 
+// The project name is already the row's title, so the subtitle carries only the workspace
+// that owns it — the `workspace/project` key would repeat the name right under itself.
+const workspaceOf = (key: string): string => key.split('/')[0] ?? key
+
 const projectOption = (project: ProjectRow): LayoutProjectOption => ({
   id: project.id,
   label: project.name,
   initials: project.initials,
   tone: layoutTone(project.tone),
-  meta: project.key,
+  meta: workspaceOf(project.key),
 })
 
 export class ProjectSwitcherViewModel {

@@ -11,13 +11,13 @@ const OptionButton = chakra('button', {
     w: '100%',
     textAlign: 'left',
     p: '3',
-    borderRadius: 'btn',
+    borderRadius: 'control',
     borderWidth: '1px',
     borderColor: 'border',
-    bg: 'bg.1',
+    bg: 'bg.surface',
     cursor: 'pointer',
     transition: 'border-color 150ms, background 150ms',
-    _hover: { borderColor: 'border.warmStrong' },
+    _hover: { borderColor: 'border.strong' },
   },
 })
 
@@ -26,7 +26,7 @@ export const QuestionBody = ({ detail }: { readonly detail: InboxItemDetail }) =
 
   return (
     <Stack gap="4">
-      <Text textStyle="regular-sm" color="fg.2">
+      <Text textStyle="small" color="fg.secondary">
         {detail.contextSummary}
       </Text>
       <Stack gap="2">
@@ -37,19 +37,19 @@ export const QuestionBody = ({ detail }: { readonly detail: InboxItemDetail }) =
               key={option.id}
               type="button"
               onClick={() => setPicked(option.id)}
-              borderColor={active ? 'brand.500' : undefined}
-              bg={active ? 'brand.tint' : undefined}
+              borderColor={active ? 'fg.default' : undefined}
+              bg={active ? 'bg.subtle' : undefined}
             >
               <Center
                 boxSize="18px"
                 borderRadius="full"
                 borderWidth="1px"
-                borderColor={active ? 'brand.500' : 'border.warmStrong'}
+                borderColor={active ? 'fg.default' : 'border.strong'}
                 flexShrink="0"
               >
-                {active ? <Box boxSize="9px" borderRadius="full" bg="brand.500" /> : null}
+                {active ? <Box boxSize="9px" borderRadius="full" bg="fg.default" /> : null}
               </Center>
-              <Text className="mono" textStyle="regular-sm" color="fg.0">
+              <Text className="mono" textStyle="small" color="fg.default">
                 {option.label}
               </Text>
             </OptionButton>

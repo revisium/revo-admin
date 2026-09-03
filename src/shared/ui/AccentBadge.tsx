@@ -7,20 +7,20 @@ interface AccentBadgeProps {
   readonly children: string
 }
 
-// Non-status taxonomy chip (.tag--gate / .tag--role): gate = brand-warm, role =
-// teal. Reads `accent.*` tokens, kept visually distinct from StatusBadge.
+// Non-status taxonomy chip (.tag--gate / .tag--role). The two kinds differ by fill weight
+// rather than by hue: a gate sits on the subtle fill, a role on the plain surface.
 export const AccentBadge = ({ kind, children }: AccentBadgeProps) => (
   <Badge
-    textStyle="medium-sm"
+    textStyle="body"
     textTransform="capitalize"
     px="2"
     py="0.5"
-    borderRadius="chip"
+    borderRadius="control"
     borderWidth="1px"
     whiteSpace="nowrap"
-    color={`accent.${kind}.fg`}
-    bg={`accent.${kind}.bg`}
-    borderColor={`accent.${kind}.border`}
+    color="fg.secondary"
+    bg={kind === 'gate' ? 'bg.subtle' : 'bg.surface'}
+    borderColor="border.structural"
   >
     {children}
   </Badge>

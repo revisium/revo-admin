@@ -50,7 +50,7 @@ const CREATED_BY: Column = {
   cell: (run) => (
     <HStack gap="2" minW="0">
       <AvatarInitials label={initials(run.createdBy)} system={run.createdBy === 'orchestrator'} />
-      <Text className="mono" textStyle="regular-xs" color="fg.1" truncate>
+      <Text className="mono" textStyle="caption" color="fg.secondary" truncate>
         {run.createdBy}
       </Text>
     </HStack>
@@ -63,7 +63,7 @@ const COST: Column = {
   end: true,
   hide: cq('420px'),
   cell: (run) => (
-    <Text className="mono tnum" textStyle="medium-sm" color="fg.1">
+    <Text className="mono tnum" textStyle="body" color="fg.secondary">
       {formatUsd(run.spend)}
     </Text>
   ),
@@ -75,7 +75,7 @@ const TIME: Column = {
   end: true,
   hide: cq('540px'),
   cell: (run) => (
-    <Text textStyle="regular-xs" color="fg.3">
+    <Text textStyle="caption" color="fg.muted">
       {relTime(run.createdAt)}
     </Text>
   ),
@@ -101,20 +101,20 @@ const Cell = ({ col, children }: { readonly col: Column; readonly children: Reac
 )
 
 const SubLine = ({ run, variant }: { readonly run: TaskRun; readonly variant: RunRowVariant }) => (
-  <HStack gap="2" mt="1" color="fg.2" textStyle="regular-xs">
+  <HStack gap="2" mt="1" color="fg.secondary" textStyle="caption">
     <HStack gap="1" minW="0">
-      <Box color="fg.3" display="inline-flex">
+      <Box color="fg.muted" display="inline-flex">
         <GitBranch size={13} />
       </Box>
       <Text truncate>{run.repos[0]}</Text>
     </HStack>
     {run.repos.length > 1 ? (
-      <Span px="1.5" borderRadius="4px" bg="bg.inset" color="fg.3" textStyle="regular-micro">
+      <Span px="1.5" borderRadius="4px" bg="bg.subtle" color="fg.muted" textStyle="caption">
         +{run.repos.length - 1}
       </Span>
     ) : null}
-    <Span color="fg.3">·</Span>
-    <Text className="mono" color="fg.3" textStyle="regular-micro">
+    <Span color="fg.muted">·</Span>
+    <Text className="mono" color="fg.muted" textStyle="caption">
       {variant === 'table' ? run.scope : run.id}
     </Text>
   </HStack>
@@ -127,9 +127,9 @@ export const RunRow = ({ run, variant = 'recent' }: { readonly run: TaskRun; rea
       asChild
       display="block"
       borderBottomWidth="1px"
-      borderColor="border.subtle"
+      borderColor="border.structural"
       _last={{ borderBottomWidth: '0' }}
-      _hover={{ textDecoration: 'none', bg: 'brand.tint' }}
+      _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
     >
       <Link to={`/runs/${run.id}`}>
         <Flex align="center" gap="3" pr="4" minH={variant === 'table' ? '64px' : undefined}>
@@ -141,7 +141,7 @@ export const RunRow = ({ run, variant = 'recent' }: { readonly run: TaskRun; rea
             bg={`dot.${toneForStatus(run.status)}`}
           />
           <Box flex="1" minW="0" py="3">
-            <Text textStyle="medium-sm" color="fg.0" truncate>
+            <Text textStyle="body" color="fg.default" truncate>
               {run.title}
             </Text>
             <SubLine run={run} variant={variant} />
@@ -158,7 +158,7 @@ export const RunRow = ({ run, variant = 'recent' }: { readonly run: TaskRun; rea
 }
 
 const HeaderLabel = ({ children }: { readonly children: ReactNode }) => (
-  <Text textStyle="semibold-micro" textTransform="uppercase" letterSpacing="0.04em" color="fg.3" truncate>
+  <Text textStyle="caption" textTransform="uppercase" letterSpacing="0.04em" color="fg.muted" truncate>
     {children}
   </Text>
 )
@@ -166,7 +166,7 @@ const HeaderLabel = ({ children }: { readonly children: ReactNode }) => (
 // Column header row for the table variant; shares widths + hide rules with RunRow
 // so columns drop in sync inside the same container.
 export const RunsTableHeader = () => (
-  <Flex align="center" gap="3" pr="4" h="38px" bg="bg.inset" borderBottomWidth="1px" borderColor="border">
+  <Flex align="center" gap="3" pr="4" h="38px" bg="bg.subtle" borderBottomWidth="1px" borderColor="border.structural">
     <Box w="3px" flexShrink="0" />
     <Box flex="1" minW="0">
       <HeaderLabel>Run</HeaderLabel>

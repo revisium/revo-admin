@@ -1,4 +1,5 @@
 import { Box, Flex } from '@chakra-ui/react'
+import { routes } from 'src/shared/config'
 import { Archive } from 'lucide-react'
 import { Badge, Button, Card, NavLink } from 'src/shared/ui/kit'
 import { Breadcrumb } from 'src/shared/ui/components'
@@ -34,7 +35,9 @@ export const NavigationSection = () => {
       <Flex flexDirection="column" gap="8">
         <Box>
           <PreviewSubsectionHeading>Breadcrumb</PreviewSubsectionHeading>
-          <Breadcrumb items={[{ label: BREADCRUMB_HOME_LABEL, href: '/' }, { label: BREADCRUMB_CURRENT_LABEL }]} />
+          <Breadcrumb
+            items={[{ label: BREADCRUMB_HOME_LABEL, href: routes.home() }, { label: BREADCRUMB_CURRENT_LABEL }]}
+          />
         </Box>
 
         <Box>
@@ -88,7 +91,9 @@ export const NavigationSection = () => {
               name={PREVIEW_PROJECT_NAME}
               description={PREVIEW_PROJECT_DESCRIPTION}
               breadcrumb={
-                <Breadcrumb items={[{ label: BREADCRUMB_HOME_LABEL, href: '/' }, { label: PREVIEW_PROJECT_NAME }]} />
+                <Breadcrumb
+                  items={[{ label: BREADCRUMB_HOME_LABEL, href: routes.home() }, { label: PREVIEW_PROJECT_NAME }]}
+                />
               }
               status={<ProjectStatusBadge status="active" label={PROJECT_STATUS_BADGE_ACTIVE_LABEL} />}
               projectId={PREVIEW_PROJECT_ID}

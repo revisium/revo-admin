@@ -19,11 +19,11 @@ const SegBtn = chakra('button', {
     borderRadius: '7px',
     fontSize: '13px',
     fontWeight: '540',
-    color: 'fg.2',
+    color: 'fg.secondary',
     whiteSpace: 'nowrap',
     cursor: 'pointer',
     transition: 'all 150ms',
-    _hover: { color: 'fg.0' },
+    _hover: { color: 'fg.default' },
   },
 })
 
@@ -54,9 +54,9 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
           overflowX="auto"
           gap="0.5"
           p="0.5"
-          bg="bg.inset"
+          bg="bg.subtle"
           borderWidth="1px"
-          borderColor="border"
+          borderColor="border.structural"
           borderRadius="9px"
           css={{ scrollbarWidth: 'none' }}
         >
@@ -67,13 +67,12 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
                 key={f.id}
                 type="button"
                 onClick={() => setFilter(f.id)}
-                bg={active ? 'bg.2' : 'transparent'}
-                color={active ? 'fg.0' : undefined}
-                boxShadow={active ? 'sh-1' : undefined}
+                bg={active ? 'bg.surface' : 'transparent'}
+                color={active ? 'fg.default' : undefined}
                 fontWeight={active ? '600' : undefined}
               >
                 {f.label}
-                <Span className="tnum" textStyle="regular-micro" color={active ? 'brand.500' : 'fg.3'}>
+                <Span className="tnum" textStyle="caption" color={active ? 'fg.default' : 'fg.muted'}>
                   {countFor(f.id)}
                 </Span>
               </SegBtn>
@@ -86,12 +85,12 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
           h="36px"
           px="3"
           gap="2"
-          bg="bg.1"
+          bg="bg.surface"
           borderWidth="1px"
-          borderColor="border.warmStrong"
-          borderRadius="btn"
-          color="fg.2"
-          _focusWithin={{ borderColor: 'brand.500' }}
+          borderColor="border.strong"
+          borderRadius="control"
+          color="fg.secondary"
+          _focusWithin={{ borderColor: 'fg.default' }}
         >
           <Search size={15} />
           <chakra.input
@@ -104,9 +103,9 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
             bg="transparent"
             border="none"
             outline="none"
-            color="fg.0"
+            color="fg.default"
             fontSize="13.5px"
-            _placeholder={{ color: 'fg.3' }}
+            _placeholder={{ color: 'fg.muted' }}
           />
         </HStack>
       </Flex>
@@ -123,11 +122,11 @@ export const RunsBoard = ({ runs }: RunsBoardProps) => {
       ) : (
         <Box
           containerType="inline-size"
-          bg="bg.1"
+          bg="bg.surface"
           borderWidth="1px"
-          borderColor="border"
-          borderRadius="warmCard"
-          boxShadow="sh-1"
+          borderColor="border.structural"
+          borderRadius="card"
+          boxShadow="popover"
           overflow="hidden"
         >
           <RunsTableHeader />

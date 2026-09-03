@@ -1,7 +1,7 @@
 import { HStack, Stack, Text } from '@chakra-ui/react'
 import { Inbox } from 'lucide-react'
-import { PageHeader } from 'src/shared/ui'
 import { InboxView } from 'src/widgets/InboxView'
+import { PageHeader } from 'src/shared/ui/components'
 
 const Eyebrow = (
   <HStack gap="2" align="center">

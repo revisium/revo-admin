@@ -24,16 +24,16 @@ const PipelineCard = ({ active, pipeline }: { readonly active: boolean; readonly
     display="block"
     color="inherit"
     _hover={{ textDecoration: 'none' }}
-    _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '3px' }}
+    _focusVisible={{ outline: '2px solid', outlineColor: 'fg.default', outlineOffset: '3px' }}
   >
     <Link to={`/method/pipelines/${pipeline.id}`}>
       <Card
         className="group"
         p="4"
-        borderColor={active ? 'brand.softBorder' : 'border'}
-        bg={active ? 'brand.soft' : 'bg.1'}
-        transition="border-color 0.15s, transform 0.15s"
-        _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
+        borderColor={active ? 'fg.default' : 'border.structural'}
+        bg={active ? 'bg.subtle' : 'bg.surface'}
+        transition="border-color 0.15s, background-color 0.15s"
+        _hover={{ borderColor: 'border.strong' }}
       >
         <Stack gap="3">
           <HStack justify="space-between" gap="3">
@@ -41,18 +41,18 @@ const PipelineCard = ({ active, pipeline }: { readonly active: boolean; readonly
               <Center
                 boxSize="30px"
                 borderRadius="8px"
-                bg="bg.inset"
+                bg="bg.subtle"
                 borderWidth="1px"
-                borderColor="border"
-                color="fg.2"
+                borderColor="border.structural"
+                color="fg.secondary"
               >
                 <Layers3 size={15} />
               </Center>
-              <Text className="mono" textStyle="semibold-sm" color="fg.0" truncate>
+              <Text className="mono" textStyle="bodyStrong" color="fg.default" truncate>
                 {pipeline.pipelineId}
               </Text>
             </HStack>
-            <Box color="fg.3" transition="transform 0.15s" _groupHover={{ transform: 'translateX(3px)' }}>
+            <Box color="fg.muted" transition="transform 0.15s" _groupHover={{ transform: 'translateX(3px)' }}>
               <ArrowRight size={15} />
             </Box>
           </HStack>
@@ -63,10 +63,10 @@ const PipelineCard = ({ active, pipeline }: { readonly active: boolean; readonly
                 as="span"
                 px="2"
                 py="0.5"
-                borderRadius="chip"
-                bg="accent.role.bg"
-                color="accent.role.fg"
-                textStyle="medium-xs"
+                borderRadius="control"
+                bg="bg.subtle"
+                color="fg.secondary"
+                textStyle="caption"
               >
                 {role}
               </Text>
@@ -88,12 +88,12 @@ const PipelineCard = ({ active, pipeline }: { readonly active: boolean; readonly
 const PipelineDetail = ({ pipeline }: { readonly pipeline: PipelineRow }) => (
   <Stack gap="4">
     <Card p="0" overflow="hidden">
-      <HStack gap="3" justify="space-between" p="4.5" borderBottomWidth="1px" borderColor="border.subtle">
+      <HStack gap="3" justify="space-between" p="4.5" borderBottomWidth="1px" borderColor="border.structural">
         <Stack gap="0.5" minW="0">
-          <Text className="mono" color="fg.0" textStyle="semibold-md" truncate>
+          <Text className="mono" color="fg.default" textStyle="componentTitle" truncate>
             {pipeline.pipelineId}
           </Text>
-          <Text color="fg.2" textStyle="regular-sm">
+          <Text color="fg.secondary" textStyle="small">
             {pipeline.requiredRoles.length} required roles · {pipeline.routeGates.length} gates
           </Text>
         </Stack>
@@ -101,18 +101,18 @@ const PipelineDetail = ({ pipeline }: { readonly pipeline: PipelineRow }) => (
           px="2"
           py="0.5"
           gap="1.5"
-          borderRadius="chip"
+          borderRadius="control"
           borderWidth="1px"
-          borderColor="border"
-          bg="bg.inset"
-          color="fg.2"
-          textStyle="medium-xs"
+          borderColor="border.structural"
+          bg="bg.subtle"
+          color="fg.secondary"
+          textStyle="caption"
         >
           <GitBranch size={12} />
           pipeline
         </HStack>
       </HStack>
-      <Box p="4.5" borderBottomWidth="1px" borderColor="border.subtle">
+      <Box p="4.5" borderBottomWidth="1px" borderColor="border.structural">
         <PipelineGraph />
       </Box>
       <Stack gap="0" px="4.5" py="2">
@@ -124,7 +124,7 @@ const PipelineDetail = ({ pipeline }: { readonly pipeline: PipelineRow }) => (
         </FieldRow>
         <FieldRow label="Optional roles">
           {pipeline.optionalRoles.length === 0 ? (
-            <Text textStyle="regular-sm" color="fg.3">
+            <Text textStyle="small" color="fg.muted">
               none
             </Text>
           ) : (
@@ -133,13 +133,13 @@ const PipelineDetail = ({ pipeline }: { readonly pipeline: PipelineRow }) => (
         </FieldRow>
         <FieldRow label="Alternatives">
           {pipeline.alternativeRoles.length === 0 ? (
-            <Text textStyle="regular-sm" color="fg.3">
+            <Text textStyle="small" color="fg.muted">
               none
             </Text>
           ) : (
             <Stack gap="1">
               {pipeline.alternativeRoles.map((alt) => (
-                <Text key={alt.role} textStyle="regular-sm" color="fg.1">
+                <Text key={alt.role} textStyle="small" color="fg.secondary">
                   {alt.role} → {alt.alternative}
                 </Text>
               ))}
@@ -159,7 +159,7 @@ const PipelineDetail = ({ pipeline }: { readonly pipeline: PipelineRow }) => (
     </Card>
     <Stack gap="2">
       <SectionHeading>Route graph</SectionHeading>
-      <Text textStyle="regular-sm" color="fg.3">
+      <Text textStyle="small" color="fg.muted">
         Ordered roles and gates. Dashed nodes are optional; alternatives are annotated inline.
       </Text>
     </Stack>

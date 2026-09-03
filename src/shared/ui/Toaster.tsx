@@ -8,19 +8,19 @@ export const Toaster = () => (
   <ChakraToaster toaster={toaster}>
     {(toast) => (
       <Box
-        bg="bg.2"
+        bg="bg.surface"
         borderWidth="1px"
-        borderColor="border.warmStrong"
-        borderRadius="warmCard"
+        borderColor="border.strong"
+        borderRadius="card"
         px="4"
         py="3"
-        boxShadow="sh-3"
+        boxShadow="dialog"
       >
-        <Text textStyle="medium-sm" color="fg.0">
+        <Text textStyle="body" color="fg.default">
           {toast.title}
         </Text>
         {toast.description ? (
-          <Text textStyle="regular-xs" color="fg.2">
+          <Text textStyle="caption" color="fg.secondary">
             {toast.description}
           </Text>
         ) : null}

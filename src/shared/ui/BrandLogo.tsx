@@ -1,10 +1,9 @@
 import { system } from './theme/theme'
 
-// The revo brand mark (custom, not Lucide): a rounded rust tile with a stylized
-// white "r" and a brand-colored dot. Ported verbatim from .design (app.jsx
-// .brand__mark). Colors resolve from theme tokens to stay token-driven.
-const brand = system.token('colors.brand.500')
-const brandOn = system.token('colors.brand.on')
+// The revo brand mark (custom, not Lucide): a rounded ink tile with a stylized
+// white "r" and a knocked-out dot. Colors resolve from theme tokens to stay token-driven.
+const brand = system.token('colors.action.primary.bg')
+const brandOn = system.token('colors.action.primary.fg')
 
 export const BrandLogo = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">

@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import { INBOX_ITEMS, inboxItemById } from 'src/shared/fixtures'
 import { InboxList } from 'src/features/InboxList'
 import { GateResolutionPanel } from 'src/features/GateResolutionPanel'
+import { routes } from 'src/shared/config'
 
 const FIRST_PENDING = INBOX_ITEMS.find((item) => item.status === 'pending')
 
@@ -11,11 +12,11 @@ const DetailCard = ({ children }: { readonly children: React.ReactNode }) => (
   <Box
     display="flex"
     flexDirection="column"
-    bg="bg.1"
+    bg="bg.surface"
     borderWidth="1px"
-    borderColor="border"
-    borderRadius="warmCard"
-    boxShadow="sh-1"
+    borderColor="border.structural"
+    borderRadius="card"
+    boxShadow="popover"
     overflow="hidden"
     position={{ xl: 'sticky' }}
     top={{ xl: '1.5rem' }}
@@ -27,15 +28,15 @@ const DetailCard = ({ children }: { readonly children: React.ReactNode }) => (
 
 const ResolvedPlaceholder = ({ runId }: { readonly runId?: string }) => (
   <Center flexDirection="column" textAlign="center" gap="3" p="10" minH="280px">
-    <Center boxSize="48px" borderRadius="13px" bg="status.success.bg" color="status.success.fg">
+    <Center boxSize="48px" borderRadius="13px" bg="bg.subtle" color="status.success.fg">
       <CheckCircle2 size={26} />
     </Center>
-    <Text textStyle="semibold-body" color="fg.0">
+    <Text textStyle="bodyStrong" color="fg.default">
       Resolved
     </Text>
     {runId ? (
-      <ChakraLink asChild color="brand.500" textStyle="medium-sm">
-        <Link to={`/runs/${runId}`}>Open run</Link>
+      <ChakraLink asChild color="fg.default" textStyle="body">
+        <Link to={routes.run(runId)}>Open run</Link>
       </ChakraLink>
     ) : null}
   </Center>
@@ -57,11 +58,11 @@ export const InboxView = ({ selectedId }: { readonly selectedId?: string }) => {
           <ChakraLink
             asChild
             display={{ base: 'inline-flex', xl: 'none' }}
-            color="fg.2"
-            textStyle="medium-sm"
-            _hover={{ color: 'fg.0', textDecoration: 'none' }}
+            color="fg.secondary"
+            textStyle="body"
+            _hover={{ color: 'fg.default', textDecoration: 'none' }}
           >
-            <Link to="/inbox">
+            <Link to={routes.inbox()}>
               <HStack gap="1.5">
                 <ArrowLeft size={15} />
                 <Text>Back to inbox</Text>

@@ -5,22 +5,24 @@ import { Link } from 'react-router'
 import { SystemStatusViewModel } from 'src/entities/system-status'
 import { PENDING_INBOX, PENDING_QUEUE, RECENT_RUNS, statusCount } from 'src/shared/fixtures'
 import { useViewModel } from 'src/shared/lib'
-import { PageHeader, SectionHeading } from 'src/shared/ui'
+import { SectionHeading } from 'src/shared/ui'
 import { DecideCallout } from './DecideCallout'
 import { HostStatusCard } from './HostStatusCard'
 import { MiniQueue } from './MiniQueue'
 import { RunRow } from 'src/entities/run'
 import { StatCard, type StatDef } from './StatCard'
+import { routes } from 'src/shared/config'
+import { PageHeader } from 'src/shared/ui/components'
 
 const STAT_DEFS: ReadonlyArray<StatDef> = [
-  { key: 'running', label: 'Running', tone: 'running', icon: Play, hint: 'agents active now', to: '/runs' },
+  { key: 'running', label: 'Running', tone: 'running', icon: Play, hint: 'agents active now', to: routes.runs() },
   {
     key: 'awaiting_approval',
     label: 'Awaiting approval',
     tone: 'waiting',
     icon: DoorOpen,
     hint: 'gates need you',
-    to: '/inbox',
+    to: routes.inbox(),
     accent: true,
   },
   {
@@ -29,14 +31,14 @@ const STAT_DEFS: ReadonlyArray<StatDef> = [
     tone: 'success',
     icon: CircleCheck,
     hint: 'merged & closed',
-    to: '/runs',
+    to: routes.runs(),
   },
-  { key: 'failed', label: 'Failed', tone: 'failed', icon: TriangleAlert, hint: 'in last 24h', to: '/runs' },
+  { key: 'failed', label: 'Failed', tone: 'failed', icon: TriangleAlert, hint: 'in last 24h', to: routes.runs() },
 ]
 
 const Eyebrow = (
   <HStack gap="2" align="center">
-    <Box boxSize="2" borderRadius="full" bg="brand.500" />
+    <Box boxSize="2" borderRadius="full" bg="fg.default" />
     <Text as="span">Control room · all projects</Text>
   </HStack>
 )
@@ -48,11 +50,11 @@ const RefreshButton = ({ loading, onRefresh }: { readonly loading: boolean; read
     px="3.5"
     gap="2"
     bg="transparent"
-    color="fg.1"
-    borderRadius="btn"
+    color="fg.secondary"
+    borderRadius="control"
     disabled={loading}
     onClick={onRefresh}
-    _hover={{ bg: 'blackAlpha.50', color: 'fg.0' }}
+    _hover={{ bg: 'action.secondary.hoverBg', color: 'fg.default' }}
   >
     <RefreshCw size={15} />
     Refresh
@@ -97,12 +99,17 @@ export const DashboardPage = observer(() => {
           <Flex align="flex-end" justify="space-between" gap="4">
             <Box>
               <SectionHeading>Recent runs</SectionHeading>
-              <Text textStyle="regular-sm" color="fg.2">
+              <Text textStyle="small" color="fg.secondary">
                 Latest task runs across all repos
               </Text>
             </Box>
-            <ChakraLink asChild color="fg.2" textStyle="medium-sm" _hover={{ color: 'fg.0', textDecoration: 'none' }}>
-              <Link to="/runs">
+            <ChakraLink
+              asChild
+              color="fg.secondary"
+              textStyle="body"
+              _hover={{ color: 'fg.default', textDecoration: 'none' }}
+            >
+              <Link to={routes.runs()}>
                 <HStack gap="1.5">
                   <Text>View all</Text>
                   <ArrowRight size={14} />
@@ -112,11 +119,11 @@ export const DashboardPage = observer(() => {
           </Flex>
           <Box
             containerType="inline-size"
-            bg="bg.1"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="border"
-            borderRadius="warmCard"
-            boxShadow="sh-1"
+            borderColor="border.structural"
+            borderRadius="card"
+            boxShadow="popover"
             overflow="hidden"
           >
             {RECENT_RUNS.map((run) => (

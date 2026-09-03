@@ -1,38 +1,24 @@
 import { Box, Button, Center, Grid, HStack, Link as ChakraLink, Span, Stack, Text } from '@chakra-ui/react'
 import { ArrowRight, BookOpen, Cpu, Folder, GitBranch, Layers3, Plus, Play, Scan, UserRound } from 'lucide-react'
 import { Link } from 'react-router'
-import { PIPELINES, PROJECTS, reposForProject, ROLES, type ProjectRow, type ProjectTone } from 'src/shared/fixtures'
-import { Card, PageHeader } from 'src/shared/ui'
+import { PIPELINES, PROJECTS, reposForProject, ROLES, type ProjectRow } from 'src/shared/fixtures'
+import { Card } from 'src/shared/ui'
+import { PageHeader } from 'src/shared/ui/components'
 
-const projectToneStyles = (
-  tone: ProjectTone,
-): { readonly bg: string; readonly fg: string; readonly border: string } => {
-  if (tone === 'teal') return { bg: 'accent.role.bg', fg: 'accent.role.fg', border: 'accent.role.border' }
-  if (tone === 'plum') return { bg: 'status.waiting.bg', fg: 'status.waiting.fg', border: 'status.waiting.border' }
-  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.warmStrong' }
-  return { bg: 'brand.soft', fg: 'brand.ink', border: 'brand.softBorder' }
-}
+// Project identity is carried by name and id, not by colour: every avatar uses the same
+// neutral surface.
+const avatarStyles = { bg: 'bg.subtle', fg: 'fg.secondary', border: 'border.structural' }
 
-const ProjectAvatar = ({
-  initials,
-  tone,
-  system = false,
-}: {
-  readonly initials: string
-  readonly tone: ProjectTone
-  readonly system?: boolean
-}) => {
-  const colors = projectToneStyles(tone)
-
+const ProjectAvatar = ({ initials, system = false }: { readonly initials: string; readonly system?: boolean }) => {
   return (
     <Center
       boxSize="40px"
       borderRadius="8px"
-      bg={colors.bg}
-      color={colors.fg}
+      bg={avatarStyles.bg}
+      color={avatarStyles.fg}
       borderWidth="1px"
-      borderColor={colors.border}
-      textStyle="semibold-md"
+      borderColor={avatarStyles.border}
+      textStyle="componentTitle"
       textTransform="lowercase"
       flexShrink="0"
     >
@@ -51,11 +37,11 @@ const RepoPill = ({ repoName }: { readonly repoName: string }) => {
       px="2"
       py="1"
       borderRadius="pill"
-      bg="bg.inset"
+      bg="bg.subtle"
       borderWidth="1px"
-      borderColor="border"
-      color="fg.1"
-      textStyle="regular-xs"
+      borderColor="border.structural"
+      color="fg.secondary"
+      textStyle="caption"
     >
       <GitBranch size={11} />
       <Span className="mono">{name ?? repoName}</Span>
@@ -72,7 +58,7 @@ const StatItem = ({
   readonly value: number | string
   readonly label: string
 }) => (
-  <HStack as="span" gap="1" color="fg.2" textStyle="regular-xs">
+  <HStack as="span" gap="1" color="fg.secondary" textStyle="caption">
     <Icon size={12} />
     <Span className="tnum">{value}</Span>
     <Span srOnly>{label}</Span>
@@ -89,7 +75,7 @@ const ProjectCard = ({ project }: { readonly project: ProjectRow }) => {
       h="100%"
       color="inherit"
       _hover={{ textDecoration: 'none' }}
-      _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '3px' }}
+      _focusVisible={{ outline: '2px solid', outlineColor: 'focus.ring', outlineOffset: '3px' }}
     >
       <Link to={`/projects/${project.id}`}>
         <Card
@@ -101,27 +87,27 @@ const ProjectCard = ({ project }: { readonly project: ProjectRow }) => {
           display="flex"
           flexDirection="column"
           transition="transform 150ms cubic-bezier(.2,0,0,1), box-shadow 150ms, border-color 150ms"
-          _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.warmStrong' }}
+          _hover={{ transform: 'translateY(-2px)', boxShadow: 'popover', borderColor: 'border.strong' }}
         >
           <HStack gap="3" mb="3.5" align="center">
-            <ProjectAvatar initials={project.initials} tone={project.tone} />
+            <ProjectAvatar initials={project.initials} />
             <Stack gap="0.5" minW="0" flex="1">
-              <Text textStyle="semibold-md" color="fg.0" truncate>
+              <Text textStyle="componentTitle" color="fg.default" truncate>
                 {project.name}
               </Text>
-              <Text className="mono" textStyle="regular-xs" color="fg.3" truncate>
+              <Text className="mono" textStyle="caption" color="fg.muted" truncate>
                 {project.key}
               </Text>
             </Stack>
             <Box
-              color="fg.3"
+              color="fg.muted"
               transition="transform 150ms, color 150ms"
-              _groupHover={{ transform: 'translateX(3px)', color: 'brand.500' }}
+              _groupHover={{ transform: 'translateX(3px)', color: 'fg.default' }}
             >
               <ArrowRight size={16} />
             </Box>
           </HStack>
-          <Text textStyle="regular-sm" color="fg.2" lineHeight="1.55" mb="4">
+          <Text textStyle="small" color="fg.secondary" lineHeight="1.55" mb="4">
             {project.description}
           </Text>
           <HStack gap="1.5" wrap="wrap" mb="4">
@@ -129,12 +115,12 @@ const ProjectCard = ({ project }: { readonly project: ProjectRow }) => {
               <RepoPill key={repo.id} repoName={repo.name} />
             ))}
           </HStack>
-          <HStack mt="auto" pt="3.5" borderTopWidth="1px" borderColor="border.subtle" gap="3" wrap="wrap">
-            <HStack className="mono" gap="1.5" color="fg.2" textStyle="regular-xs">
+          <HStack mt="auto" pt="3.5" borderTopWidth="1px" borderColor="border.structural" gap="3" wrap="wrap">
+            <HStack className="mono" gap="1.5" color="fg.secondary" textStyle="caption">
               <GitBranch size={12} />
               <Span>{project.defaultBranch}</Span>
             </HStack>
-            <Text className="mono" textStyle="regular-xs" color="fg.3">
+            <Text className="mono" textStyle="caption" color="fg.muted">
               @{project.headRev}
             </Text>
             <HStack gap="3" ml={{ base: '0', md: 'auto' }} wrap="wrap">
@@ -157,7 +143,7 @@ const ControlPlaneCard = () => (
     h="100%"
     color="inherit"
     _hover={{ textDecoration: 'none' }}
-    _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '3px' }}
+    _focusVisible={{ outline: '2px solid', outlineColor: 'focus.ring', outlineOffset: '3px' }}
   >
     <Link to="/method/roles">
       <Card
@@ -168,25 +154,25 @@ const ControlPlaneCard = () => (
         h="100%"
         display="flex"
         flexDirection="column"
-        bg="bg.inset"
+        bg="bg.subtle"
         transition="transform 150ms cubic-bezier(.2,0,0,1), box-shadow 150ms, border-color 150ms"
-        _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.warmStrong' }}
+        _hover={{ transform: 'translateY(-2px)', boxShadow: 'popover', borderColor: 'border.strong' }}
       >
         <HStack gap="3" mb="3.5" align="center">
-          <ProjectAvatar initials="sys" tone="system" system />
+          <ProjectAvatar initials="sys" system />
           <Stack gap="0.5" minW="0" flex="1">
             <HStack gap="2" minW="0">
-              <Text textStyle="semibold-md" color="fg.0" truncate>
+              <Text textStyle="componentTitle" color="fg.default" truncate>
                 Control plane
               </Text>
               <Span
                 px="1.5"
                 py="0.5"
                 borderRadius="4px"
-                bg="bg.2"
+                bg="bg.surface"
                 borderWidth="1px"
-                borderColor="border"
-                color="fg.3"
+                borderColor="border.structural"
+                color="fg.muted"
                 fontSize="9.5px"
                 fontWeight="650"
                 textTransform="uppercase"
@@ -196,23 +182,23 @@ const ControlPlaneCard = () => (
                 System
               </Span>
             </HStack>
-            <Text className="mono" textStyle="regular-xs" color="fg.3" truncate>
+            <Text className="mono" textStyle="caption" color="fg.muted" truncate>
               admin/control-plane/master
             </Text>
           </Stack>
           <Box
-            color="fg.3"
+            color="fg.muted"
             transition="transform 150ms, color 150ms"
-            _groupHover={{ transform: 'translateX(3px)', color: 'brand.500' }}
+            _groupHover={{ transform: 'translateX(3px)', color: 'fg.default' }}
           >
             <ArrowRight size={16} />
           </Box>
         </HStack>
-        <Text textStyle="regular-sm" color="fg.2" lineHeight="1.55">
+        <Text textStyle="small" color="fg.secondary" lineHeight="1.55">
           The Method: versioned roles, pipelines, playbooks, model profiles, and routing policy that govern every run.
         </Text>
-        <HStack mt="auto" pt="3.5" borderTopWidth="1px" borderColor="border.subtle" gap="3" wrap="wrap">
-          <HStack className="mono" gap="1.5" color="fg.2" textStyle="regular-xs">
+        <HStack mt="auto" pt="3.5" borderTopWidth="1px" borderColor="border.structural" gap="3" wrap="wrap">
+          <HStack className="mono" gap="1.5" color="fg.secondary" textStyle="caption">
             <GitBranch size={12} />
             <Span>master</Span>
           </HStack>
@@ -239,10 +225,10 @@ const Actions = (
     h="36px"
     px="3.5"
     gap="2"
-    bg="brand.500"
-    color="brand.on"
+    bg="fg.default"
+    color="action.primary.fg"
     disabled
-    _hover={{ bg: 'brand.hover' }}
+    _hover={{ bg: 'action.primary.hoverBg' }}
     _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
   >
     <Plus size={15} />

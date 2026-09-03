@@ -5,35 +5,35 @@ import { formatUsd } from 'src/shared/fixtures'
 import { CostMeter } from 'src/shared/ui'
 
 const AdrBlock = ({ adr }: { readonly adr: NonNullable<InboxItemDetail['adr']> }) => (
-  <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
+  <Stack gap="3" p="4" borderWidth="1px" borderColor="border.structural" borderRadius="card" bg="bg.surface">
     <HStack gap="2">
       <HStack
         gap="1.5"
         px="2"
         h="22px"
-        borderRadius="chip"
-        bg="accent.gate.bg"
-        color="accent.gate.fg"
+        borderRadius="control"
+        bg="bg.subtle"
+        color="fg.secondary"
         borderWidth="1px"
-        borderColor="accent.gate.border"
-        textStyle="semibold-micro"
+        borderColor="border.structural"
+        textStyle="caption"
       >
         <BookText size={13} />
         ADR
       </HStack>
-      <Text textStyle="semibold-sm" color="fg.0">
+      <Text textStyle="bodyStrong" color="fg.default">
         {adr.title}
       </Text>
     </HStack>
-    <Text textStyle="regular-sm" color="fg.1">
-      <Text as="span" textStyle="semibold-sm" color="fg.2">
+    <Text textStyle="small" color="fg.secondary">
+      <Text as="span" textStyle="bodyStrong" color="fg.secondary">
         Decision&nbsp;
       </Text>
       {adr.decision}
     </Text>
     <Stack gap="1.5">
       {adr.bullets.map((bullet) => (
-        <HStack key={bullet} gap="2" align="start" textStyle="regular-sm" color="fg.2">
+        <HStack key={bullet} gap="2" align="start" textStyle="small" color="fg.secondary">
           <Box color="status.success.fg" flexShrink="0" mt="0.5">
             <Check size={13} />
           </Box>
@@ -46,20 +46,20 @@ const AdrBlock = ({ adr }: { readonly adr: NonNullable<InboxItemDetail['adr']> }
 
 export const PlanGateBody = ({ detail }: { readonly detail: InboxItemDetail }) => (
   <Stack gap="4">
-    <Text textStyle="regular-sm" color="fg.2">
+    <Text textStyle="small" color="fg.secondary">
       {detail.contextSummary}
     </Text>
     {detail.adr ? <AdrBlock adr={detail.adr} /> : null}
     {detail.budget ? (
-      <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
-        <HStack gap="2" color="fg.2">
+      <Stack gap="3" p="4" borderWidth="1px" borderColor="border.structural" borderRadius="card" bg="bg.surface">
+        <HStack gap="2" color="fg.secondary">
           <Coins size={14} />
-          <Text textStyle="semibold-xs" textTransform="uppercase" letterSpacing="0.04em">
+          <Text textStyle="caption" textTransform="uppercase" letterSpacing="0.04em">
             Budget for this run
           </Text>
         </HStack>
         <CostMeter spent={detail.budget.spent} limit={detail.budget.limit} estimate={detail.budget.estimate} />
-        <Text className="mono" textStyle="regular-micro" color="brand.ink">
+        <Text className="mono" textStyle="caption" color="fg.default">
           approving authorizes ~{formatUsd(detail.budget.estimate)} more · cap {formatUsd(detail.budget.limit)}
         </Text>
       </Stack>
