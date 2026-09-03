@@ -201,7 +201,7 @@ const ProjectAvatar = ({
 }: {
   readonly initials: string
   readonly tone: LayoutProjectTone
-  readonly size?: IAvatarProps['size']
+  readonly size?: NonNullable<IAvatarProps['size']>
 }) => (
   <Avatar size={size} tone={AVATAR_TONE[tone]}>
     {projectAvatarContent(tone, initials)}
