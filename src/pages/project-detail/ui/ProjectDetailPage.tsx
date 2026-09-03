@@ -39,7 +39,8 @@ import {
   type ProjectRow,
   type ProjectTone,
 } from 'src/shared/fixtures'
-import { AvatarInitials, Card, EmptyState, StatusBadge, toneForStatus } from 'src/shared/ui'
+import { Card, EmptyState, StatusBadge, toneForStatus } from 'src/shared/ui'
+import { Avatar, Badge, type IAvatarProps } from 'src/shared/ui/kit'
 
 interface ProjectDetailPageProps {
   readonly projectId: string
@@ -78,33 +79,11 @@ const ADR_LINKED_COUNTS: Readonly<Record<number, number>> = {
 }
 const ADR_ROW_HOVER_BG = 'bg.subtle'
 
-const projectToneStyles = (
-  tone: ProjectTone,
-): { readonly bg: string; readonly fg: string; readonly border: string } => {
-  if (tone === 'teal') return { bg: 'bg.subtle', fg: 'fg.secondary', border: 'border.structural' }
-  if (tone === 'plum') return { bg: 'bg.subtle', fg: 'status.waiting.fg', border: 'border.structural' }
-  if (tone === 'system') return { bg: 'bg.subtle', fg: 'fg.secondary', border: 'border.strong' }
-  return { bg: 'bg.subtle', fg: 'fg.default', border: 'border.structural' }
-}
-
-const ProjectAvatar = ({ project, size = '46px' }: { readonly project: ProjectRow; readonly size?: string }) => {
-  const colors = projectToneStyles(project.tone)
-
-  return (
-    <Center
-      boxSize={size}
-      borderRadius="10px"
-      bg={colors.bg}
-      color={colors.fg}
-      borderWidth="1px"
-      borderColor={colors.border}
-      fontWeight="650"
-      textTransform="lowercase"
-      flexShrink="0"
-    >
-      {project.initials}
-    </Center>
-  )
+const avatarToneForProject = (tone: ProjectTone): IAvatarProps['tone'] => {
+  if (tone === 'teal') return 'muted'
+  if (tone === 'plum') return 'waiting'
+  if (tone === 'system') return 'system'
+  return 'neutral'
 }
 
 const tabsForProject = (
@@ -133,7 +112,9 @@ const DetailHeader = ({ project }: { readonly project: ProjectRow }) => <FlexHea
 const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
   <Grid templateColumns={{ base: '1fr', xl: 'minmax(0, 1fr) auto' }} gap="5" alignItems="start">
     <HStack gap="4" align="flex-start" minW="0">
-      <ProjectAvatar project={project} size="50px" />
+      <Avatar size="xl" tone={avatarToneForProject(project.tone)}>
+        {project.initials}
+      </Avatar>
       <Stack gap="1.5" minW="0">
         <HStack gap="3" align="baseline" wrap="wrap">
           <Text className="mono" textStyle="small" color="fg.muted">
@@ -330,22 +311,6 @@ const SectionHead = ({
       </ChakraLink>
     ) : null}
   </HStack>
-)
-
-const TagPill = ({ children }: { readonly children: ReactNode }) => (
-  <Span
-    px="2"
-    py="0.5"
-    borderRadius="pill"
-    bg="bg.subtle"
-    borderWidth="1px"
-    borderColor="border.structural"
-    color="fg.secondary"
-    textStyle="caption"
-    whiteSpace="nowrap"
-  >
-    {children}
-  </Span>
 )
 
 const AdrStatusBadge = ({
@@ -683,7 +648,9 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                     </Text>
                     <HStack gap="1.5" wrap="wrap">
                       {adr.tags.map((tag) => (
-                        <TagPill key={tag}>{tag}</TagPill>
+                        <Badge key={tag} tone="quiet">
+                          {tag}
+                        </Badge>
                       ))}
                       {linkedCount > 0 ? (
                         <Text className="mono" textStyle="caption" color="fg.muted">
@@ -695,7 +662,9 @@ const AdrList = ({ adrs }: { readonly adrs: ReadonlyArray<ProjectAdr> }) => (
                   <AdrStatusBadge status={adr.status}>{adrStatusLabel(adr.status)}</AdrStatusBadge>
                   <CompactDecisionStatus status={revisionStatus(adr.status)} />
                   <HStack gap="2" minW="0" css={{ '@container (max-width: 760px)': { display: 'none' } }}>
-                    <AvatarInitials label={ownerInitials(adr.owner)} system={adr.owner === 'orchestrator'} />
+                    <Avatar size="xs" shape="circle" tone={adr.owner === 'orchestrator' ? 'muted' : 'brand'}>
+                      {ownerInitials(adr.owner)}
+                    </Avatar>
                     <Text color="fg.secondary" textStyle="small" truncate>
                       {adr.owner}
                     </Text>
@@ -816,7 +785,9 @@ const KnowledgeArticleCard = ({
                 v{version}
               </Text>
               <Span>·</Span>
-              <AvatarInitials label={ownerInitials(article.owner)} system={article.owner === 'orchestrator'} />
+              <Avatar size="xs" shape="circle" tone={article.owner === 'orchestrator' ? 'muted' : 'brand'}>
+                {ownerInitials(article.owner)}
+              </Avatar>
               <Text color="fg.secondary" truncate minW="0">
                 {article.owner}
               </Text>
@@ -1026,7 +997,9 @@ const KnowledgeArticleDetail = ({
               <Stack gap="0">
                 <AdrDetailMetaRow label="Owner">
                   <HStack gap="2" minW="0">
-                    <AvatarInitials label={ownerInitials(article.owner)} system={article.owner === 'orchestrator'} />
+                    <Avatar size="xs" shape="circle" tone={article.owner === 'orchestrator' ? 'muted' : 'brand'}>
+                      {ownerInitials(article.owner)}
+                    </Avatar>
                     <Text color="fg.secondary" textStyle="small" truncate>
                       {article.owner}
                     </Text>
@@ -1313,7 +1286,9 @@ const MemoryTableDetail = ({ table }: { readonly table: ProjectMemoryTable }) =>
         <MemorySampleRows table={table} />
         <HStack gap="1.5" wrap="wrap">
           {table.tags.map((tag) => (
-            <TagPill key={tag}>{tag}</TagPill>
+            <Badge key={tag} tone="quiet">
+              {tag}
+            </Badge>
           ))}
         </HStack>
       </Stack>
@@ -1440,7 +1415,7 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
                 {event.summary}
               </Text>
               <HStack gap="2" wrap="wrap">
-                <TagPill>{event.target}</TagPill>
+                <Badge tone="quiet">{event.target}</Badge>
                 {event.runId ? (
                   <ChakraLink
                     asChild
@@ -1456,7 +1431,9 @@ const ActivityList = ({ events }: { readonly events: ReadonlyArray<ProjectActivi
           </HStack>
           <Stack gap="1" align={{ base: 'flex-start', lg: 'flex-end' }}>
             <HStack gap="1.5">
-              <AvatarInitials label={event.actor} system={event.actor === 'orchestrator'} />
+              <Avatar size="xs" shape="circle" tone={event.actor === 'orchestrator' ? 'muted' : 'brand'}>
+                {event.actor}
+              </Avatar>
               <Text className="mono" textStyle="caption" color="fg.secondary">
                 {event.actor}
               </Text>
@@ -1578,7 +1555,9 @@ const ProjectMeta = ({ project }: { readonly project: ProjectRow }) => (
         <HStack gap="2" wrap="wrap">
           {project.owners.map((owner) => (
             <HStack key={owner} gap="1.5">
-              <AvatarInitials label={owner} system={owner === 'orchestrator'} />
+              <Avatar size="xs" shape="circle" tone={owner === 'orchestrator' ? 'muted' : 'brand'}>
+                {owner}
+              </Avatar>
               <Text className="mono">{owner}</Text>
             </HStack>
           ))}
@@ -2119,7 +2098,9 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
           </Stack>
           <HStack gap="1.5" wrap="wrap">
             {adr.tags.map((tag) => (
-              <TagPill key={tag}>{tag}</TagPill>
+              <Badge key={tag} tone="quiet">
+                {tag}
+              </Badge>
             ))}
           </HStack>
           <AdrLinkedRun adr={adr} />
@@ -2203,7 +2184,9 @@ const AdrDetail = ({ project, adr }: { readonly project: ProjectRow; readonly ad
             <Stack gap="0">
               <AdrDetailMetaRow label="Author">
                 <HStack gap="2" minW="0">
-                  <AvatarInitials label={ownerInitials(adr.owner)} system={adr.owner === 'orchestrator'} />
+                  <Avatar size="xs" shape="circle" tone={adr.owner === 'orchestrator' ? 'muted' : 'brand'}>
+                    {ownerInitials(adr.owner)}
+                  </Avatar>
                   <Text color="fg.secondary" textStyle="small" truncate>
                     {adr.owner}
                   </Text>

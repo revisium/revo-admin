@@ -4,7 +4,8 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import type { TaskRun } from 'src/shared/fixtures'
 import { formatUsd, initials, relTime } from 'src/shared/fixtures'
-import { AvatarInitials, MiniStepper, PriorityTag, StatusBadge, toneForStatus } from 'src/shared/ui'
+import { MiniStepper, PriorityTag, StatusBadge, toneForStatus } from 'src/shared/ui'
+import { Avatar } from 'src/shared/ui/kit'
 
 export type RunRowVariant = 'recent' | 'table'
 
@@ -49,7 +50,9 @@ const CREATED_BY: Column = {
   hide: cq('900px'),
   cell: (run) => (
     <HStack gap="2" minW="0">
-      <AvatarInitials label={initials(run.createdBy)} system={run.createdBy === 'orchestrator'} />
+      <Avatar size="xs" shape="circle" tone={run.createdBy === 'orchestrator' ? 'muted' : 'brand'}>
+        {initials(run.createdBy)}
+      </Avatar>
       <Text className="mono" textStyle="caption" color="fg.secondary" truncate>
         {run.createdBy}
       </Text>
