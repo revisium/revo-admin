@@ -22,7 +22,7 @@ const Actions = (
       bg="transparent"
       color="fg.1"
       borderWidth="1px"
-      borderColor="border.strong"
+      borderColor="border.warmStrong"
       borderRadius="btn"
       _hover={{ bg: 'blackAlpha.50', color: 'fg.0' }}
     >

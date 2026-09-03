@@ -5,7 +5,7 @@ import { formatUsd } from 'src/shared/fixtures'
 import { CostMeter } from 'src/shared/ui'
 
 const AdrBlock = ({ adr }: { readonly adr: NonNullable<InboxItemDetail['adr']> }) => (
-  <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="card" bg="bg.1">
+  <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
     <HStack gap="2">
       <HStack
         gap="1.5"
@@ -51,7 +51,7 @@ export const PlanGateBody = ({ detail }: { readonly detail: InboxItemDetail }) =
     </Text>
     {detail.adr ? <AdrBlock adr={detail.adr} /> : null}
     {detail.budget ? (
-      <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="card" bg="bg.1">
+      <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
         <HStack gap="2" color="fg.2">
           <Coins size={14} />
           <Text textStyle="semibold-xs" textTransform="uppercase" letterSpacing="0.04em">

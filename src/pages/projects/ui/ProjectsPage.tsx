@@ -9,7 +9,7 @@ const projectToneStyles = (
 ): { readonly bg: string; readonly fg: string; readonly border: string } => {
   if (tone === 'teal') return { bg: 'accent.role.bg', fg: 'accent.role.fg', border: 'accent.role.border' }
   if (tone === 'plum') return { bg: 'status.waiting.bg', fg: 'status.waiting.fg', border: 'status.waiting.border' }
-  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.strong' }
+  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.warmStrong' }
   return { bg: 'brand.soft', fg: 'brand.ink', border: 'brand.softBorder' }
 }
 
@@ -101,7 +101,7 @@ const ProjectCard = ({ project }: { readonly project: ProjectRow }) => {
           display="flex"
           flexDirection="column"
           transition="transform 150ms cubic-bezier(.2,0,0,1), box-shadow 150ms, border-color 150ms"
-          _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.strong' }}
+          _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.warmStrong' }}
         >
           <HStack gap="3" mb="3.5" align="center">
             <ProjectAvatar initials={project.initials} tone={project.tone} />
@@ -170,7 +170,7 @@ const ControlPlaneCard = () => (
         flexDirection="column"
         bg="bg.inset"
         transition="transform 150ms cubic-bezier(.2,0,0,1), box-shadow 150ms, border-color 150ms"
-        _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.strong' }}
+        _hover={{ transform: 'translateY(-2px)', boxShadow: 'sh-2', borderColor: 'border.warmStrong' }}
       >
         <HStack gap="3" mb="3.5" align="center">
           <ProjectAvatar initials="sys" tone="system" system />

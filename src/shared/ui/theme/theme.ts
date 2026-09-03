@@ -1,6 +1,8 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
 import { globalCss } from './globalCss'
+import { monoPalette } from './palette'
 import { textStyles } from './textStyles'
+import { monoSemanticTokens } from './semanticTokens'
 
 // Tokens ported from the claude.ai/design prototype (.design/styles.css `:root`,
 // rust brand). One locked brand, forced-light, warm-neutral palette. CSS-var →
@@ -11,6 +13,18 @@ const config = defineConfig({
     textStyles,
     tokens: {
       colors: {
+        // ─── end of the deprecated warm set ──────────────────────────────────────────────
+
+        // The Revisium Monochrome primitives. This is the target direction; components consume
+        // the semantic roles built on top of these, never these names.
+        palette: monoPalette,
+        // ─── DEPRECATED, scheduled for removal ───────────────────────────────────────────
+        // Everything from here to the `palette` group below is the warm/rust prototype's token
+        // set. It exists only so the legacy screens under src/pages and src/widgets keep
+        // rendering byte-identically; DESIGN.md §1.1 states explicitly that it is not the target
+        // visual direction. Do not use any of it in new code — an ESLint rule already rejects
+        // these token names outside the legacy paths. Call-site counts and the teardown plan are
+        // in .superpowers/sdd/scaffolding-debt.md.
         // brand: rust scale + role aliases (--brand* in styles.css)
         brand: {
           50: { value: '#fbefe9' }, // --brand-tint
@@ -38,7 +52,9 @@ const config = defineConfig({
         },
         border: {
           DEFAULT: { value: '#e6e1d4' }, // hairline
-          strong: { value: '#d6cfbd' },
+          // DEPRECATED: renamed from `strong` so the monochrome `border.strong` role could
+          // take that name. 20 legacy call sites.
+          warmStrong: { value: '#d6cfbd' },
           subtle: { value: '#eee9dd' },
         },
         fg: {
@@ -119,11 +135,18 @@ const config = defineConfig({
       radii: {
         chip: { value: '6px' },
         btn: { value: '8px' },
-        card: { value: '10px' },
+        control: { value: '6px' },
+        card: { value: '8px' },
+        // DEPRECATED: renamed from `card` so the monochrome 8px `radii.card` could take that
+        // name. 20 legacy call sites.
+        warmCard: { value: '10px' },
+        dialog: { value: '12px' },
         modal: { value: '14px' },
         pill: { value: '999px' },
       },
       shadows: {
+        popover: { value: '0 8px 24px rgb(23 23 23 / 10%)' },
+        dialog: { value: '0 16px 40px rgb(23 23 23 / 14%)' },
         'sh-1': { value: '0 1px 2px rgba(60,46,30,.05), 0 1px 1px rgba(60,46,30,.04)' },
         'sh-2': { value: '0 4px 12px rgba(60,46,30,.08), 0 1px 3px rgba(60,46,30,.06)' },
         'sh-3': { value: '0 16px 40px rgba(45,33,20,.16), 0 2px 8px rgba(45,33,20,.10)' },
@@ -134,16 +157,24 @@ const config = defineConfig({
       },
       durations: {
         fast: { value: '150ms' },
+        moderate: { value: '120ms' },
+        slow: { value: '160ms' },
       },
     },
     semanticTokens: {
       colors: {
-        // surface aliases used widely; map onto the warm neutrals.
-        'bg.canvas': { value: '{colors.bg.0}' },
-        'bg.surface': { value: '{colors.bg.1}' },
-        'bg.raised': { value: '{colors.bg.2}' },
+        ...monoSemanticTokens.colors,
       },
     },
+    // Breakpoint names are counter-intuitive here: `md` is 480px, not Chakra's default 768px.
+    // DESIGN's three layout tiers map to base/lg/xl, not base/md/xl:
+    //   compact  < 768px  -> base
+    //   standard 768-1199px -> lg
+    //   wide     >= 1200px -> xl
+    // Using `md` for the 768px boundary silently drops to 480px with no gate catching it
+    // (types still match, nothing renders it). Values are intentionally unchanged: DESIGN §9
+    // pins the existing 768px/1200px boundaries, and renaming them would ripple across 74
+    // responsive-prop occurrences in 11 legacy prototype files.
     breakpoints: {
       base: '0px',
       sm: '360px',

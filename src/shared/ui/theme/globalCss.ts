@@ -25,7 +25,7 @@ export const globalCss: SystemConfig['globalCss'] = {
   // Mono / tabular-number helpers (.mono / .tnum in the prototype).
   '.mono': { fontFamily: 'mono', fontVariantLigatures: 'none' },
   '.tnum': { fontVariantNumeric: 'tabular-nums' },
-  '::selection': { background: '#f6ddd2' },
+  '::selection': { background: 'selection.bg' },
   // Warm custom scrollbar (prototype .app__scroll).
   '*::-webkit-scrollbar': { width: '11px', height: '11px' },
   '*::-webkit-scrollbar-thumb': {
@@ -47,8 +47,20 @@ export const globalCss: SystemConfig['globalCss'] = {
   },
   '*:focus-visible': {
     outline: '2px solid',
-    outlineColor: 'brand.500',
+    outlineColor: 'focus.ring',
     outlineOffset: '2px',
     borderRadius: '2px',
+  },
+  // Media query nested inside the selector, not wrapping it: Chakra types the top-level
+  // globalCss keys as free-form selectors but only recognizes at-rules inside a style
+  // object, so this is the only shape that type-checks without a cast. Emotion hoists it
+  // to the equivalent @media block.
+  '*, *::before, *::after': {
+    '@media (prefers-reduced-motion: reduce)': {
+      animationDuration: '1ms !important',
+      animationIterationCount: '1 !important',
+      transitionDuration: '1ms !important',
+      scrollBehavior: 'auto !important',
+    },
   },
 }

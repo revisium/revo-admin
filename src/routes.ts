@@ -23,4 +23,5 @@ export default [
     route('/method/pipelines/:id', 'routes/MethodPipelineDetail.tsx'),
     route('/method/playbooks', 'routes/MethodPlaybooks.tsx'),
   ]),
+  route('/ui-kit-preview', 'routes/UiKitPreview.tsx'),
 ] satisfies RouteConfig

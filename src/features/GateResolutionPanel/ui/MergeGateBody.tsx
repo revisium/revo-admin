@@ -30,7 +30,7 @@ export const MergeGateBody = ({ detail }: { readonly detail: InboxItemDetail }) 
         {detail.contextSummary}
       </Text>
       {diff ? (
-        <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="card" bg="bg.1">
+        <Stack gap="3" p="4" borderWidth="1px" borderColor="border" borderRadius="warmCard" bg="bg.1">
           <HStack justify="space-between" gap="3" wrap="wrap">
             <HStack gap="1.5" color="fg.1" textStyle="medium-sm">
               <GitPullRequest size={14} />

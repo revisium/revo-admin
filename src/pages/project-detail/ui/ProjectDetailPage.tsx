@@ -83,7 +83,7 @@ const projectToneStyles = (
 ): { readonly bg: string; readonly fg: string; readonly border: string } => {
   if (tone === 'teal') return { bg: 'accent.role.bg', fg: 'accent.role.fg', border: 'accent.role.border' }
   if (tone === 'plum') return { bg: 'status.waiting.bg', fg: 'status.waiting.fg', border: 'status.waiting.border' }
-  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.strong' }
+  if (tone === 'system') return { bg: 'bg.inset', fg: 'fg.2', border: 'border.warmStrong' }
   return { bg: 'brand.soft', fg: 'brand.ink', border: 'brand.softBorder' }
 }
 
@@ -163,7 +163,7 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
         bg="bg.1"
         color="fg.1"
         borderWidth="1px"
-        borderColor="border.strong"
+        borderColor="border.warmStrong"
         borderRadius="btn"
         _hover={{ bg: 'blackAlpha.50', color: 'fg.0' }}
       >
@@ -193,7 +193,7 @@ const FlexHeader = ({ project }: { readonly project: ProjectRow }) => (
         bg="bg.1"
         color="fg.0"
         borderWidth="1px"
-        borderColor="border.strong"
+        borderColor="border.warmStrong"
         borderRadius="btn"
         boxShadow="sh-1"
         disabled
@@ -353,7 +353,7 @@ const AdrStatusBadge = ({
   const palette = {
     accepted: { fg: 'status.success.fg', bg: 'status.success.bg', border: 'status.success.border' },
     proposed: { fg: 'status.waiting.fg', bg: 'status.waiting.bg', border: 'status.waiting.border' },
-    superseded: { fg: 'fg.2', bg: 'bg.inset', border: 'border.strong' },
+    superseded: { fg: 'fg.2', bg: 'bg.inset', border: 'border.warmStrong' },
   }[status]
 
   return (
@@ -403,7 +403,7 @@ const compactDecisionStatus = (
   }
 
   if (status === 'superseded') {
-    return { label: 'Superseded', fg: 'fg.2', bg: 'bg.inset', border: 'border.strong', dot: 'dot.muted' }
+    return { label: 'Superseded', fg: 'fg.2', bg: 'bg.inset', border: 'border.warmStrong', dot: 'dot.muted' }
   }
 
   return {
@@ -463,7 +463,7 @@ const knowledgeStatusMeta = (
       label: 'Draft',
       fg: 'fg.2',
       bg: 'bg.inset',
-      border: 'border.strong',
+      border: 'border.warmStrong',
       dot: 'dot.muted',
     }
   }
@@ -781,7 +781,7 @@ const KnowledgeArticleCard = ({
           display="flex"
           flexDirection="column"
           transition="border-color 150ms, transform 150ms"
-          _hover={{ borderColor: 'border.strong', transform: 'translateY(-1px)' }}
+          _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
         >
           <Stack gap="3" h="100%">
             <HStack gap="3" align="start">
@@ -975,7 +975,7 @@ const KnowledgeArticleDetail = ({
                   bg="bg.1"
                   color="fg.0"
                   borderWidth="1px"
-                  borderColor="border.strong"
+                  borderColor="border.warmStrong"
                   borderRadius="btn"
                   disabled
                   _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
@@ -1089,7 +1089,7 @@ const MemoryTableCard = ({
     borderColor={active ? 'brand.softBorder' : 'border'}
     bg={active ? 'brand.soft' : 'bg.1'}
     color="inherit"
-    _hover={{ borderColor: 'border.strong', textDecoration: 'none' }}
+    _hover={{ borderColor: 'border.warmStrong', textDecoration: 'none' }}
     _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '2px' }}
   >
     <Link to={memoryTableHref(projectId, table)}>
@@ -1675,7 +1675,7 @@ const KnowledgeTab = ({
         bg="bg.1"
         color="fg.0"
         borderWidth="1px"
-        borderColor="border.strong"
+        borderColor="border.warmStrong"
         borderRadius="btn"
         boxShadow="sh-1"
         disabled
@@ -1979,7 +1979,7 @@ const AdrReviewPanel = ({ adr }: { readonly adr: ProjectAdr }) => {
               bg="bg.1"
               color="fg.0"
               borderWidth="1px"
-              borderColor="border.strong"
+              borderColor="border.warmStrong"
               borderRadius="btn"
               disabled
               _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}

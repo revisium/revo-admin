@@ -115,7 +115,7 @@ export const DashboardPage = observer(() => {
             bg="bg.1"
             borderWidth="1px"
             borderColor="border"
-            borderRadius="card"
+            borderRadius="warmCard"
             boxShadow="sh-1"
             overflow="hidden"
           >

@@ -43,7 +43,7 @@ const RoleCard = ({ active, role }: { readonly active: boolean; readonly role: R
         borderColor={active ? 'brand.softBorder' : 'border'}
         bg={active ? 'brand.soft' : 'bg.1'}
         transition="border-color 0.15s, transform 0.15s"
-        _hover={{ borderColor: 'border.strong', transform: 'translateY(-1px)' }}
+        _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
       >
         <Stack gap="3">
           <HStack justify="space-between" align="start" gap="3">
@@ -112,7 +112,7 @@ const RoleDetail = ({ role }: { readonly role: RoleRow }) => (
     <Card>
       <Stack gap="3">
         <SectionHeading>System prompt</SectionHeading>
-        <Box className="mono" bg="bg.inset" borderRadius="card" p="4" borderWidth="1px" borderColor="border">
+        <Box className="mono" bg="bg.inset" borderRadius="warmCard" p="4" borderWidth="1px" borderColor="border">
           <Text textStyle="regular-sm" color="fg.1" whiteSpace="pre-wrap">
             {role.systemPromptPreview}
           </Text>

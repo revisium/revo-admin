@@ -33,7 +33,7 @@ const PipelineCard = ({ active, pipeline }: { readonly active: boolean; readonly
         borderColor={active ? 'brand.softBorder' : 'border'}
         bg={active ? 'brand.soft' : 'bg.1'}
         transition="border-color 0.15s, transform 0.15s"
-        _hover={{ borderColor: 'border.strong', transform: 'translateY(-1px)' }}
+        _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
       >
         <Stack gap="3">
           <HStack justify="space-between" gap="3">

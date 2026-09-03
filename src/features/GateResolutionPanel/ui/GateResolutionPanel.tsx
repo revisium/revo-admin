@@ -91,7 +91,7 @@ const SECONDARY = {
   bg: 'bg.1',
   color: 'fg.1',
   borderWidth: '1px',
-  borderColor: 'border.strong',
+  borderColor: 'border.warmStrong',
   _hover: { bg: 'bg.2', borderColor: 'fg.3' },
 } as const
 const DANGER = {

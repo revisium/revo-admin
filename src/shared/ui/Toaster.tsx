@@ -7,7 +7,15 @@ export const toaster = createToaster({
 export const Toaster = () => (
   <ChakraToaster toaster={toaster}>
     {(toast) => (
-      <Box bg="bg.2" borderWidth="1px" borderColor="border.strong" borderRadius="card" px="4" py="3" boxShadow="sh-3">
+      <Box
+        bg="bg.2"
+        borderWidth="1px"
+        borderColor="border.warmStrong"
+        borderRadius="warmCard"
+        px="4"
+        py="3"
+        boxShadow="sh-3"
+      >
         <Text textStyle="medium-sm" color="fg.0">
           {toast.title}
         </Text>

@@ -6,6 +6,7 @@ coverage/
 .sonar/
 .scannerwork/
 .revo/
+.superpowers/
 .env.local
 .env.*.local
 .env/.env.local
