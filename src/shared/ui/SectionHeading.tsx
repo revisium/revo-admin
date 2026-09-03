@@ -6,7 +6,7 @@ interface SectionHeadingProps {
 
 // Section title (.sec-head__title): h2 scale, semibold, ink.
 export const SectionHeading = ({ children }: SectionHeadingProps) => (
-  <Heading textStyle="semibold-md" letterSpacing="-0.01em" color="fg.0">
+  <Heading textStyle="componentTitle" letterSpacing="-0.01em" color="fg.default">
     {children}
   </Heading>
 )

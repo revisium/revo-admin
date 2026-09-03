@@ -14,8 +14,8 @@ export const globalCss: SystemConfig['globalCss'] = {
     fontFamily: 'body',
     fontSize: '14px',
     lineHeight: '1.5',
-    color: 'fg.0',
-    bg: 'bg.0',
+    color: 'fg.default',
+    bg: 'bg.canvas',
     textRendering: 'optimizeLegibility',
     fontFeatureSettings: "'cv05' 1, 'ss01' 1",
     paddingBottom: 'env(safe-area-inset-bottom)',
@@ -26,18 +26,18 @@ export const globalCss: SystemConfig['globalCss'] = {
   '.mono': { fontFamily: 'mono', fontVariantLigatures: 'none' },
   '.tnum': { fontVariantNumeric: 'tabular-nums' },
   '::selection': { background: 'selection.bg' },
-  // Warm custom scrollbar (prototype .app__scroll).
+  // Custom scrollbar (prototype .app__scroll).
   '*::-webkit-scrollbar': { width: '11px', height: '11px' },
   '*::-webkit-scrollbar-thumb': {
-    background: '#d8d2c4',
+    background: '{colors.border.structural}',
     borderRadius: '8px',
     border: '3px solid',
-    borderColor: 'bg.0',
+    borderColor: 'bg.canvas',
   },
-  '*::-webkit-scrollbar-thumb:hover': { background: '#c7c0af' },
+  '*::-webkit-scrollbar-thumb:hover': { background: '{colors.border.strong}' },
   // Dotted radial background used behind the DAG canvas (.dotgrid).
   '.dotgrid': {
-    backgroundImage: 'radial-gradient(#d6cfbd 1px, transparent 1px)',
+    backgroundImage: 'radial-gradient({colors.border.structural} 1px, transparent 1px)',
     backgroundSize: '18px 18px',
   },
   // Accessible, theme-driven keyboard focus. Pointer focus stays quiet via

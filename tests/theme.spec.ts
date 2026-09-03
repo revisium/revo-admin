@@ -2,9 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { system } from 'src/shared/ui/theme/theme'
 
 describe('theme system', () => {
-  it('builds a Chakra system with brand tokens', () => {
+  it('builds a Chakra system', () => {
     expect(system).toBeDefined()
-    expect(system.token('colors.brand.500')).toBe('#b23a17')
+  })
+
+  // The warm prototype token set is gone. These names must not resolve again: a returning
+  // `brand.*` or `fg.0` would mean a legacy screen crept back in.
+  it('no longer carries the warm prototype tokens', () => {
+    for (const name of ['colors.brand.500', 'colors.accent.gate.bg', 'colors.fg.0', 'colors.bg.inset']) {
+      expect(system.token(name)).toBeUndefined()
+    }
+    expect(system.token('shadows.sh-2')).toBeUndefined()
+    expect(system.token('radii.warmCard')).toBeUndefined()
   })
 
   describe('monochrome tokens', () => {
@@ -61,8 +70,24 @@ describe('theme system', () => {
       expect(resolveToken('colors.overlay.scrim')).toBe('rgb(23 23 23 / 48%)')
     })
 
-    it('keeps legacy warm border strong under warmStrong', () => {
-      expect(system.token('colors.border.warmStrong')).toBe('#d6cfbd')
+    it('defines the five states in the palette', () => {
+      expect(system.token('colors.palette.info.ink')).toBe('#1B5C93')
+      expect(system.token('colors.palette.success.ink')).toBe('#237A52')
+      expect(system.token('colors.palette.warning.ink')).toBe('#976A0F')
+      expect(system.token('colors.palette.danger.ink')).toBe('#B33636')
+      expect(system.token('colors.palette.danger.surface')).toBe('#FCE9E9')
+      expect(system.token('colors.palette.danger.edge')).toBe('#E8ADAD')
+    })
+
+    // A colour is defined once, in the palette. States, dots and risk levels point at it, so
+    // none of them can drift away from the others.
+    it('resolves states, dots and risk levels through the palette', () => {
+      expect(system.token('colors.status.running.fg')).toContain('palette-info-ink')
+      expect(system.token('colors.status.success.bg')).toContain('palette-success-surface')
+      expect(system.token('colors.status.failed.border')).toContain('palette-danger-edge')
+      expect(system.token('colors.status.neutral.fg')).toContain('palette-secondary')
+      expect(system.token('colors.dot.waiting')).toContain('status-waiting-fg')
+      expect(system.tokens.getByName('colors.risk.high.fg')?.originalValue).toBe('{colors.palette.danger.ink}')
     })
   })
 })

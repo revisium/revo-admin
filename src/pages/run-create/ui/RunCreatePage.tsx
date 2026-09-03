@@ -1,6 +1,6 @@
 import { Stack } from '@chakra-ui/react'
-import { PageHeader } from 'src/shared/ui'
 import { CreateRunWizard } from 'src/widgets/CreateRunWizard'
+import { PageHeader } from 'src/shared/ui/components'
 
 export const RunCreatePage = () => (
   <Stack gap="6" maxW="900px">

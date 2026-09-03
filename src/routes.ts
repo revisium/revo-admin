@@ -1,27 +1,28 @@
 import { type RouteConfig, index, layout, route } from '@react-router/dev/routes'
+import { routePaths } from './shared/config'
 
 export default [
   layout('routes/AppLayout.tsx', [
     index('routes/Home.tsx'),
-    route('/runs', 'routes/RunsLayout.tsx', [
+    route(routePaths.runs, 'routes/RunsLayout.tsx', [
       index('routes/RunsBoard.tsx'),
-      route('new', 'routes/RunCreate.tsx'),
-      route('graph-smoke', 'routes/RunGraphSmoke.tsx'),
-      route(':runId', 'routes/RunDetail.tsx'),
+      route(routePaths.runCreate, 'routes/RunCreate.tsx'),
+      route(routePaths.runGraphSmoke, 'routes/RunGraphSmoke.tsx'),
+      route(routePaths.run, 'routes/RunDetail.tsx'),
     ]),
-    route('/projects', 'routes/Projects.tsx'),
-    route('/projects/:projectId', 'routes/ProjectDetail.tsx'),
-    route('/projects/:projectId/knowledge/:articleId', 'routes/ProjectKnowledgeArticle.tsx'),
-    route('/projects/:projectId/adrs/:adrId', 'routes/ProjectAdrDetail.tsx'),
-    route('/projects/:projectId/memory/:tableId', 'routes/ProjectMemoryTable.tsx'),
-    route('/projects/:projectId/:tab', 'routes/ProjectDetailTab.tsx'),
-    route('/inbox', 'routes/Inbox.tsx'),
-    route('/inbox/:itemId', 'routes/InboxItem.tsx'),
-    route('/method/roles', 'routes/MethodRoles.tsx'),
-    route('/method/roles/:roleId', 'routes/MethodRoleDetail.tsx'),
-    route('/method/pipelines', 'routes/MethodPipelines.tsx'),
-    route('/method/pipelines/:id', 'routes/MethodPipelineDetail.tsx'),
-    route('/method/playbooks', 'routes/MethodPlaybooks.tsx'),
+    route(routePaths.projects, 'routes/Projects.tsx'),
+    route(routePaths.project, 'routes/ProjectDetail.tsx'),
+    route(routePaths.projectKnowledgeArticle, 'routes/ProjectKnowledgeArticle.tsx'),
+    route(routePaths.projectAdr, 'routes/ProjectAdrDetail.tsx'),
+    route(routePaths.projectMemoryTable, 'routes/ProjectMemoryTable.tsx'),
+    route(routePaths.projectTab, 'routes/ProjectDetailTab.tsx'),
+    route(routePaths.inbox, 'routes/Inbox.tsx'),
+    route(routePaths.inboxItem, 'routes/InboxItem.tsx'),
+    route(routePaths.methodRoles, 'routes/MethodRoles.tsx'),
+    route(routePaths.methodRole, 'routes/MethodRoleDetail.tsx'),
+    route(routePaths.methodPipelines, 'routes/MethodPipelines.tsx'),
+    route(routePaths.methodPipeline, 'routes/MethodPipelineDetail.tsx'),
+    route(routePaths.methodPlaybooks, 'routes/MethodPlaybooks.tsx'),
   ]),
-  route('/ui-kit-preview', 'routes/UiKitPreview.tsx'),
+  route(routePaths.uiKitPreview, 'routes/UiKitPreview.tsx'),
 ] satisfies RouteConfig

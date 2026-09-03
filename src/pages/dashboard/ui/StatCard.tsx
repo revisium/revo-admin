@@ -21,30 +21,29 @@ export const StatCard = ({ def, count }: { readonly def: StatDef; readonly count
       asChild
       className="group"
       display="block"
-      bg={def.accent ? undefined : 'bg.1'}
+      bg={def.accent ? undefined : 'bg.surface'}
       bgGradient={def.accent ? 'to-b' : undefined}
-      gradientFrom={def.accent ? 'brand.tint' : undefined}
-      gradientTo={def.accent ? 'bg.1' : undefined}
+      gradientFrom={def.accent ? 'bg.subtle' : undefined}
+      gradientTo={def.accent ? 'bg.surface' : undefined}
       borderWidth="1px"
-      borderColor={def.accent ? 'brand.softBorder' : 'border'}
-      borderRadius="warmCard"
-      boxShadow="sh-1"
+      borderColor={def.accent ? 'border.structural' : 'border'}
+      borderRadius="card"
+      boxShadow="popover"
       p="4"
       transition="transform 150ms, box-shadow 150ms, border-color 150ms"
       _hover={{
         textDecoration: 'none',
-        transform: 'translateY(-2px)',
-        boxShadow: 'sh-2',
-        borderColor: 'border.warmStrong',
+        bg: 'bg.subtle',
+        borderColor: 'border.strong',
       }}
     >
       <Link to={def.to}>
         <Box display="flex" alignItems="center" justifyContent="space-between" mb="3.5">
-          <Center boxSize="32px" borderRadius="9px" bg={`status.${def.tone}.bg`} color={`status.${def.tone}.fg`}>
+          <Center boxSize="32px" borderRadius="9px" bg={'bg.subtle'} color={`status.${def.tone}.fg`}>
             <Icon size={16} />
           </Center>
           <Box
-            color="fg.3"
+            color="fg.muted"
             opacity="0"
             transform="translateX(0)"
             transition="opacity 150ms, transform 150ms"
@@ -53,14 +52,21 @@ export const StatCard = ({ def, count }: { readonly def: StatDef; readonly count
             <ArrowRight size={15} />
           </Box>
         </Box>
-        <Text className="tnum" fontSize="34px" fontWeight="680" letterSpacing="-0.03em" lineHeight="1" color="fg.0">
+        <Text
+          className="tnum"
+          fontSize="34px"
+          fontWeight="680"
+          letterSpacing="-0.03em"
+          lineHeight="1"
+          color="fg.default"
+        >
           {count}
         </Text>
-        <Text textStyle="semibold-sm" color="fg.1" mt="2">
+        <Text textStyle="bodyStrong" color="fg.secondary" mt="2">
           {def.label}
         </Text>
         <Stack gap="0">
-          <Text textStyle="regular-xs" color="fg.3" mt="0.5">
+          <Text textStyle="caption" color="fg.muted" mt="0.5">
             {def.hint}
           </Text>
         </Stack>

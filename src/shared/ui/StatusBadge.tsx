@@ -23,7 +23,7 @@ export const StatusBadge = ({ status, tone, dot = true, size = 'md' }: StatusBad
       px={sm ? '2' : '2.5'}
       borderRadius="chip"
       borderWidth="1px"
-      textStyle={sm ? 'medium-xs' : 'medium-sm'}
+      textStyle="caption"
       textTransform="capitalize"
       whiteSpace="nowrap"
       color={`status.${resolved}.fg`}

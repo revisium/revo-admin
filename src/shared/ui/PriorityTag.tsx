@@ -8,7 +8,7 @@ const TONE: Record<Priority, string> = { high: 'failed', normal: 'neutral', low:
 export const PriorityTag = ({ priority }: { readonly priority: Priority }) => (
   <HStack as="span" display="inline-flex" gap="2" align="center">
     <Box w="4px" h="14px" borderRadius="2px" flexShrink="0" bg={`dot.${TONE[priority]}`} />
-    <Text textStyle="regular-sm" color="fg.1" textTransform="capitalize">
+    <Text textStyle="small" color="fg.secondary" textTransform="capitalize">
       {priority}
     </Text>
   </HStack>

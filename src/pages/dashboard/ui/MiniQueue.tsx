@@ -11,9 +11,7 @@ const KIND: Record<InboxKind, { readonly icon: LucideIcon; readonly tone: 'gate'
 }
 
 const palette = (tone: 'gate' | 'running' | 'failed') =>
-  tone === 'gate'
-    ? { fg: 'accent.gate.fg', bg: 'accent.gate.bg' }
-    : { fg: `status.${tone}.fg`, bg: `status.${tone}.bg` }
+  tone === 'gate' ? { fg: 'fg.secondary', bg: 'bg.subtle' } : { fg: `status.${tone}.fg`, bg: 'bg.subtle' }
 
 export const MiniQueue = ({ items }: { readonly items: ReadonlyArray<InboxItem> }) => (
   <Stack gap="0.5" mt="3.5">
@@ -26,17 +24,17 @@ export const MiniQueue = ({ items }: { readonly items: ReadonlyArray<InboxItem> 
           asChild
           display="block"
           borderRadius="8px"
-          _hover={{ textDecoration: 'none', bg: 'bg.inset' }}
+          _hover={{ textDecoration: 'none', bg: 'bg.subtle' }}
         >
           <Link to={`/inbox/${item.id}`}>
             <HStack gap="2.5" px="2" py="2.5">
               <Center boxSize="26px" borderRadius="7px" flexShrink="0" color={colors.fg} bg={colors.bg}>
                 <Icon size={14} />
               </Center>
-              <Text flex="1" minW="0" textStyle="regular-sm" color="fg.1" truncate>
+              <Text flex="1" minW="0" textStyle="small" color="fg.secondary" truncate>
                 {item.title}
               </Text>
-              <Text textStyle="regular-micro" color="fg.3" flexShrink="0">
+              <Text textStyle="caption" color="fg.muted" flexShrink="0">
                 {relTime(item.createdAt)}
               </Text>
             </HStack>

@@ -1,4 +1,4 @@
-export const monoSemanticTokens = {
+export const semanticTokens = {
   colors: {
     'bg.canvas': { value: '{colors.palette.canvas}' },
     'bg.surface': { value: '{colors.palette.white}' },
@@ -21,5 +21,19 @@ export const monoSemanticTokens = {
     'focus.ring': { value: '{colors.palette.ink}' },
     'selection.bg': { value: '{colors.palette.divider}' },
     'overlay.scrim': { value: 'rgb(23 23 23 / 48%)' },
+
+    // Risk is a ranked scale, and ranking is what a neutral surface cannot express. It rides
+    // the same three states rather than inventing its own hues, so success/warning/danger and
+    // low/medium/high can never drift apart. The level word is always rendered, so colour
+    // stays a second channel and never the only one.
+    'risk.low.fg': { value: '{colors.palette.success.ink}' },
+    'risk.low.bg': { value: '{colors.palette.success.surface}' },
+    'risk.low.border': { value: '{colors.palette.success.edge}' },
+    'risk.medium.fg': { value: '{colors.palette.warning.ink}' },
+    'risk.medium.bg': { value: '{colors.palette.warning.surface}' },
+    'risk.medium.border': { value: '{colors.palette.warning.edge}' },
+    'risk.high.fg': { value: '{colors.palette.danger.ink}' },
+    'risk.high.bg': { value: '{colors.palette.danger.surface}' },
+    'risk.high.border': { value: '{colors.palette.danger.edge}' },
   },
 }

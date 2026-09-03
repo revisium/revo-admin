@@ -15,11 +15,11 @@ export const RoleToken = ({ name, size = DEFAULT_SIZE }: RoleTokenProps) => (
     boxSize={`${size}px`}
     borderRadius="8px"
     flexShrink="0"
-    color="accent.role.fg"
-    bg="accent.role.bg"
+    color="fg.secondary"
+    bg="bg.subtle"
     borderWidth="1px"
-    borderColor="accent.role.border"
-    textStyle="semibold-sm"
+    borderColor="border.structural"
+    textStyle="bodyStrong"
     textTransform="uppercase"
   >
     {name.slice(0, 1)}

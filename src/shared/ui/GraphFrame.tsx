@@ -61,9 +61,9 @@ export const GraphFrame = ({ height, children, contentWidth, framed = true }: Gr
       h={`${height}px`}
       w="full"
       borderWidth={framed ? '1px' : '0'}
-      borderColor="border"
+      borderColor="border.structural"
       borderRadius={framed ? 'card' : '0'}
-      bg="bg.1"
+      bg="bg.surface"
       overflow="hidden"
       p={contentWidth ? '4px' : '0'}
     >
@@ -98,7 +98,7 @@ export const GraphFrame = ({ height, children, contentWidth, framed = true }: Gr
           pointerEvents="none"
           zIndex="2"
         >
-          <Box ref={thumbRef} h="full" w="72%" borderRadius="pill" bg="border.warmStrong" />
+          <Box ref={thumbRef} h="full" w="72%" borderRadius="pill" bg="border.strong" />
         </Box>
       ) : null}
     </Box>
@@ -107,6 +107,6 @@ export const GraphFrame = ({ height, children, contentWidth, framed = true }: Gr
 
 export const GraphPlaceholder = () => (
   <Center h="full" w="full">
-    <Spinner color="brand.500" />
+    <Spinner color="action.primary.bg" />
   </Center>
 )

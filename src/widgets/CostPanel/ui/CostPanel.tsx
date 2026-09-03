@@ -42,7 +42,7 @@ export const CostPanel = ({ rows }: CostPanelProps) => {
         </Table.Body>
       </Table.Root>
       <HStack justify="flex-end">
-        <Text textStyle="semibold-sm" color="text.1">
+        <Text textStyle="bodyStrong" color="fg.default">
           Run total: {total.toFixed(COST_DECIMALS)} {currency}
         </Text>
       </HStack>

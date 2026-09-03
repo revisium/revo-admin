@@ -41,8 +41,14 @@ export class SystemStatusViewModel {
     return this.health?.statusLabel ?? 'Host unavailable'
   }
 
+  // Without health data the tone follows the load state: a failed request is an error, while
+  // idle and loading are merely unknown yet.
+  private get fallbackTone(): SystemStatusTone {
+    return this.state === 'error' ? 'failed' : 'waiting'
+  }
+
   public get statusTone(): SystemStatusTone {
-    return this.health?.statusTone ?? 'waiting'
+    return this.health?.statusTone ?? this.fallbackTone
   }
 
   public get hostLabel(): string {
@@ -64,10 +70,10 @@ export class SystemStatusViewModel {
   public get stats(): readonly SystemHostStat[] {
     return (
       this.health?.stats ?? [
-        { key: 'daemon', label: 'daemon', value: 'unknown', tone: 'waiting' },
-        { key: 'doctor', label: 'doctor', value: 'unknown', tone: 'waiting' },
-        { key: 'project', label: 'project', value: 'unknown', tone: 'waiting', mono: true },
-        { key: 'branch', label: 'branch', value: 'unknown', tone: 'waiting', mono: true },
+        { key: 'daemon', label: 'daemon', value: 'unknown', tone: this.fallbackTone },
+        { key: 'doctor', label: 'doctor', value: 'unknown', tone: this.fallbackTone },
+        { key: 'project', label: 'project', value: 'unknown', tone: this.fallbackTone, mono: true },
+        { key: 'branch', label: 'branch', value: 'unknown', tone: this.fallbackTone, mono: true },
       ]
     )
   }

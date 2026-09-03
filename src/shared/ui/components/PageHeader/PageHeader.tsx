@@ -5,11 +5,15 @@ interface PageHeaderProps {
   readonly title: string
   readonly description?: ReactNode
   readonly actions?: ReactNode
+  readonly eyebrow?: ReactNode
   readonly breadcrumb?: ReactNode
   readonly id?: string
 }
 
-export const PageHeader = ({ title, description, actions, breadcrumb, id }: PageHeaderProps) => {
+// The page title block: an optional uppercase eyebrow or breadcrumb, the page's single `h1`,
+// an optional lede, and a right-aligned action region that drops below the title on compact
+// screens. `id` makes the title addressable for `aria-labelledby` and for post-navigation focus.
+export const PageHeader = ({ title, description, actions, eyebrow, breadcrumb, id }: PageHeaderProps) => {
   return (
     <Flex
       as="header"
@@ -21,7 +25,20 @@ export const PageHeader = ({ title, description, actions, breadcrumb, id }: Page
     >
       <Flex flexDirection="column" width="100%">
         {breadcrumb ? <Box marginBottom="5">{breadcrumb}</Box> : null}
-        <Text as="h1" id={id} tabIndex={id ? -1 : undefined} textStyle="pageTitle">
+        {eyebrow ? (
+          <Flex
+            gap="2"
+            alignItems="center"
+            marginBottom="3"
+            textStyle="caption"
+            color="fg.secondary"
+            letterSpacing="0.08em"
+            textTransform="uppercase"
+          >
+            {eyebrow}
+          </Flex>
+        ) : null}
+        <Text as="h1" id={id} tabIndex={id ? -1 : undefined} textStyle="pageTitle" letterSpacing="-0.025em">
           {title}
         </Text>
         {description ? (

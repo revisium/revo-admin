@@ -1,3 +1,4 @@
+import { routes } from 'src/shared/config'
 // Preview-only sample copy for /ui-kit-preview. Do not import from product code.
 
 export const PREVIEW_PROJECT_ID = 'prj_uikitpreview'
@@ -9,10 +10,10 @@ export const PREVIEW_NAV_ITEMS: ReadonlyArray<{
   readonly href: string
   readonly current: boolean
 }> = [
-  { label: 'Home', href: '/', current: false },
-  { label: 'Runs', href: '/runs', current: false },
-  { label: 'Projects', href: '/projects', current: false },
-  { label: 'UI kit preview', href: '/ui-kit-preview', current: true },
+  { label: 'Home', href: routes.home(), current: false },
+  { label: 'Runs', href: routes.runs(), current: false },
+  { label: 'Projects', href: routes.projects(), current: false },
+  { label: 'UI kit preview', href: routes.uiKitPreview(), current: true },
 ]
 
 export const PREVIEW_SECTION_NAV_SECTIONS: ReadonlyArray<{

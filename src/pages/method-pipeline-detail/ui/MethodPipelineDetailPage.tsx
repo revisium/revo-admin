@@ -1,8 +1,9 @@
 import { Stack } from '@chakra-ui/react'
 import { MethodTabs } from 'src/features/MethodTabs'
 import { PIPELINES } from 'src/shared/fixtures'
-import { PageHeader, SchemaV2Action } from 'src/shared/ui'
+import { SchemaV2Action } from 'src/shared/ui'
 import { PipelinesList } from 'src/widgets/PipelinesList'
+import { PageHeader } from 'src/shared/ui/components'
 
 interface MethodPipelineDetailPageProps {
   readonly pipelineId: string

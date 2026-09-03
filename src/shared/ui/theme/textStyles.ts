@@ -60,46 +60,4 @@ const designTextStyles = {
   },
 }
 
-// DEPRECATED — scheduled for removal.
-//
-// The warm prototype's type ramp, generated as every weight × size combination. 284 call sites
-// across src/pages, src/widgets and the flat legacy files in src/shared/ui still depend on it, so
-// it cannot be deleted until those screens are torn down or migrated. It is the largest single
-// item in .superpowers/sdd/scaffolding-debt.md.
-//
-// Do not add a key here, do not use one in new code, and do not migrate a legacy screen to the
-// design roles piecemeal — the visual ramps differ (this one has no letter-spacing, a 21px body
-// line-height and a 680 weight), so a partial migration produces a mixed scale on one screen.
-// An ESLint rule already rejects these keys outside the legacy paths.
-const LEGACY_SIZES: Record<string, { fontSize: string; lineHeight: string }> = {
-  micro: { fontSize: '11px', lineHeight: '15px' },
-  xs: { fontSize: '12px', lineHeight: '16px' }, // caption
-  sm: { fontSize: '13px', lineHeight: '18px' },
-  body: { fontSize: '14px', lineHeight: '21px' },
-  md: { fontSize: '16px', lineHeight: '22px' }, // h2
-  lg: { fontSize: '20px', lineHeight: '26px' }, // h1
-  xl: { fontSize: '20px', lineHeight: '26px' }, // h1 (alias)
-  xxl: { fontSize: '28px', lineHeight: '31px' }, // display
-  display: { fontSize: '28px', lineHeight: '31px' },
-}
-
-const LEGACY_WEIGHTS: Record<string, string> = {
-  regular: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '680',
-}
-
-const legacyTextStyles = Object.fromEntries(
-  Object.entries(LEGACY_WEIGHTS).flatMap(([weight, fontWeight]) =>
-    Object.entries(LEGACY_SIZES).map(([size, { fontSize, lineHeight }]) => [
-      `${weight}-${size}`,
-      { value: { fontSize, lineHeight, fontWeight } },
-    ]),
-  ),
-)
-
-export const textStyles = defineTextStyles({
-  ...legacyTextStyles,
-  ...designTextStyles,
-})
+export const textStyles = defineTextStyles(designTextStyles)

@@ -1,8 +1,9 @@
 import { Stack } from '@chakra-ui/react'
 import { MethodTabs } from 'src/features/MethodTabs'
-import { Card, PageHeader, SchemaV2Action } from 'src/shared/ui'
+import { Card, SchemaV2Action } from 'src/shared/ui'
 import { PLAYBOOKS } from 'src/shared/fixtures'
 import { PlaybooksList } from 'src/widgets/PlaybooksList'
+import { PageHeader } from 'src/shared/ui/components'
 
 export const MethodPlaybooksPage = () => (
   <Stack gap="6">

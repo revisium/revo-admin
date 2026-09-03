@@ -5,9 +5,9 @@ import type { InboxItem, InboxKind } from 'src/shared/fixtures'
 import { relTime } from 'src/shared/fixtures'
 
 const KIND: Record<InboxKind, { readonly icon: LucideIcon; readonly fg: string; readonly bg: string }> = {
-  approval: { icon: DoorOpen, fg: 'accent.gate.fg', bg: 'accent.gate.bg' },
-  question: { icon: MessageCircleQuestion, fg: 'status.running.fg', bg: 'status.running.bg' },
-  alert: { icon: TriangleAlert, fg: 'status.failed.fg', bg: 'status.failed.bg' },
+  approval: { icon: DoorOpen, fg: 'fg.secondary', bg: 'bg.subtle' },
+  question: { icon: MessageCircleQuestion, fg: 'status.running.fg', bg: 'bg.subtle' },
+  alert: { icon: TriangleAlert, fg: 'status.failed.fg', bg: 'bg.subtle' },
 }
 
 export const InboxRow = ({ item, active }: { readonly item: InboxItem; readonly active: boolean }) => {
@@ -21,10 +21,9 @@ export const InboxRow = ({ item, active }: { readonly item: InboxItem; readonly 
       display="block"
       borderRadius="9px"
       borderWidth="1px"
-      borderColor={active ? 'border.warmStrong' : 'transparent'}
-      bg={active ? 'bg.1' : 'transparent'}
-      boxShadow={active ? 'sh-1' : undefined}
-      _hover={{ textDecoration: 'none', bg: active ? 'bg.1' : 'blackAlpha.50' }}
+      borderColor={active ? 'border.strong' : 'transparent'}
+      bg={active ? 'bg.surface' : 'transparent'}
+      _hover={{ textDecoration: 'none', bg: active ? 'bg.surface' : 'action.secondary.hoverBg' }}
     >
       <Link to={`/inbox/${item.id}`}>
         <HStack gap="2.5" p="2.5" align="start">
@@ -39,10 +38,10 @@ export const InboxRow = ({ item, active }: { readonly item: InboxItem; readonly 
             <Icon size={15} />
           </Center>
           <Box flex="1" minW="0">
-            <Text textStyle="medium-sm" color={resolved ? 'fg.2' : 'fg.0'} truncate>
+            <Text textStyle="body" color={resolved ? 'fg.secondary' : 'fg.default'} truncate>
               {item.title}
             </Text>
-            <HStack gap="1.5" mt="0.5" color="fg.3" textStyle="regular-micro">
+            <HStack gap="1.5" mt="0.5" color="fg.muted" textStyle="caption">
               <Text className="mono" truncate>
                 {item.runId}
               </Text>
@@ -55,7 +54,7 @@ export const InboxRow = ({ item, active }: { readonly item: InboxItem; readonly 
               <Check size={14} />
             </Box>
           ) : (
-            <Box boxSize="7px" borderRadius="full" bg="brand.500" flexShrink="0" mt="1.5" />
+            <Box boxSize="7px" borderRadius="full" bg="dot.waiting" flexShrink="0" mt="1.5" />
           )}
         </HStack>
       </Link>

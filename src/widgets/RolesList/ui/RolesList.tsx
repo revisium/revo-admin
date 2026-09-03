@@ -16,12 +16,12 @@ const RunnerBadge = ({ runner }: { readonly runner: string }) => (
     as="span"
     px="2"
     py="0.5"
-    borderRadius="chip"
+    borderRadius="control"
     borderWidth="1px"
-    borderColor="border"
-    bg="bg.inset"
-    color="fg.2"
-    textStyle="medium-xs"
+    borderColor="border.structural"
+    bg="bg.subtle"
+    color="fg.secondary"
+    textStyle="caption"
     whiteSpace="nowrap"
   >
     {runner}
@@ -34,26 +34,26 @@ const RoleCard = ({ active, role }: { readonly active: boolean; readonly role: R
     display="block"
     color="inherit"
     _hover={{ textDecoration: 'none' }}
-    _focusVisible={{ outline: '2px solid', outlineColor: 'brand.500', outlineOffset: '3px' }}
+    _focusVisible={{ outline: '2px solid', outlineColor: 'fg.default', outlineOffset: '3px' }}
   >
     <Link to={`/method/roles/${role.id}`}>
       <Card
         p="4"
         h="100%"
-        borderColor={active ? 'brand.softBorder' : 'border'}
-        bg={active ? 'brand.soft' : 'bg.1'}
-        transition="border-color 0.15s, transform 0.15s"
-        _hover={{ borderColor: 'border.warmStrong', transform: 'translateY(-1px)' }}
+        borderColor={active ? 'fg.default' : 'border.structural'}
+        bg={active ? 'bg.subtle' : 'bg.surface'}
+        transition="border-color 0.15s, background-color 0.15s"
+        _hover={{ borderColor: 'border.strong' }}
       >
         <Stack gap="3">
           <HStack justify="space-between" align="start" gap="3">
             <HStack gap="3" minW="0">
               <RoleToken name={role.name} size={32} />
               <Stack gap="0.5" minW="0">
-                <Text className="mono" textStyle="semibold-sm" color="fg.0" truncate>
+                <Text className="mono" textStyle="bodyStrong" color="fg.default" truncate>
                   {role.name}
                 </Text>
-                <Text textStyle="regular-xs" color="fg.2" truncate>
+                <Text textStyle="caption" color="fg.secondary" truncate>
                   {role.surface}
                 </Text>
               </Stack>
@@ -62,7 +62,7 @@ const RoleCard = ({ active, role }: { readonly active: boolean; readonly role: R
           </HStack>
           <HStack gap="2" justify="space-between" wrap="wrap">
             <RunnerBadge runner={role.runner} />
-            <Text className="mono" textStyle="regular-xs" color="fg.3">
+            <Text className="mono" textStyle="caption" color="fg.muted">
               {role.rights}
             </Text>
           </HStack>
@@ -75,13 +75,13 @@ const RoleCard = ({ active, role }: { readonly active: boolean; readonly role: R
 const RoleDetail = ({ role }: { readonly role: RoleRow }) => (
   <Stack gap="4">
     <Card p="0" overflow="hidden">
-      <HStack gap="3" p="4.5" borderBottomWidth="1px" borderColor="border.subtle">
+      <HStack gap="3" p="4.5" borderBottomWidth="1px" borderColor="border.structural">
         <RoleToken name={role.name} size={40} />
         <Stack gap="0.5" minW="0" flex="1">
-          <Text className="mono" textStyle="semibold-md" color="fg.0">
+          <Text className="mono" textStyle="componentTitle" color="fg.default">
             {role.name}
           </Text>
-          <Text textStyle="regular-sm" color="fg.2">
+          <Text textStyle="small" color="fg.secondary">
             {role.surface} · {role.scope}
           </Text>
         </Stack>
@@ -91,7 +91,7 @@ const RoleDetail = ({ role }: { readonly role: RoleRow }) => (
         <FieldRow label="Model level">
           <HStack gap="2" wrap="wrap">
             <ModelChip level={role.modelLevel} />
-            <Text color="fg.2" textStyle="regular-sm">
+            <Text color="fg.secondary" textStyle="small">
               effort: {role.effort}
             </Text>
           </HStack>
@@ -112,8 +112,15 @@ const RoleDetail = ({ role }: { readonly role: RoleRow }) => (
     <Card>
       <Stack gap="3">
         <SectionHeading>System prompt</SectionHeading>
-        <Box className="mono" bg="bg.inset" borderRadius="warmCard" p="4" borderWidth="1px" borderColor="border">
-          <Text textStyle="regular-sm" color="fg.1" whiteSpace="pre-wrap">
+        <Box
+          className="mono"
+          bg="bg.subtle"
+          borderRadius="card"
+          p="4"
+          borderWidth="1px"
+          borderColor="border.structural"
+        >
+          <Text textStyle="small" color="fg.secondary" whiteSpace="pre-wrap">
             {role.systemPromptPreview}
           </Text>
         </Box>

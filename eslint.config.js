@@ -5,16 +5,24 @@ import prettierPlugin from 'eslint-plugin-prettier/recommended'
 import eslintReact from '@eslint-react/eslint-plugin'
 import globals from 'globals'
 
-// Design-system architecture gates (see .superpowers/sdd/kit-architecture.md). Scoped to the new
-// kit/components/entities/project/features/ProjectSearchToolbar code; the legacy prototype
-// under src/pages, src/widgets, the rest of src/entities and src/features, and the flat
-// src/shared/ui/* files is intentionally exempt.
+// Design-system architecture gates (see .superpowers/sdd/kit-architecture.md). The recipe and
+// import rules apply to the kit and the code built on it; the legacy-token ban below applies to
+// the whole of src, because the warm prototype token set has been removed from the theme.
 const designSystemFiles = [
   'src/shared/ui/kit/**/*.{ts,tsx}',
   'src/shared/ui/components/**/*.{ts,tsx}',
   'src/entities/project/**/*.{ts,tsx}',
   'src/features/ProjectSearchToolbar/**/*.{ts,tsx}',
 ]
+
+// `status.*` and `dot.*` are live: they carry the five semantic states. Everything else listed
+// here was deleted from the theme with the warm prototype.
+const legacyTokenRestriction = {
+  selector:
+    'Literal[value=/^(brand\\.|accent\\.|bg\\.(inset|sidebar)$|border\\.(warmStrong|subtle)$|radii\\.(warmCard|chip|btn|modal)$|shadows\\.sh-|sh-[0-9]|sh-glow|fg\\.[0-3]$|bg\\.[0-2]$|text\\.[1-4]$|neutral\\.|syntax\\.|diff\\.(add|del)|(regular|medium|semibold|bold)-)/]',
+  message:
+    'Legacy design token. The warm prototype token set was removed from the theme; naming one here resolves to nothing.',
+}
 
 const chakraRecipeComponentRestriction = {
   name: '@chakra-ui/react',
@@ -55,12 +63,7 @@ const designSystemRestrictedSyntax = [
     message:
       "useRecipe/useSlotRecipe with { key: '...' } resolves to SystemRecipeFn<{}, {}> for keys outside Chakra's generated config, so variant props come out untyped (this repo does not run chakra typegen). Use { recipe: xRecipe } instead, which infers them.",
   },
-  {
-    selector:
-      'Literal[value=/^(brand\\.|status\\.|accent\\.|dot\\.|bg\\.inset$|border\\.(warmStrong|subtle)$|radii\\.(warmCard|chip|btn|modal)$|shadows\\.sh-|fg\\.[0-3]$|bg\\.[0-2]$|text\\.[1-4]$|neutral\\.|(regular|medium|semibold|bold)-)/]',
-    message:
-      'Legacy design token. This design system does not consume legacy brand/status/accent/dot/neutral/radii/shadows tokens.',
-  },
+  legacyTokenRestriction,
   {
     selector:
       "MemberExpression[object.name='chakra'][property.name=/^(div|span|p|aside|main|header|footer|section|article|nav|hr|ul|ol|li|label|code|h[1-4])$/]",
@@ -130,6 +133,15 @@ export default [
     files: designSystemFiles,
     rules: {
       'no-restricted-syntax': ['error', ...designSystemRestrictedSyntax],
+    },
+  },
+  {
+    // The warm prototype tokens no longer exist in the theme, so naming one anywhere is a
+    // silent no-op at runtime. Catch it at lint time instead.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/shared/ui/theme/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': ['error', legacyTokenRestriction],
     },
   },
   {

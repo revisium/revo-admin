@@ -16,9 +16,9 @@ const RunProgressLegend = () => (
     px="4"
     py="3"
     borderTopWidth="1px"
-    borderColor="border"
-    color="fg.2"
-    textStyle="regular-xs"
+    borderColor="border.structural"
+    color="fg.secondary"
+    textStyle="caption"
     wrap="wrap"
   >
     <HStack gap="2">
@@ -47,17 +47,17 @@ const RunProgressLegend = () => (
         placeItems="center"
         boxSize="22px"
         borderRadius="7px"
-        bg="accent.gate.bg"
-        color="accent.gate.fg"
+        bg="bg.subtle"
+        color="fg.secondary"
         borderWidth="1px"
-        borderColor="accent.gate.border"
+        borderColor="border.structural"
       >
         ⛩
       </Span>
       <Text>human gate</Text>
     </HStack>
     <HStack gap="2">
-      <Box w="28px" borderTopWidth="2px" borderColor="accent.role.fg" borderStyle="dashed" />
+      <Box w="28px" borderTopWidth="2px" borderColor="fg.secondary" borderStyle="dashed" />
       <Text>review loop</Text>
     </HStack>
   </HStack>

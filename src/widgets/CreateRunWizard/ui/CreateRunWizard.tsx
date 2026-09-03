@@ -30,18 +30,18 @@ const StepperRail = ({ active }: { readonly active: number }) => (
               display="flex"
               alignItems="center"
               justifyContent="center"
-              bg={isActive || isDone ? 'brand.500' : 'neutral.0'}
-              borderColor={isActive || isDone ? 'brand.500' : 'neutral.300'}
+              bg={isActive || isDone ? 'action.primary.bg' : 'bg.surface'}
+              borderColor={isActive || isDone ? 'action.primary.bg' : 'border.strong'}
             >
-              <Text textStyle="medium-xs" color={isActive || isDone ? 'neutral.0' : 'text.3'}>
+              <Text textStyle="caption" color={isActive || isDone ? 'bg.surface' : 'fg.secondary'}>
                 {step.index + 1}
               </Text>
             </Box>
-            <Text textStyle="medium-sm" color={isActive ? 'text.1' : 'text.3'}>
+            <Text textStyle="body" color={isActive ? 'fg.default' : 'fg.secondary'}>
               {step.title}
             </Text>
           </HStack>
-          {i < STEPS.length - 1 ? <Box flex="1" h="1px" mx="3" bg="neutral.200" /> : null}
+          {i < STEPS.length - 1 ? <Box flex="1" h="1px" mx="3" bg="border.structural" /> : null}
         </HStack>
       )
     })}
@@ -52,7 +52,7 @@ const RepoValidationResult = () => (
   <Card bg="status.success.bg" borderColor="status.success.border">
     <Stack gap="3">
       <HStack justify="space-between">
-        <Text textStyle="semibold-sm" color="status.success.fg">
+        <Text textStyle="bodyStrong" color="status.success.fg">
           Repository validated
         </Text>
         <StatusBadge status="completed" />
@@ -73,11 +73,11 @@ const RepoValidationResult = () => (
 const RepoStep = () => (
   <Stack gap="4">
     <Stack gap="1">
-      <Text textStyle="medium-sm" color="text.2">
+      <Text textStyle="body" color="fg.secondary">
         Repository
       </Text>
-      <Input defaultValue="revisium/orchestrator-admin" bg="neutral.0" borderColor="neutral.300" />
-      <Text textStyle="regular-xs" color="text.3">
+      <Input defaultValue="revisium/orchestrator-admin" bg="bg.surface" borderColor="border.strong" />
+      <Text textStyle="caption" color="fg.secondary">
         Validated via validate_repository + get_repository_context (mock).
       </Text>
     </Stack>
@@ -88,34 +88,34 @@ const RepoStep = () => (
 const DetailsStep = () => (
   <Stack gap="4">
     <Stack gap="1">
-      <Text textStyle="medium-sm" color="text.2">
+      <Text textStyle="body" color="fg.secondary">
         Title
       </Text>
-      <Input defaultValue="Add release-train workflow" bg="neutral.0" borderColor="neutral.300" />
+      <Input defaultValue="Add release-train workflow" bg="bg.surface" borderColor="border.strong" />
     </Stack>
     <Stack gap="1">
-      <Text textStyle="medium-sm" color="text.2">
+      <Text textStyle="body" color="fg.secondary">
         Description
       </Text>
       <Textarea
         defaultValue="Wire a GitHub Actions release train with semantic version bumps and changelog generation."
-        bg="neutral.0"
-        borderColor="neutral.300"
+        bg="bg.surface"
+        borderColor="border.strong"
         rows={3}
       />
     </Stack>
     <Grid templateColumns={{ base: '1fr', md: '1fr 1fr' }} gap="4">
       <Stack gap="1">
-        <Text textStyle="medium-sm" color="text.2">
+        <Text textStyle="body" color="fg.secondary">
           Scope
         </Text>
-        <Input defaultValue="ci" bg="neutral.0" borderColor="neutral.300" />
+        <Input defaultValue="ci" bg="bg.surface" borderColor="border.strong" />
       </Stack>
       <Stack gap="1">
-        <Text textStyle="medium-sm" color="text.2">
+        <Text textStyle="body" color="fg.secondary">
           Priority
         </Text>
-        <Input defaultValue="high" bg="neutral.0" borderColor="neutral.300" />
+        <Input defaultValue="high" bg="bg.surface" borderColor="border.strong" />
       </Stack>
     </Grid>
   </Stack>
@@ -124,10 +124,10 @@ const DetailsStep = () => (
 const RouteStep = () => (
   <Stack gap="4">
     <Stack gap="1">
-      <Text textStyle="medium-sm" color="text.2">
+      <Text textStyle="body" color="fg.secondary">
         Proposed pipeline
       </Text>
-      <Text textStyle="regular-xs" color="text.3">
+      <Text textStyle="caption" color="fg.secondary">
         feature-default · roles and gates the orchestrator will route through.
       </Text>
     </Stack>
@@ -167,17 +167,17 @@ export const CreateRunWizard = () => {
           size="sm"
           disabled={active === 0}
           onClick={() => setActive((step) => Math.max(0, step - 1))}
-          borderColor="neutral.300"
-          color="text.2"
+          borderColor="border.strong"
+          color="fg.secondary"
         >
           Back
         </Button>
         {isLast ? (
           <Button
             size="sm"
-            bg="brand.500"
-            color="neutral.0"
-            _hover={{ bg: 'brand.hover' }}
+            bg="action.primary.bg"
+            color="bg.surface"
+            _hover={{ bg: 'action.primary.hoverBg' }}
             disabled
             title="Prototype: submit is inert"
           >
@@ -186,9 +186,9 @@ export const CreateRunWizard = () => {
         ) : (
           <Button
             size="sm"
-            bg="brand.500"
-            color="neutral.0"
-            _hover={{ bg: 'brand.hover' }}
+            bg="action.primary.bg"
+            color="bg.surface"
+            _hover={{ bg: 'action.primary.hoverBg' }}
             onClick={() => setActive((step) => Math.min(LAST_STEP, step + 1))}
           >
             Next

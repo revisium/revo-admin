@@ -7,28 +7,28 @@ interface EmptyStateProps {
 
 // Centered empty state (.empty): inset icon tile, title, muted body.
 export const EmptyState = ({ title, description }: EmptyStateProps) => (
-  <Center borderWidth="1px" borderStyle="dashed" borderColor="border.warmStrong" borderRadius="warmCard" py="14" px="6">
+  <Center borderWidth="1px" borderStyle="dashed" borderColor="border.strong" borderRadius="card" py="14" px="6">
     <Stack gap="2" align="center" textAlign="center">
       <Box
         w="13"
         h="13"
-        borderRadius="modal"
-        bg="bg.inset"
+        borderRadius="dialog"
+        bg="bg.subtle"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
         display="grid"
         placeItems="center"
-        color="fg.3"
+        color="fg.muted"
         mb="2"
-        textStyle="semibold-md"
+        textStyle="componentTitle"
       >
         ∅
       </Box>
-      <Text textStyle="semibold-md" color="fg.0">
+      <Text textStyle="componentTitle" color="fg.default">
         {title}
       </Text>
       {description ? (
-        <Text textStyle="regular-body" color="fg.2" maxW="360px">
+        <Text textStyle="body" color="fg.secondary" maxW="360px">
           {description}
         </Text>
       ) : null}

@@ -14,15 +14,15 @@ export const FieldRow = ({ label, children }: FieldRowProps) => (
     gap="4"
     py="2.5"
     borderBottomWidth="1px"
-    borderColor="border.subtle"
+    borderColor="border.structural"
     _last={{ borderBottomWidth: '0' }}
   >
-    <Text textStyle="regular-body" color="fg.2" minW="150px" flexShrink="0">
+    <Text textStyle="body" color="fg.secondary" minW="150px" flexShrink="0">
       {label}
     </Text>
     <Box flex="1" minW="0">
       {typeof children === 'string' ? (
-        <Text textStyle="regular-body" color="fg.0">
+        <Text textStyle="body" color="fg.default">
           {children}
         </Text>
       ) : (

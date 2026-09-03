@@ -46,6 +46,7 @@ import {
 import { useViewModel } from 'src/shared/lib'
 import { BrandLogo } from 'src/shared/ui'
 import { ProjectSwitcherViewModel, type LayoutProjectTone } from '../model/ProjectSwitcherViewModel'
+import { routes } from 'src/shared/config'
 
 interface NavItem {
   readonly label: string
@@ -71,11 +72,11 @@ const PROJECT_DETAIL_INDEX = 3
 const BREADCRUMB_ADR_NUMBER_WIDTH = 4
 
 const NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { label: 'Dashboard', to: '/', match: '/', icon: LayoutDashboard },
-  { label: 'Runs', to: '/runs', match: '/runs', icon: List },
-  { label: 'Inbox', to: '/inbox', match: '/inbox', icon: Inbox, badge: PENDING_INBOX },
-  { label: 'Projects', to: '/projects', match: '/projects', icon: Folder },
-  { label: 'Method', to: '/method/roles', match: '/method', icon: Scan },
+  { label: 'Dashboard', to: routes.home(), match: routes.home(), icon: LayoutDashboard },
+  { label: 'Runs', to: routes.runs(), match: routes.runs(), icon: List },
+  { label: 'Inbox', to: routes.inbox(), match: routes.inbox(), icon: Inbox, badge: PENDING_INBOX },
+  { label: 'Projects', to: routes.projects(), match: routes.projects(), icon: Folder },
+  { label: 'Method', to: routes.methodRoles(), match: '/method', icon: Scan },
 ]
 
 const isActive = (pathname: string, match: string): boolean =>
@@ -120,10 +121,10 @@ const projectBreadcrumbs = (segments: ReadonlyArray<string>): ReadonlyArray<Brea
   if (!projectId) return [{ label: 'Projects' }]
 
   const project = projectById(projectId)
-  if (!project) return [{ label: 'Projects', to: '/projects' }, { label: projectId }]
+  if (!project) return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]
 
   const crumbs: Array<BreadcrumbItem> = [
-    { label: 'Projects', to: '/projects' },
+    { label: 'Projects', to: routes.projects() },
     { label: project.name, to: `/projects/${project.id}` },
   ]
 
@@ -142,7 +143,7 @@ const breadcrumbsForPath = (pathname: string): ReadonlyArray<BreadcrumbItem> => 
   const section = segments[PATH_SECTION_INDEX]
 
   if (section === 'runs') {
-    if (segments[PROJECT_ID_INDEX] === 'new') return [{ label: 'Runs', to: '/runs' }, { label: 'New run' }]
+    if (segments[PROJECT_ID_INDEX] === 'new') return [{ label: 'Runs', to: routes.runs() }, { label: 'New run' }]
     return [{ label: 'Runs' }]
   }
 
@@ -162,17 +163,17 @@ const IconButton = chakra('button', {
     display: 'grid',
     placeItems: 'center',
     borderRadius: '7px',
-    color: 'fg.2',
+    color: 'fg.secondary',
     cursor: 'pointer',
     transition: 'background 150ms, color 150ms',
-    _hover: { bg: 'blackAlpha.50', color: 'fg.0' },
+    _hover: { bg: 'action.secondary.hoverBg', color: 'fg.default' },
   },
 })
 
 const BrandWord = () => (
   <HStack gap="2.5">
     <BrandLogo />
-    <Text fontSize="17px" fontWeight="640" letterSpacing="-0.02em" color="fg.0">
+    <Text fontSize="17px" fontWeight="640" letterSpacing="-0.02em" color="fg.default">
       revo
     </Text>
   </HStack>
@@ -192,10 +193,10 @@ const ProjectAvatar = ({
       <Center
         boxSize={size}
         borderRadius="8px"
-        bg="bg.inset"
-        color={tone === 'all' ? 'brand.500' : 'fg.2'}
+        bg="bg.subtle"
+        color={tone === 'all' ? 'action.primary.bg' : 'fg.secondary'}
         borderWidth="1px"
-        borderColor="border.warmStrong"
+        borderColor="border.strong"
         flexShrink="0"
       >
         {tone === 'all' ? <Layers size={15} /> : <Scan size={15} />}
@@ -203,20 +204,15 @@ const ProjectAvatar = ({
     )
   }
 
-  const color =
-    tone === 'role'
-      ? { bg: 'accent.role.bg', fg: 'accent.role.fg', border: 'accent.role.border' }
-      : { bg: `status.${tone}.bg`, fg: `status.${tone}.fg`, border: `status.${tone}.border` }
-
   return (
     <Center
       boxSize={size}
       borderRadius="8px"
-      bg={color.bg}
-      color={color.fg}
+      bg="bg.subtle"
+      color="fg.secondary"
       borderWidth="1px"
-      borderColor={color.border}
-      textStyle="semibold-xs"
+      borderColor="border.structural"
+      textStyle="caption"
       textTransform="lowercase"
       flexShrink="0"
     >
@@ -246,9 +242,9 @@ const ProjectMenuRow = ({
     px="2.5"
     py="2"
     borderRadius="8px"
-    bg={active ? 'brand.soft' : 'transparent'}
-    color="fg.1"
-    _highlighted={{ bg: active ? 'brand.soft' : 'brand.tint' }}
+    bg={active ? 'bg.subtle' : 'transparent'}
+    color="fg.secondary"
+    _highlighted={{ bg: 'bg.subtle' }}
   >
     {children}
   </Menu.Item>
@@ -273,28 +269,28 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
             px={collapsed ? '0' : '2.5'}
             justifyContent={collapsed ? 'center' : 'flex-start'}
             gap="2.5"
-            bg="bg.1"
-            color="fg.0"
+            bg="bg.surface"
+            color="fg.default"
             borderWidth="1px"
-            borderColor="border"
+            borderColor="border.structural"
             borderRadius="9px"
             boxShadow="none"
-            _hover={{ bg: 'bg.2', borderColor: 'border.warmStrong' }}
-            _expanded={{ bg: 'bg.2', borderColor: 'border.warmStrong', boxShadow: 'sh-glow' }}
+            _hover={{ bg: 'bg.surface', borderColor: 'border.strong' }}
+            _expanded={{ bg: 'bg.surface', borderColor: 'border.strong', boxShadow: 'popover' }}
             title={collapsed ? 'Switch project' : undefined}
           >
             <ProjectAvatar initials={switcher.selectedInitials} tone={switcher.selectedTone} />
             {collapsed ? null : (
               <>
                 <Stack gap="0" flex="1" minW="0" align="flex-start">
-                  <Text textStyle="semibold-sm" color="fg.0" truncate>
+                  <Text textStyle="bodyStrong" color="fg.default" truncate>
                     {switcher.selectedLabel}
                   </Text>
-                  <Text className="mono" textStyle="regular-xs" color="fg.3" truncate>
+                  <Text className="mono" textStyle="caption" color="fg.muted" truncate>
                     {switcher.selectedMeta}
                   </Text>
                 </Stack>
-                <Box color="fg.3" flexShrink="0">
+                <Box color="fg.muted" flexShrink="0">
                   <ChevronDown size={15} />
                 </Box>
               </>
@@ -307,17 +303,17 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
           <Menu.Content
             w="204px"
             p="1.5"
-            bg="bg.2"
+            bg="bg.surface"
             borderWidth="1px"
-            borderColor="border.warmStrong"
+            borderColor="border.strong"
             borderRadius="11px"
-            boxShadow="sh-3"
+            boxShadow="dialog"
           >
             <Text
               px="2.5"
               pt="1.5"
               pb="1"
-              color="fg.3"
+              color="fg.muted"
               fontSize="10.5px"
               fontWeight="650"
               textTransform="uppercase"
@@ -328,14 +324,14 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
             <ProjectMenuRow
               value="all"
               active={switcher.allProjectsSelected}
-              onSelect={() => selectProject('all', '/projects')}
+              onSelect={() => selectProject('all', routes.projects())}
             >
               <ProjectAvatar initials="all" tone="all" size="22px" />
-              <Text flex="1" textStyle="semibold-sm" color="fg.0">
+              <Text flex="1" textStyle="bodyStrong" color="fg.default">
                 All projects
               </Text>
               {switcher.allProjectsSelected ? (
-                <Box color="brand.500">
+                <Box color="action.primary.bg">
                   <Check size={15} />
                 </Box>
               ) : null}
@@ -348,29 +344,29 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
                 onSelect={() => selectProject(project.id, `/projects/${project.id}`)}
               >
                 <ProjectAvatar initials={project.initials} tone={project.tone} size="22px" />
-                <Text flex="1" textStyle="semibold-sm" color="fg.0">
+                <Text flex="1" textStyle="bodyStrong" color="fg.default">
                   {project.label}
                 </Text>
                 {switcher.selectedProjectId === project.id ? (
-                  <Box color="brand.500">
+                  <Box color="action.primary.bg">
                     <Check size={15} />
                   </Box>
                 ) : null}
               </ProjectMenuRow>
             ))}
-            <Box h="1px" bg="border.subtle" mx="1" my="1.5" />
-            <ProjectMenuRow value="control-plane" onSelect={() => selectProject('control-plane', '/method/roles')}>
+            <Box h="1px" bg="border.structural" mx="1" my="1.5" />
+            <ProjectMenuRow value="control-plane" onSelect={() => selectProject('control-plane', routes.methodRoles())}>
               <ProjectAvatar initials="sys" tone="system" size="22px" />
               <Stack gap="0" flex="1" minW="0">
-                <Text textStyle="semibold-sm" color="fg.0">
+                <Text textStyle="bodyStrong" color="fg.default">
                   Control plane
                 </Text>
                 <Span
                   alignSelf="flex-start"
                   px="1.5"
                   borderRadius="4px"
-                  bg="bg.inset"
-                  color="fg.3"
+                  bg="bg.subtle"
+                  color="fg.muted"
                   fontSize="9.5px"
                   fontWeight="650"
                   textTransform="uppercase"
@@ -379,13 +375,13 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
                   System
                 </Span>
               </Stack>
-              <Box color="fg.3">
+              <Box color="fg.muted">
                 <ArrowRight size={14} />
               </Box>
             </ProjectMenuRow>
-            <ProjectMenuRow value="browse-projects" onSelect={() => selectProject('all', '/projects')}>
+            <ProjectMenuRow value="browse-projects" onSelect={() => selectProject('all', routes.projects())}>
               <Plus size={15} />
-              <Text flex="1" textStyle="semibold-sm" color="fg.0">
+              <Text flex="1" textStyle="bodyStrong" color="fg.default">
                 Browse all projects
               </Text>
             </ProjectMenuRow>
@@ -401,10 +397,10 @@ const Avatar = () => (
     boxSize="30px"
     borderRadius="full"
     bgGradient="to-br"
-    gradientFrom="brand.500"
-    gradientTo="brand.press"
-    color="brand.on"
-    textStyle="semibold-sm"
+    gradientFrom="action.primary.bg"
+    gradientTo="action.primary.hoverBg"
+    color="action.primary.fg"
+    textStyle="bodyStrong"
     flexShrink="0"
   >
     ka
@@ -421,11 +417,11 @@ const SearchField = (props: { readonly full?: boolean }) => (
     px="2.5"
     gap="2"
     borderWidth="1px"
-    borderColor="border.warmStrong"
-    bg="bg.1"
-    borderRadius="btn"
-    color="fg.2"
-    textStyle="regular-sm"
+    borderColor="border.strong"
+    bg="bg.surface"
+    borderRadius="control"
+    color="fg.secondary"
+    textStyle="small"
   >
     <Search size={16} />
     <Span flex="1">Search</Span>
@@ -434,10 +430,10 @@ const SearchField = (props: { readonly full?: boolean }) => (
       px="1.5"
       py="0.5"
       borderRadius="5px"
-      bg="bg.inset"
+      bg="bg.subtle"
       borderWidth="1px"
-      borderColor="border"
-      textStyle="regular-micro"
+      borderColor="border.structural"
+      textStyle="caption"
     >
       ⌘K
     </Center>
@@ -445,8 +441,8 @@ const SearchField = (props: { readonly full?: boolean }) => (
 )
 
 const navRowColor = (item: NavItem, active: boolean): string => {
-  if (item.disabled) return 'fg.3'
-  return active ? 'brand.ink' : 'fg.1'
+  if (item.disabled) return 'fg.muted'
+  return active ? 'fg.default' : 'fg.secondary'
 }
 
 const NavRowInner = ({
@@ -461,10 +457,10 @@ const NavRowInner = ({
   const Icon = item.icon
   return (
     <>
-      <Box display="inline-flex" color={active ? 'brand.500' : 'inherit'} position="relative">
+      <Box display="inline-flex" color={active ? 'action.primary.bg' : 'inherit'} position="relative">
         <Icon size={18} />
         {collapsed && item.badge ? (
-          <Box position="absolute" top="-2px" right="-2px" boxSize="7px" borderRadius="full" bg="brand.500" />
+          <Box position="absolute" top="-2px" right="-2px" boxSize="7px" borderRadius="full" bg="dot.waiting" />
         ) : null}
       </Box>
       {collapsed ? null : (
@@ -476,9 +472,9 @@ const NavRowInner = ({
               h="19px"
               px="1.5"
               borderRadius="pill"
-              bg="brand.500"
+              bg="action.primary.bg"
               color="white"
-              textStyle="semibold-micro"
+              textStyle="caption"
             >
               {item.badge}
             </Center>
@@ -510,7 +506,7 @@ const NavRow = ({
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : 'flex-start',
     gap: '2.5',
-    textStyle: active ? 'semibold-body' : 'medium-body',
+    textStyle: active ? 'bodyStrong' : 'body',
     color: navRowColor(item, active),
   } as const
 
@@ -526,8 +522,10 @@ const NavRow = ({
     <ChakraLink
       asChild
       {...shared}
-      bg={active ? 'brand.soft' : 'transparent'}
-      _hover={active ? { textDecoration: 'none' } : { textDecoration: 'none', bg: 'blackAlpha.50', color: 'fg.0' }}
+      bg={active ? 'bg.subtle' : 'transparent'}
+      _hover={
+        active ? { textDecoration: 'none' } : { textDecoration: 'none', bg: 'blackAlpha.50', color: 'fg.default' }
+      }
     >
       <Link to={item.to} title={collapsed ? item.label : undefined} onClick={onNavigate}>
         {content}
@@ -558,11 +556,9 @@ const NavRail = ({
   </Stack>
 )
 
-// Host status pill at the sidebar foot (.host-pill): green beacon + daemon line.
+// Host status pill at the sidebar foot (.host-pill): beacon + daemon line.
 const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
-  const dot = (
-    <Box boxSize="2" borderRadius="full" bg="dot.success" flexShrink="0" boxShadow="0 0 0 3px rgba(106,154,46,.16)" />
-  )
+  const dot = <Box boxSize="2" borderRadius="full" bg="dot.success" flexShrink="0" />
 
   if (collapsed) {
     return (
@@ -572,9 +568,9 @@ const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
         mb="3"
         p="2.5"
         borderRadius="9px"
-        bg="bg.1"
+        bg="bg.surface"
         borderWidth="1px"
-        borderColor="border"
+        borderColor="border.structural"
         title="local · connected"
       >
         {dot}
@@ -590,16 +586,16 @@ const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
       p="2.5"
       gap="2.5"
       borderRadius="9px"
-      bg="bg.1"
+      bg="bg.surface"
       borderWidth="1px"
-      borderColor="border"
+      borderColor="border.structural"
     >
       {dot}
       <Stack gap="0" minW="0">
-        <Text textStyle="medium-xs" color="fg.1">
+        <Text textStyle="caption" color="fg.secondary">
           local · connected
         </Text>
-        <Text className="mono" textStyle="regular-micro" color="fg.3" truncate>
+        <Text className="mono" textStyle="caption" color="fg.muted" truncate>
           daemon up · {HOST_STATUS.uptime}
         </Text>
       </Stack>
@@ -632,15 +628,15 @@ const Sidebar = ({
       direction="column"
       w={collapsed ? SIDEBAR_W_COLLAPSED : SIDEBAR_W}
       flexShrink="0"
-      bg="bg.sidebar"
+      bg="bg.surface"
       borderRightWidth="1px"
-      borderColor="border"
+      borderColor="border.structural"
       transition="width 150ms cubic-bezier(.2,0,0,1)"
     >
       {collapsed ? (
         <Stack align="center" gap="2" px="2" pt="4" pb="3">
           <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
-            <Link to="/">
+            <Link to={routes.home()}>
               <BrandLogo />
             </Link>
           </ChakraLink>
@@ -649,7 +645,7 @@ const Sidebar = ({
       ) : (
         <HStack justify="space-between" px="3.5" pt="4" pb="3">
           <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
-            <Link to="/">
+            <Link to={routes.home()}>
               <BrandWord />
             </Link>
           </ChakraLink>
@@ -683,11 +679,11 @@ const MobileNavDrawer = ({
     <Portal>
       <Drawer.Backdrop />
       <Drawer.Positioner>
-        <Drawer.Content w={SIDEBAR_W} maxW="80vw" bg="bg.sidebar">
+        <Drawer.Content w={SIDEBAR_W} maxW="80vw" bg="bg.surface">
           <Flex direction="column" h="100%">
             <HStack justify="space-between" px="3.5" pt="4" pb="3">
               <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
-                <Link to="/" onClick={onClose}>
+                <Link to={routes.home()} onClick={onClose}>
                   <BrandWord />
                 </Link>
               </ChakraLink>
@@ -711,13 +707,13 @@ const MobileNavDrawer = ({
                 borderRadius="9px"
                 _hover={{ bg: 'blackAlpha.50', textDecoration: 'none' }}
               >
-                <Link to="/" onClick={onClose}>
+                <Link to={routes.home()} onClick={onClose}>
                   <Avatar />
                   <Stack gap="0" minW="0">
-                    <Text textStyle="medium-sm" color="fg.1">
+                    <Text textStyle="body" color="fg.secondary">
                       ka
                     </Text>
-                    <Text textStyle="regular-micro" color="fg.3">
+                    <Text textStyle="caption" color="fg.muted">
                       Account
                     </Text>
                   </Stack>
@@ -742,10 +738,10 @@ const InboxButton = () => (
     position="relative"
     boxSize="34px"
     borderRadius="7px"
-    color="fg.2"
-    _hover={{ bg: 'blackAlpha.50', color: 'fg.0', textDecoration: 'none' }}
+    color="fg.secondary"
+    _hover={{ bg: 'blackAlpha.50', color: 'fg.default', textDecoration: 'none' }}
   >
-    <Link to="/inbox" title="Inbox" aria-label={`Inbox · ${PENDING_INBOX} pending`}>
+    <Link to={routes.inbox()} title="Inbox" aria-label={`Inbox · ${PENDING_INBOX} pending`}>
       <Inbox size={18} />
       {PENDING_INBOX ? (
         <Center
@@ -756,11 +752,11 @@ const InboxButton = () => (
           h="16px"
           px="1"
           borderRadius="pill"
-          bg="brand.500"
+          bg="action.primary.bg"
           color="white"
-          textStyle="semibold-micro"
+          textStyle="caption"
           borderWidth="2px"
-          borderColor="bg.1"
+          borderColor="bg.surface"
         >
           {PENDING_INBOX}
         </Center>
@@ -790,8 +786,8 @@ const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly 
       pl={{ base: '3', lg: '6' }}
       pr={{ base: '3', md: '7' }}
       borderBottomWidth="1px"
-      borderColor="border"
-      bg="bg.1"
+      borderColor="border.structural"
+      bg="bg.surface"
       position="sticky"
       top="0"
       zIndex="20"
@@ -811,24 +807,34 @@ const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly 
           aria-label="Breadcrumb"
           display={{ base: 'none', sm: 'flex' }}
           gap="2"
-          textStyle="regular-sm"
-          color="fg.2"
+          textStyle="small"
+          color="fg.secondary"
           minW="0"
         >
-          <ChakraLink asChild color="fg.2" flexShrink="0" _hover={{ color: 'fg.0', textDecoration: 'none' }}>
-            <Link to="/">revo</Link>
+          <ChakraLink
+            asChild
+            color="fg.secondary"
+            flexShrink="0"
+            _hover={{ color: 'fg.default', textDecoration: 'none' }}
+          >
+            <Link to={routes.home()}>revo</Link>
           </ChakraLink>
           {breadcrumbs.map((crumb) => (
             <HStack key={`${crumb.label}-${crumb.to ?? 'current'}`} as="span" gap="2" minW="0">
-              <Box color="fg.3" display="inline-flex" flexShrink="0">
+              <Box color="fg.muted" display="inline-flex" flexShrink="0">
                 <ChevronRight size={14} />
               </Box>
               {crumb.to ? (
-                <ChakraLink asChild color="fg.2" flexShrink="0" _hover={{ color: 'fg.0', textDecoration: 'none' }}>
+                <ChakraLink
+                  asChild
+                  color="fg.secondary"
+                  flexShrink="0"
+                  _hover={{ color: 'fg.default', textDecoration: 'none' }}
+                >
                   <Link to={crumb.to}>{crumb.label}</Link>
                 </ChakraLink>
               ) : (
-                <Text color="fg.0" fontWeight="560" truncate>
+                <Text color="fg.default" fontWeight="560" truncate>
                   {crumb.label}
                 </Text>
               )}
@@ -848,12 +854,12 @@ const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly 
           h="34px"
           px={{ base: '2.5', sm: '3.5' }}
           gap="1.5"
-          bg="brand.500"
-          color="brand.on"
-          borderRadius="btn"
-          _hover={{ bg: 'brand.hover' }}
+          bg="action.primary.bg"
+          color="action.primary.fg"
+          borderRadius="control"
+          _hover={{ bg: 'action.primary.hoverBg' }}
         >
-          <Link to="/runs/new">
+          <Link to={routes.runCreate()}>
             <Plus size={16} />
             <Span display={{ base: 'none', lg: 'inline' }}>New run</Span>
           </Link>
@@ -873,7 +879,7 @@ export const Layout = () => {
   const { open, onOpen, onClose } = useDisclosure()
 
   return (
-    <Flex h="100dvh" overflow="hidden" bg="bg.0">
+    <Flex h="100dvh" overflow="hidden" bg="bg.canvas">
       <Sidebar pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
       <MobileNavDrawer pathname={pathname} open={open} onClose={onClose} />
       <Flex direction="column" flex="1" minW="0">
