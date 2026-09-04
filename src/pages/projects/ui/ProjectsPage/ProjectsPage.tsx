@@ -1,10 +1,13 @@
-import { Button, Grid, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
 import { Folder, Plus } from 'lucide-react'
+import { observer } from 'mobx-react-lite'
 import type React from 'react'
-import { PROJECTS } from 'src/shared/fixtures'
-import { PageHeader } from 'src/shared/ui/components'
-import { ControlPlaneCard } from '../ControlPlaneCard/ControlPlaneCard'
-import { ProjectCard } from '../ProjectCard'
+import { ProjectSearchToolbar } from 'src/features/ProjectSearchToolbar'
+import { useViewModel } from 'src/shared/lib'
+import { EmptyState, NoResultsState, PageHeader } from 'src/shared/ui/components'
+import { ProjectListViewModel } from '../../model/ProjectListViewModel'
+import { ProjectList } from '../ProjectList/ProjectList'
+import { ProjectListColumnHeadings } from '../ProjectListColumnHeadings/ProjectListColumnHeadings'
 
 const Eyebrow = (
   <HStack gap="2" align="center">
@@ -30,19 +33,59 @@ const Actions = (
   </Button>
 )
 
-export const ProjectsPage: React.FC = () => (
-  <Stack gap="6">
-    <PageHeader
-      eyebrow={Eyebrow}
-      title="Projects"
-      description="Each project is a versioned Revisium project — repositories, knowledge base, ADRs, and the domain memory agents read."
-      actions={Actions}
-    />
-    <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, minmax(0, 1fr))' }} gap="4.5" alignItems="stretch">
-      {PROJECTS.map((project) => (
-        <ProjectCard key={project.id} project={project} />
-      ))}
-      <ControlPlaneCard />
-    </Grid>
-  </Stack>
-)
+export const ProjectsPage: React.FC = observer(() => {
+  const viewModel = useViewModel(ProjectListViewModel)
+
+  const renderContent = () => {
+    if (viewModel.isNoResults) {
+      return (
+        <NoResultsState
+          title="No projects match this search"
+          query={viewModel.query.trim()}
+          description="Nothing in the current list matches that name or ID."
+          onClearSearch={() => viewModel.setQuery('')}
+          clearSearchLabel="Clear search"
+        />
+      )
+    }
+
+    if (viewModel.isEmpty) {
+      return <EmptyState title="No projects yet" description="Create a project to start working." action={Actions} />
+    }
+
+    return (
+      <>
+        <ProjectListColumnHeadings />
+        <ProjectList rows={viewModel.rows} />
+      </>
+    )
+  }
+
+  return (
+    <Stack gap="6">
+      <PageHeader
+        eyebrow={Eyebrow}
+        title="Projects"
+        description="Every project you can open, newest change first. Search by name or ID."
+        actions={Actions}
+      />
+      <ProjectSearchToolbar
+        query={viewModel.query}
+        onQueryChange={viewModel.setQuery}
+        searchLabel="Search by name or ID"
+        searchPlaceholder="For example, Orchestrator"
+        includeArchived={viewModel.includeArchived}
+        onIncludeArchivedChange={viewModel.setIncludeArchived}
+        includeArchivedLabel="Include archived"
+      />
+      <Box marginTop="-2">
+        <Text textStyle="small" color="fg.secondary" marginBottom="4">
+          {viewModel.resultCountLabel}
+        </Text>
+        {renderContent()}
+      </Box>
+    </Stack>
+  )
+})
+
+ProjectsPage.displayName = 'ProjectsPage'

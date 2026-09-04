@@ -1,4 +1,4 @@
-import { Box, chakra } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { type ChangeEvent, type SubmitEvent } from 'react'
 import { FormField } from 'src/shared/ui/components'
 import { Checkbox, TextInput } from 'src/shared/ui/kit'
@@ -46,44 +46,42 @@ export const ProjectSearchToolbar = ({
   // Include archived is a checkbox with a visible text label, never an unlabelled icon
   // and never a colour toggle. The search field's label is visible too — a placeholder
   // never replaces a label.
-  //
-  // chakra.form rather than Box as="form": Chakra's Box is pinned to div props and `as` does
-  // not re-type, so a form-typed onSubmit is a type error on it. This component owns its form
-  // element, which is exactly when the factory is the right tool.
   return (
-    <chakra.form
-      onSubmit={handleSubmit}
-      borderTopWidth="1px"
-      borderBottomWidth="1px"
-      borderTopStyle="solid"
-      borderBottomStyle="solid"
-      borderTopColor="border.structural"
-      borderBottomColor="border.structural"
-      paddingBlock="4"
-      display="flex"
-      gap="4"
-      flexWrap="wrap"
-      alignItems={{ base: 'stretch', lg: 'flex-end' }}
-      flexDirection={{ base: 'column', lg: 'row' }}
-    >
-      <Box flex={{ base: 'auto', lg: '1' }} minWidth="0">
-        <FormField label={searchLabel}>
-          {(controlProps) => (
-            <TextInput
-              {...controlProps}
-              type="search"
-              autoComplete="off"
-              value={query}
-              placeholder={searchPlaceholder}
-              onChange={handleQueryChange}
-            />
-          )}
-        </FormField>
+    <form onSubmit={handleSubmit}>
+      <Box
+        borderTopWidth="1px"
+        borderBottomWidth="1px"
+        borderTopStyle="solid"
+        borderBottomStyle="solid"
+        borderTopColor="border.structural"
+        borderBottomColor="border.structural"
+        paddingBlock="4"
+        display="flex"
+        gap="4"
+        flexWrap="wrap"
+        justifyContent={{ base: 'center', lg: 'center' }}
+        alignItems={{ base: 'stretch', lg: 'flex-end' }}
+        flexDirection={{ base: 'column', lg: 'row' }}
+      >
+        <Box flex={{ base: 'auto', lg: '1' }} minWidth="0">
+          <FormField label={searchLabel} reserveErrorSpace={false}>
+            {(controlProps) => (
+              <TextInput
+                {...controlProps}
+                type="search"
+                autoComplete="off"
+                value={query}
+                placeholder={searchPlaceholder}
+                onChange={handleQueryChange}
+              />
+            )}
+          </FormField>
+        </Box>
+        <Checkbox checked={includeArchived} onCheckedChange={handleIncludeArchivedChange}>
+          {includeArchivedLabel}
+        </Checkbox>
       </Box>
-      <Checkbox checked={includeArchived} onCheckedChange={handleIncludeArchivedChange}>
-        {includeArchivedLabel}
-      </Checkbox>
-    </chakra.form>
+    </form>
   )
 }
 

@@ -14,11 +14,20 @@ interface FormFieldProps {
   readonly hint?: string
   readonly error?: string
   readonly required?: boolean
+  readonly reserveErrorSpace?: boolean
   readonly id?: string
   readonly children: (controlProps: ControlWiringProps) => ReactNode
 }
 
-export const FormField = ({ label, hint, error, required, id: providedId, children }: FormFieldProps) => {
+export const FormField = ({
+  label,
+  hint,
+  error,
+  required,
+  reserveErrorSpace = true,
+  id: providedId,
+  children,
+}: FormFieldProps) => {
   const generatedId = useId()
   const id = providedId ?? generatedId
   const hintId = hint ? `${id}-hint` : undefined
@@ -48,14 +57,15 @@ export const FormField = ({ label, hint, error, required, id: providedId, childr
         'aria-invalid': Boolean(error),
         required: Boolean(required),
       })}
-      {/* Reserved error area to avoid layout shift when error state appears */}
-      <Span minH="18px">
-        {error ? (
-          <Text as="span" id={errorId} textStyle="small" color="fg.secondary">
-            {error}
-          </Text>
-        ) : null}
-      </Span>
+      {reserveErrorSpace || error ? (
+        <Span minH="18px">
+          {error ? (
+            <Text as="span" id={errorId} textStyle="small" color="fg.secondary">
+              {error}
+            </Text>
+          ) : null}
+        </Span>
+      ) : null}
     </Flex>
   )
 }
