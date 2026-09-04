@@ -1,50 +1,6 @@
-query SystemStatus {
-  status {
-    daemon {
-      baseUrl
-      healthy
-      httpPort
-      pgPort
-      pid
-      running
-    }
-    project {
-      branch
-      dataDir
-      org
-      project
-    }
-  }
-}
-
-query Project {
-  project {
-    branch
-    dataDir
-    org
-    project
-  }
-}
-
-query SystemDoctor {
-  doctor {
-    issues
-    ok
-    status {
-      daemon {
-        baseUrl
-        healthy
-        httpPort
-        pgPort
-        pid
-        running
-      }
-      project {
-        branch
-        dataDir
-        org
-        project
-      }
-    }
+query SystemInfo {
+  systemInfo {
+    name
+    status
   }
 }

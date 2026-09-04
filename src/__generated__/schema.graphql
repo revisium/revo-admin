@@ -1,126 +1,149 @@
 schema {
   query: Query
   mutation: Mutation
-  subscription: Subscription
 }
 
-type AlternativeRoleGroupModel {
-  groupId: String!
-  resolution: String!
-  roles: [String!]!
-}
-
-input AnswerQuestionInput {
-  answer: JSON!
-  inboxId: ID!
-  resolvedBy: String
-}
-
-input CreateRunInput {
-  description: String
-  params: JSON
-  pipelineId: String
-  playbookId: String
-  priority: Int
-  repo: String!
-  scope: String
-  start: Boolean! = false
+input AdrAlternativeInput {
+  summary: String!
   title: String!
 }
 
-type CreateRunResultModel {
-  eventId: ID!
-  route: JSON
-  runId: ID!
-  started: Boolean!
-  status: String!
-  taskId: ID!
-  workflow: JSON
-}
-
-type DaemonStatusModel {
-  baseUrl: String
-  healthy: Boolean!
-  httpPort: Int
-  pgPort: Int
-  pid: Int
-  running: Boolean!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type DoctorResultModel {
-  issues: [String!]!
-  ok: Boolean!
-  status: SystemStatusModel!
-}
-
-input GateDecisionInput {
-  inboxId: ID!
-  resolvedBy: String
-}
-
-type GateRiskModel {
-  context: JSON
-  inboxId: ID!
-  kind: String!
-  options: JSON
-  risk: String!
+type AdrAlternativeModel {
+  summary: String!
   title: String!
-  topic: String
 }
 
-input GetRunAttemptsInput {
-  after: String
-  first: Int! = 50
-  runId: ID!
-}
-
-input GetRunEventsInput {
-  after: String
-  first: Int! = 50
-  runId: ID!
-  type: String
-}
-
-type InboxConnection {
-  edges: [InboxItemModelEdge!]!
-  pageInfo: PageInfo!
+type AdrConnectionModel {
+  edges: [AdrEdgeModel!]!
+  pageInfo: PageInfoModel!
   totalCount: Int!
 }
 
-type InboxItemModel {
-  answer: JSON
-  context: JSON
-  createdAt: DateTime!
+type AdrEdgeModel {
+  cursor: String!
+  node: AdrModel!
+}
+
+input AdrInput {
+  alternatives: [AdrAlternativeInput!]!
+  consequences: String!
+  context: String!
+  decision: String!
   id: ID!
-  kind: String!
-  options: JSON
-  projectId: String
-  resolvedAt: DateTime
-  resolvedBy: String
-  runId: String
-  status: String!
-  stepId: String
-  taskId: String
+  projectId: ID!
+  relatedRequirements: [String!]!
+  status: AdrStatus!
+  supersededBy: String!
   title: String!
 }
 
-type InboxItemModelEdge {
-  cursor: String!
-  node: InboxItemModel!
+type AdrModel {
+  alternatives: [AdrAlternativeModel!]!
+  consequences: String!
+  context: String!
+  decision: String!
+  id: ID!
+  relatedRequirements: [String!]!
+  status: AdrStatus!
+  supersededBy: String!
+  title: String!
 }
 
-type InboxResolutionModel {
-  answer: JSON
-  inboxId: ID!
-  previousStatus: String!
-  runId: String
-  signaled: Boolean!
-  topic: String
+enum AdrStatus {
+  accepted
+  deprecated
+  proposed
+  rejected
+  superseded
+}
+
+type CatalogChangeEntryConnection {
+  edges: [CatalogChangeEntryEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type CatalogChangeEntryEdge {
+  cursor: String!
+  node: CatalogChangeEntryModel!
+}
+
+type CatalogChangeEntryModel {
+  changeType: CatalogChangeType!
+  entryId: ID!
+  fieldPaths: [String!]!
+  previousRecordId: ID
+  recordId: ID!
+  tableId: CatalogTable!
+}
+
+enum CatalogChangeType {
+  ADDED
+  MODIFIED
+  REMOVED
+  RENAMED
+  RENAMED_AND_MODIFIED
+}
+
+type CatalogCommitResultModel {
+  previousRevisionId: ID!
+  revisionId: ID!
+}
+
+type CatalogImportResultModel {
+  tables: [CatalogImportTableResultModel!]!
+}
+
+type CatalogImportTableResultModel {
+  created: Int!
+  tableId: CatalogTable!
+  updated: Int!
+}
+
+type CatalogMutationResultModel {
+  changes: CatalogChangeEntryConnection!
+  status: CatalogStatusModel!
+}
+
+enum CatalogScope {
+  DRAFT
+  HEAD
+  REVISION
+}
+
+type CatalogSnapshotModel {
+  isHead: Boolean!
+  launchProfiles: [LaunchProfileModel!]!
+  methodDocuments: [MethodDocumentModel!]!
+  pipelineRoles: [PipelineRoleModel!]!
+  pipelines: [PipelineModel!]!
+  playbooks: [PlaybookModel!]!
+  revisionId: ID!
+  roleRefs: [RoleRefModel!]!
+  roles: [RoleModel!]!
+  sharedReferences: [SharedReferenceModel!]!
+  stackRefs: [StackRefModel!]!
+  stacks: [StackModel!]!
+}
+
+type CatalogStatusModel {
+  draftRevisionId: ID!
+  hasChanges: Boolean!
+  headRevisionId: ID!
+  totalChanges: Int!
+}
+
+enum CatalogTable {
+  launchProfiles
+  methodDocuments
+  pipelineRoles
+  pipelines
+  playbooks
+  roleRefs
+  roles
+  sharedReferences
+  stackRefs
+  stacks
 }
 
 """
@@ -128,33 +151,125 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-input ListInboxInput {
-  after: String
-  first: Int! = 50
-  runId: String
-  status: String
+type LaunchProfileConnection {
+  edges: [LaunchProfileEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
 }
 
-input ListMethodInput {
-  after: String
-  first: Int! = 50
+type LaunchProfileEdge {
+  cursor: String!
+  node: LaunchProfileModel!
 }
 
-input ListRunsInput {
-  after: String
-  first: Int! = 50
-  status: String
+input LaunchProfileInput {
+  id: ID!
+  pipelineId: ID!
+  profile: JSON!
+  status: LaunchProfileStatus!
+}
+
+type LaunchProfileModel {
+  id: ID!
+  isHead: Boolean!
+  pipelineId: ID!
+  profile: JSON!
+  revisionId: ID!
+  status: LaunchProfileStatus!
+}
+
+enum LaunchProfileStatus {
+  active
+  deprecated
+}
+
+type MethodDocumentConnection {
+  edges: [MethodDocumentEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type MethodDocumentEdge {
+  cursor: String!
+  node: MethodDocumentModel!
+}
+
+input MethodDocumentInput {
+  body: String!
+  id: ID!
+  kind: MethodDocumentKind!
+  playbookId: ID!
+}
+
+enum MethodDocumentKind {
+  checklist
+  method
+  nav
+  template
+}
+
+type MethodDocumentModel {
+  body: String!
+  id: ID!
+  isHead: Boolean!
+  kind: MethodDocumentKind!
+  playbookId: ID!
+  revisionId: ID!
 }
 
 type Mutation {
-  answerQuestion(data: AnswerQuestionInput!): InboxResolutionModel!
-  approveGate(data: GateDecisionInput!): InboxResolutionModel!
-  createRun(data: CreateRunInput!): CreateRunResultModel!
-  rejectGate(data: GateDecisionInput!): InboxResolutionModel!
-  resolveInboxItem(data: ResolveInboxItemInput!): InboxResolutionModel!
+  archiveProject(data: ProjectInput!): Boolean!
+  commitCatalog(message: String!): CatalogCommitResultModel!
+  createAdr(data: AdrInput!): AdrModel!
+  createLaunchProfile(data: LaunchProfileInput!): LaunchProfileModel!
+  createMethodDocument(data: MethodDocumentInput!): MethodDocumentModel!
+  createPipeline(data: PipelineInput!): PipelineModel!
+  createPipelineRole(data: PipelineRoleInput!): PipelineRoleModel!
+  createPlaybook(data: PlaybookInput!): PlaybookModel!
+  createProject(data: ProjectCreateInput!): ProjectCreatedModel!
+  createRequirement(data: RequirementInput!): RequirementModel!
+  createRole(data: RoleInput!): RoleModel!
+  createRoleRef(data: RoleRefInput!): RoleRefModel!
+  createSharedReference(data: SharedReferenceInput!): SharedReferenceModel!
+  createStack(data: StackInput!): StackModel!
+  createStackRef(data: StackRefInput!): StackRefModel!
+  createWorkItem(data: WorkItemInput!): WorkItemModel!
+  createWorkPlan(data: WorkPlanInput!): WorkPlanModel!
+  deleteAdr(data: RecordDeleteInput!): Boolean!
+  deleteLaunchProfile(id: ID!): Boolean!
+  deleteMethodDocument(id: ID!): Boolean!
+  deletePipeline(id: ID!): Boolean!
+  deletePipelineRole(id: ID!): Boolean!
+  deletePlaybook(id: ID!): Boolean!
+  deleteRequirement(data: RecordDeleteInput!): Boolean!
+  deleteRole(id: ID!): Boolean!
+  deleteRoleRef(id: ID!): Boolean!
+  deleteSharedReference(id: ID!): Boolean!
+  deleteStack(id: ID!): Boolean!
+  deleteStackRef(id: ID!): Boolean!
+  deleteWorkItem(data: RecordDeleteInput!): Boolean!
+  deleteWorkPlan(data: RecordDeleteInput!): Boolean!
+  discardCatalog: CatalogMutationResultModel!
+  importCatalog(data: JSON!): CatalogImportResultModel!
+  restoreProject(data: ProjectInput!): Boolean!
+  startRun(data: StartRunInput!): StartRunResultModel!
+  updateAdr(data: AdrInput!): AdrModel!
+  updateLaunchProfile(data: LaunchProfileInput!): LaunchProfileModel!
+  updateMethodDocument(data: MethodDocumentInput!): MethodDocumentModel!
+  updatePipeline(data: PipelineInput!): PipelineModel!
+  updatePlaybook(data: PlaybookInput!): PlaybookModel!
+  updateProject(data: ProjectUpdateInput!): Boolean!
+  updateRequirement(data: RequirementInput!): RequirementModel!
+  updateRole(data: RoleInput!): RoleModel!
+  updateRoleRef(data: RoleRefInput!): RoleRefModel!
+  updateSharedReference(data: SharedReferenceInput!): SharedReferenceModel!
+  updateStack(data: StackInput!): StackModel!
+  updateStackRef(data: StackRefInput!): StackRefModel!
+  updateWorkItem(data: WorkItemInput!): WorkItemModel!
+  updateWorkPlan(data: WorkPlanInput!): WorkPlanModel!
 }
 
-type PageInfo {
+type PageInfoModel {
   endCursor: String
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -162,467 +277,449 @@ type PageInfo {
 }
 
 type PipelineConnection {
-  edges: [PipelineModelEdge!]!
-  pageInfo: PageInfo!
+  edges: [PipelineEdge!]!
+  pageInfo: PageInfoModel!
   totalCount: Int!
 }
 
-type PipelineModel {
-  alternativeRoles: [AlternativeRoleGroupModel!]!
-  executionPolicy: JSON
-  id: ID!
-  optionalRoles: [String!]!
-  path: String!
-  pipelineId: String!
-  playbookId: String!
-  requiredRoles: [String!]!
-  routeGates: [String!]!
-  triggers: [String!]!
-}
-
-type PipelineModelEdge {
+type PipelineEdge {
   cursor: String!
   node: PipelineModel!
 }
 
-type PlaybookConnection {
-  edges: [PlaybookModelEdge!]!
-  pageInfo: PageInfo!
+input PipelineInput {
+  id: ID!
+  pipeline: JSON!
+  playbookId: ID!
+}
+
+type PipelineModel {
+  id: ID!
+  isHead: Boolean!
+  pipeline: JSON!
+  playbookId: ID!
+  revisionId: ID!
+}
+
+type PipelineRoleConnection {
+  edges: [PipelineRoleEdge!]!
+  pageInfo: PageInfoModel!
   totalCount: Int!
 }
 
-type PlaybookModel {
-  id: ID!
-  name: String!
-  packageName: String!
-  schemaVersion: Int!
-  source: String!
-  version: String!
+type PipelineRoleEdge {
+  cursor: String!
+  node: PipelineRoleModel!
 }
 
-type PlaybookModelEdge {
+input PipelineRoleInput {
+  id: ID!
+  membership: PipelineRoleMembership!
+  pipelineId: ID!
+  roleId: ID!
+}
+
+enum PipelineRoleMembership {
+  alternative
+  optional
+  required
+}
+
+type PipelineRoleModel {
+  id: ID!
+  isHead: Boolean!
+  membership: PipelineRoleMembership!
+  pipelineId: ID!
+  revisionId: ID!
+  roleId: ID!
+}
+
+type PlaybookConnection {
+  edges: [PlaybookEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type PlaybookEdge {
   cursor: String!
   node: PlaybookModel!
 }
 
-type PrCheckModel {
-  name: String!
-  result: String!
-}
-
-type PrChecksModel {
-  fail: [String!]!
-  list: [PrCheckModel!]!
-  pass: [String!]!
-  pending: [String!]!
-  terminal: [String!]!
-}
-
-type PrFeedbackItemModel {
-  author: String
-  evidence: String
-  location: String
-  provider: String
-  reason: String
-  severity: String
-  source: String
-  summary: String
-}
-
-type PrFeedbackModel {
-  developerFixes: [PrFeedbackItemModel!]!
-  humanDecisions: [PrFeedbackItemModel!]!
-  ignoredNoise: [PrFeedbackItemModel!]!
-  providerWait: [PrFeedbackItemModel!]!
-  residualRisks: [String!]!
-  reviewerQuestions: [PrFeedbackItemModel!]!
-}
-
-type PrInfoModel {
-  base: String!
-  draft: Boolean!
-  head: String!
-  headSha: String!
-  mergeState: String!
-  number: Int
-  state: String!
-  url: String!
-}
-
-input PrReadinessInput {
-  baseBranch: String
-  headBranch: String
-  includeComments: Boolean
-  includeReviewThreads: Boolean
-  prNumber: Int
-  repo: String!
-  sonarProject: String
-}
-
-type PrReadinessModel {
-  checks: PrChecksModel!
-  ciSummary: JSON!
-  evidence: [String!]!
-  feedback: PrFeedbackModel!
-  nextAction: String!
-  pr: PrInfoModel!
-  providerState: JSON!
-  reviewDecision: String!
-  reviewThreads: PrReviewThreadsModel!
-  sonar: PrSonarModel!
-  verdict: String!
-}
-
-type PrReviewThreadModel {
-  author: String
-  body: String!
-  id: String!
-  isOutdated: Boolean!
-  isResolved: Boolean!
-  line: Int
-  path: String
-  url: String
-}
-
-type PrReviewThreadsModel {
-  included: Boolean!
-  items: [PrReviewThreadModel!]!
-  unresolvedCount: Int!
-}
-
-type PrSonarHotspotModel {
-  component: String!
-  line: Int
-  message: String!
-  securityCategory: String
-  vulnerabilityProbability: String
-}
-
-type PrSonarIssueModel {
-  component: String!
-  line: Int
-  message: String!
-  rule: String
-  severity: String!
-}
-
-type PrSonarModel {
-  configured: Boolean!
-  hotspots: [PrSonarHotspotModel!]!
-  issues: [PrSonarIssueModel!]!
-  unavailable: Boolean!
-}
-
-type ProjectModel {
-  branch: String!
-  dataDir: String!
-  org: String!
-  project: String!
-}
-
-type Query {
-  doctor: DoctorResultModel!
-  gateRisk(id: ID!): GateRiskModel!
-  inbox(data: ListInboxInput): InboxConnection!
-  inboxItem(id: ID!): InboxItemModel!
-  pendingDecisions(runId: String): [InboxItemModel!]!
-  pipeline(id: ID!): PipelineModel!
-  pipelines(data: ListMethodInput): PipelineConnection!
-  playbooks(data: ListMethodInput): PlaybookConnection!
-  prFeedback(data: PrReadinessInput!): JSON!
-  prFeedbackTyped(data: PrReadinessInput!): PrFeedbackModel!
-  prReadiness(data: PrReadinessInput!): JSON!
-  prReadinessTyped(data: PrReadinessInput!): PrReadinessModel!
-  project: ProjectModel!
-  repositoryContext(repo: String!): RepositoryContextModel!
-  role(id: ID!): RoleModel!
-  roles(data: ListMethodInput): RoleConnection!
-  run(id: ID!): RunModel!
-  runAttempts(data: GetRunAttemptsInput!): RunAttemptConnection!
-  runDigest(id: ID!): RunDigestModel!
-  runEvents(data: GetRunEventsInput!): RunEventConnection!
-  runProgress(id: ID!): RunProgressModel!
-  runWorkflow(id: ID!): RunWorkflowModel!
-  runs(data: ListRunsInput): RunConnection!
-  simulateRoute(data: SimulateRouteInput!): JSON!
-  status: SystemStatusModel!
-  validateRepository(repo: String!): RepositoryValidationModel!
-}
-
-type RepositoryContextModel {
-  branch: String!
-  clean: Boolean!
-  error: String!
-  exists: Boolean!
-  files: [RepositoryGuidanceFileModel!]!
-  gitRoot: String!
-  input: String!
-  isDirectory: Boolean!
-  packageError: String!
-  packageName: String!
-  path: String!
-  remote: String!
-  scripts: [RepositoryScriptModel!]!
-}
-
-type RepositoryGuidanceFileModel {
-  exists: Boolean!
-  path: String!
-}
-
-type RepositoryScriptModel {
-  command: String!
+input PlaybookInput {
+  id: ID!
   name: String!
 }
 
-type RepositoryValidationModel {
-  branch: String!
-  clean: Boolean!
-  error: String!
-  exists: Boolean!
-  gitRoot: String!
-  input: String!
-  isDirectory: Boolean!
-  path: String!
-  remote: String!
+type PlaybookModel {
+  id: ID!
+  isHead: Boolean!
+  name: String!
+  revisionId: ID!
 }
 
-input ResolveInboxItemInput {
-  answer: JSON!
-  inboxId: ID!
-  resolvedBy: String
-  signalGate: Boolean! = true
-}
-
-type RoleConnection {
-  edges: [RoleModelEdge!]!
-  pageInfo: PageInfo!
+type ProjectConnectionModel {
+  edges: [ProjectEdgeModel!]!
+  pageInfo: PageInfoModel!
   totalCount: Int!
 }
 
-type RoleModel {
-  allowedTools: [String!]
-  effort: String
-  id: ID!
-  modelLevel: String!
+input ProjectCreateInput {
+  description: String
   name: String!
-  permissionMode: String
-  playbookId: String
-  playbookRoleId: String
-  rights: String
-  runner: String!
-  scopeRules: JSON
-  sourceHash: String
-  sourcePath: String
-  surface: String
-  systemPrompt: String
-  timeoutMs: Int
 }
 
-type RoleModelEdge {
+type ProjectCreatedModel {
+  projectId: ID!
+}
+
+type ProjectEdgeModel {
+  cursor: String!
+  node: ProjectModel!
+}
+
+input ProjectInput {
+  id: ID!
+}
+
+input ProjectListInput {
+  after: String
+  first: Int
+  includeArchived: Boolean
+  query: String
+}
+
+type ProjectModel {
+  adr(id: ID!): AdrModel
+  adrs(data: RecordListInput!): AdrConnectionModel!
+  createdAt: String!
+  description: String!
+  id: ID!
+  name: String!
+  requirement(id: ID!): RequirementModel
+  requirements(data: RecordListInput!): RequirementConnectionModel!
+  status: ProjectStatus!
+  updatedAt: String!
+  workItem(id: ID!): WorkItemModel
+  workItems(data: RecordListInput!): WorkItemConnectionModel!
+  workPlan(id: ID!): WorkPlanModel
+  workPlans(data: RecordListInput!): WorkPlanConnectionModel!
+}
+
+enum ProjectStatus {
+  active
+  archived
+}
+
+input ProjectUpdateInput {
+  description: String
+  id: ID!
+  name: String
+}
+
+type Query {
+  catalogChangeSet(after: String, first: Int!): CatalogChangeEntryConnection!
+  catalogSnapshot(revisionId: ID!): CatalogSnapshotModel!
+  catalogStatus: CatalogStatusModel!
+  launchProfile(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileModel!
+  launchProfiles(after: String, first: Int!, pipelineId: ID, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileConnection!
+  methodDocument(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): MethodDocumentModel!
+  methodDocuments(after: String, first: Int!, playbookId: ID, revisionId: ID, scope: CatalogScope! = HEAD): MethodDocumentConnection!
+  pipeline(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): PipelineModel!
+  pipelineRole(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): PipelineRoleModel!
+  pipelineRoles(after: String, first: Int!, pipelineId: ID, revisionId: ID, scope: CatalogScope! = HEAD): PipelineRoleConnection!
+  pipelines(after: String, first: Int!, playbookId: ID, revisionId: ID, scope: CatalogScope! = HEAD): PipelineConnection!
+  playbook(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): PlaybookModel!
+  playbooks(after: String, first: Int!, revisionId: ID, scope: CatalogScope! = HEAD): PlaybookConnection!
+  project(data: ProjectInput!): ProjectModel
+  projects(data: ProjectListInput!): ProjectConnectionModel!
+  role(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): RoleModel!
+  roleRef(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): RoleRefModel!
+  roleRefs(after: String, first: Int!, revisionId: ID, roleId: ID, scope: CatalogScope! = HEAD): RoleRefConnection!
+  roles(after: String, first: Int!, playbookId: ID, revisionId: ID, scope: CatalogScope! = HEAD): RoleConnection!
+  run(id: ID!): RunModel
+  sharedReference(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): SharedReferenceModel!
+  sharedReferences(after: String, first: Int!, playbookId: ID, revisionId: ID, scope: CatalogScope! = HEAD): SharedReferenceConnection!
+  stack(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): StackModel!
+  stackRef(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): StackRefModel!
+  stackRefs(after: String, first: Int!, revisionId: ID, scope: CatalogScope! = HEAD, stackId: ID): StackRefConnection!
+  stacks(after: String, first: Int!, playbookId: ID, revisionId: ID, scope: CatalogScope! = HEAD): StackConnection!
+  systemInfo: SystemInfoModel!
+}
+
+input RecordDeleteInput {
+  id: ID!
+  projectId: ID!
+}
+
+input RecordListInput {
+  after: String
+  first: Int
+}
+
+type RequirementConnectionModel {
+  edges: [RequirementEdgeModel!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type RequirementEdgeModel {
+  cursor: String!
+  node: RequirementModel!
+}
+
+input RequirementInput {
+  acceptance: String!
+  id: ID!
+  projectId: ID!
+  relatedAdr: [String!]!
+  statement: String!
+  status: RequirementStatus!
+  title: String!
+}
+
+type RequirementModel {
+  acceptance: String!
+  id: ID!
+  relatedAdr: [String!]!
+  statement: String!
+  status: RequirementStatus!
+  title: String!
+}
+
+enum RequirementStatus {
+  accepted
+  deferred
+  proposed
+  rejected
+}
+
+type RoleConnection {
+  edges: [RoleEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type RoleEdge {
   cursor: String!
   node: RoleModel!
 }
 
-type RunActivityItemModel {
-  actor: String!
-  createdAt: DateTime!
+input RoleInput {
+  body: String!
   id: ID!
-  payload: JSON
-  summary: String!
-  type: String!
+  playbookId: ID!
 }
 
-type RunAttemptConnection {
-  edges: [RunAttemptModelEdge!]!
-  pageInfo: PageInfo!
+type RoleModel {
+  body: String!
+  id: ID!
+  isHead: Boolean!
+  playbookId: ID!
+  revisionId: ID!
+}
+
+type RoleRefConnection {
+  edges: [RoleRefEdge!]!
+  pageInfo: PageInfoModel!
   totalCount: Int!
 }
 
-type RunAttemptModel {
-  artifactRef: String!
-  costAmount: Float!
-  currency: String!
-  durationMs: Int!
-  error: String!
-  id: ID!
-  inputTokens: Int!
-  iteration: Int!
-  lesson: String!
-  modelProfile: String!
-  outputSummary: String!
-  outputTokens: Int!
-  runId: ID!
-  startedAt: DateTime!
-  status: String!
-  stepId: String!
-  stepKey: String!
-  verdict: String!
-}
-
-type RunAttemptModelEdge {
+type RoleRefEdge {
   cursor: String!
-  node: RunAttemptModel!
+  node: RoleRefModel!
 }
 
-type RunConnection {
-  edges: [RunModelEdge!]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type RunCostModel {
-  attemptId: String!
-  costAmount: Float!
-  currency: String!
+input RoleRefInput {
+  body: String!
   id: ID!
-  inputTokens: Int!
-  modelProfile: String!
-  outputTokens: Int!
-  recordedAt: DateTime!
-  runId: ID!
-  stepId: String!
+  roleId: ID!
 }
 
-type RunDigestModel {
-  latestEvents: [RunEventModel!]!
-  pendingInbox: [InboxItemModel!]!
-  run: RunModel!
-  usage: UsageModel!
-}
-
-type RunEventConnection {
-  edges: [RunEventModelEdge!]!
-  pageInfo: PageInfo!
-  totalCount: Int!
-}
-
-type RunEventModel {
-  actor: String!
-  createdAt: DateTime!
+type RoleRefModel {
+  body: String!
   id: ID!
-  payload: JSON
-  runId: ID!
-  stepId: String!
-  taskId: String!
-  type: String!
-}
-
-type RunEventModelEdge {
-  cursor: String!
-  node: RunEventModel!
-}
-
-type RunGateStateModel {
-  answer: JSON
-  inboxId: ID
-  nodeId: ID!
-  status: String!
-  topic: String!
+  isHead: Boolean!
+  revisionId: ID!
+  roleId: ID!
 }
 
 type RunModel {
-  createdAt: DateTime!
-  description: String
-  digest: RunDigestModel!
-  events(after: String, first: Int! = 50, type: String): RunEventConnection!
-  id: ID!
-  priority: Int!
-  progress: RunProgressModel!
-  repos: [String!]!
-  scope: String
+  createdAt: String!
+  runId: ID!
+  schemaVersion: String!
   status: String!
-  title: String!
+  terminal: JSON
+  updatedAt: String!
 }
 
-type RunModelEdge {
+type SharedReferenceConnection {
+  edges: [SharedReferenceEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type SharedReferenceEdge {
   cursor: String!
-  node: RunModel!
+  node: SharedReferenceModel!
 }
 
-type RunProgressModel {
-  graphCursor: JSON
-  updatedAt: DateTime!
-  workflowStatus: String!
-}
-
-input RunSubscriptionInput {
-  runId: ID
-}
-
-type RunWorkflowEdgeModel {
-  from: ID!
-  kind: String!
-  label: String!
-  to: ID!
-}
-
-type RunWorkflowModel {
-  activity: [RunActivityItemModel!]!
-  attempts: [RunAttemptModel!]!
-  currentNodeIds: [String!]!
-  edges: [RunWorkflowEdgeModel!]!
-  gates: [RunGateStateModel!]!
-  nodes: [RunWorkflowNodeModel!]!
-  pendingInbox: [InboxItemModel!]!
-  pipeline: RunWorkflowPipelineModel!
-  run: RunModel!
-  usage: UsageModel!
-}
-
-type RunWorkflowNodeModel {
-  attemptCount: Int!
-  costAmount: Float!
+input SharedReferenceInput {
+  body: String!
   id: ID!
-  inboxId: ID
-  inputTokens: Int!
-  kind: String!
-  label: String!
-  metadata: JSON
-  modelLevel: String
-  outputTokens: Int!
-  roleId: String
-  runner: String
-  scriptId: String
-  status: String!
-  verdict: String
+  playbookId: ID!
 }
 
-type RunWorkflowPipelineModel {
-  activeNodeIds: [String!]!
+type SharedReferenceModel {
+  body: String!
   id: ID!
-  pipelineId: String!
-  playbookId: String!
-  routeGates: [String!]!
+  isHead: Boolean!
+  playbookId: ID!
+  revisionId: ID!
+}
+
+type StackConnection {
+  edges: [StackEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type StackEdge {
+  cursor: String!
+  node: StackModel!
+}
+
+input StackInput {
+  body: String!
+  id: ID!
+  playbookId: ID!
+}
+
+type StackModel {
+  body: String!
+  id: ID!
+  isHead: Boolean!
+  playbookId: ID!
+  revisionId: ID!
+}
+
+type StackRefConnection {
+  edges: [StackRefEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type StackRefEdge {
+  cursor: String!
+  node: StackRefModel!
+}
+
+input StackRefInput {
+  body: String!
+  id: ID!
+  stackId: ID!
+}
+
+type StackRefModel {
+  body: String!
+  id: ID!
+  isHead: Boolean!
+  revisionId: ID!
+  stackId: ID!
+}
+
+input StartRunInput {
+  input: JSON!
+  pipeline: JSON
+  pipelineId: ID
+  profile: JSON
+  profileId: ID
+}
+
+type StartRunResultModel {
+  runId: ID!
+}
+
+type SystemInfoModel {
+  name: String!
   status: String!
+}
+
+type WorkItemConnectionModel {
+  edges: [WorkItemEdgeModel!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type WorkItemEdgeModel {
+  cursor: String!
+  node: WorkItemModel!
+}
+
+input WorkItemInput {
+  acceptance: String!
+  cancelled: Boolean!
+  constraints: String!
+  dependsOn: [String!]!
+  goal: String!
+  id: ID!
+  inputs: String!
+  owner: String!
+  plan: String!
+  projectId: ID!
+  relatedAdr: [String!]!
+  relatedRequirements: [String!]!
   title: String!
 }
 
-input SimulateRouteInput {
-  params: JSON
-  pipeline: String
-  playbookId: String
-  repo: String
+type WorkItemModel {
+  acceptance: String!
+  cancelled: Boolean!
+  constraints: String!
+  dependsOn: [String!]!
+  goal: String!
+  id: ID!
+  inputs: String!
+  owner: String!
+  plan: String!
+  relatedAdr: [String!]!
+  relatedRequirements: [String!]!
   title: String!
 }
 
-type Subscription {
-  inboxItemAdded(data: RunSubscriptionInput): InboxItemModel!
-  inboxItemResolved(data: RunSubscriptionInput): InboxItemModel!
-  runCostRecorded(data: RunSubscriptionInput): RunCostModel!
-  runEventAppended(data: RunSubscriptionInput): RunEventModel!
-  runProgressUpdated(data: RunSubscriptionInput): RunProgressModel!
-  runUpdated(data: RunSubscriptionInput): RunModel!
-  runWorkflowUpdated(data: RunSubscriptionInput): RunWorkflowModel!
+type WorkPlanConnectionModel {
+  edges: [WorkPlanEdgeModel!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
 }
 
-type SystemStatusModel {
-  daemon: DaemonStatusModel!
-  project: ProjectModel!
+type WorkPlanEdgeModel {
+  cursor: String!
+  node: WorkPlanModel!
 }
 
-type UsageModel {
-  costAmount: Float!
-  inputTokens: Int!
-  outputTokens: Int!
+input WorkPlanInput {
+  acceptance: String!
+  baselineId: String!
+  bounds: String!
+  id: ID!
+  outcome: String!
+  projectId: ID!
+  status: WorkPlanStatus!
+  title: String!
+}
+
+type WorkPlanModel {
+  acceptance: String!
+  baselineId: String!
+  bounds: String!
+  id: ID!
+  outcome: String!
+  status: WorkPlanStatus!
+  title: String!
+}
+
+enum WorkPlanStatus {
+  closed
+  draft
+  ready
 }

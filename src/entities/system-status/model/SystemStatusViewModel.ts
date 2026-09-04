@@ -69,12 +69,7 @@ export class SystemStatusViewModel {
 
   public get stats(): readonly SystemHostStat[] {
     return (
-      this.health?.stats ?? [
-        { key: 'daemon', label: 'daemon', value: 'unknown', tone: this.fallbackTone },
-        { key: 'doctor', label: 'doctor', value: 'unknown', tone: this.fallbackTone },
-        { key: 'project', label: 'project', value: 'unknown', tone: this.fallbackTone, mono: true },
-        { key: 'branch', label: 'branch', value: 'unknown', tone: this.fallbackTone, mono: true },
-      ]
+      this.health?.stats ?? [{ key: 'system', label: 'system', value: 'unknown', tone: this.fallbackTone, mono: true }]
     )
   }
 
@@ -87,7 +82,7 @@ export class SystemStatusViewModel {
     this.error = null
 
     try {
-      const rawHealth = await this.systemStatusService.loadDoctor()
+      const rawHealth = await this.systemStatusService.loadSystemInfo()
 
       runInAction(() => {
         this.health = new SystemHealthViewModel(rawHealth)

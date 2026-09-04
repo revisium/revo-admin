@@ -6,32 +6,9 @@ const GRAPHQL_ENDPOINT = 'http://admin.test/graphql'
 const HTTP_ORIGIN = 'http://127.0.0.1:5173/runs'
 const HTTPS_ORIGIN = 'https://admin.revisium.test/runs'
 
-const HEALTH_RAW = {
-  issues: [],
-  ok: true,
-  status: {
-    daemon: {
-      baseUrl: 'http://127.0.0.1:19323',
-      healthy: true,
-      httpPort: 19322,
-      pgPort: 15540,
-      pid: 4242,
-      running: true,
-    },
-    project: {
-      branch: 'master',
-      dataDir: 'revo-admin-test-data',
-      org: 'revisium',
-      project: 'orchestrator-admin',
-    },
-  },
-}
+const SYSTEM_INFO = { name: 'revo-core', status: 'ok' }
 
-const DOCTOR_RESPONSE = {
-  data: {
-    doctor: HEALTH_RAW,
-  },
-}
+const SYSTEM_INFO_RESPONSE = { data: { systemInfo: SYSTEM_INFO } }
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -59,16 +36,16 @@ describe('GraphQL endpoints', () => {
 describe('GraphqlService', () => {
   it('loads generated GraphQL SDK operations through the shared HTTP client', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      expect(String(init?.body)).toContain('query SystemDoctor')
+      expect(String(init?.body)).toContain('query SystemInfo')
 
-      return new Response(JSON.stringify(DOCTOR_RESPONSE), {
+      return new Response(JSON.stringify(SYSTEM_INFO_RESPONSE), {
         headers: { 'content-type': 'application/json' },
       })
     })
 
     const graphql = new GraphqlService({ endpoint: GRAPHQL_ENDPOINT, fetch: fetchMock })
 
-    await expect(graphql.client.SystemDoctor()).resolves.toEqual({ doctor: HEALTH_RAW })
+    await expect(graphql.client.SystemInfo()).resolves.toEqual({ systemInfo: SYSTEM_INFO })
     expect(fetchMock).toHaveBeenCalledWith(GRAPHQL_ENDPOINT, expect.objectContaining({ method: 'POST' }))
   })
 })
