@@ -1,69 +1,34 @@
-import type { SystemDoctorQuery } from 'src/__generated__/graphql-request'
+import type { SystemInfoQuery } from 'src/__generated__/graphql-request'
 import type { SystemHostStat, SystemStatusTone } from './types'
 
-type SystemHealthRaw = SystemDoctorQuery['doctor']
+type SystemHealthRaw = SystemInfoQuery['systemInfo']
 
+/** Adapts the compact systemInfo contract to the dashboard host card. */
 export class SystemHealthViewModel {
   public constructor(private readonly raw: SystemHealthRaw) {}
 
   public get isOnline(): boolean {
-    return this.raw.status.daemon.running && this.raw.status.daemon.healthy && this.raw.ok
+    return this.raw.status === 'ok'
   }
-
   public get statusLabel(): string {
     return this.isOnline ? 'Host online' : 'Host needs attention'
   }
-
   public get statusTone(): SystemStatusTone {
     return this.isOnline ? 'success' : 'failed'
   }
-
   public get hostLabel(): string {
-    return this.raw.status.daemon.baseUrl ?? 'local GraphQL host'
+    return this.raw.name
   }
-
   public get metaLabel(): string {
-    return 'data dir'
+    return 'status'
   }
-
   public get metaValue(): string {
-    return this.raw.status.project.dataDir
+    return this.raw.status
   }
-
   public get issues(): readonly string[] {
-    return this.raw.issues
+    return ['Detailed daemon, doctor, and project metadata is unavailable in the systemInfo contract.']
   }
-
-  public get projectLabel(): string {
-    return `${this.raw.status.project.org}/${this.raw.status.project.project}`
-  }
-
-  public get branchLabel(): string {
-    return this.raw.status.project.branch
-  }
-
-  public get daemonLabel(): string {
-    return this.raw.status.daemon.running ? 'up' : 'down'
-  }
-
-  public get doctorLabel(): string {
-    return this.raw.ok ? 'ok' : 'issues'
-  }
-
-  public get daemonTone(): SystemStatusTone {
-    return this.raw.status.daemon.running && this.raw.status.daemon.healthy ? 'success' : 'failed'
-  }
-
-  public get doctorTone(): SystemStatusTone {
-    return this.raw.ok ? 'success' : 'failed'
-  }
-
   public get stats(): readonly SystemHostStat[] {
-    return [
-      { key: 'daemon', label: 'daemon', value: this.daemonLabel, tone: this.daemonTone },
-      { key: 'doctor', label: 'doctor', value: this.doctorLabel, tone: this.doctorTone },
-      { key: 'project', label: 'project', value: this.projectLabel, tone: 'success', mono: true },
-      { key: 'branch', label: 'branch', value: this.branchLabel, tone: 'success', mono: true },
-    ]
+    return [{ key: 'system', label: 'system', value: this.raw.name, tone: this.statusTone, mono: true }]
   }
 }

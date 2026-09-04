@@ -1,5 +1,5 @@
 import { Box, Center, Flex, HStack, SimpleGrid, Stack, Text } from '@chakra-ui/react'
-import { BookOpen, GitBranch, Layers, Terminal, type LucideIcon } from 'lucide-react'
+import { Terminal, type LucideIcon } from 'lucide-react'
 import type { SystemHostStat, SystemHostStatKey, SystemStatusTone } from 'src/entities/system-status'
 
 interface HostStatusCardProps {
@@ -14,10 +14,7 @@ interface HostStatusCardProps {
 }
 
 const ICONS: Record<SystemHostStatKey, LucideIcon> = {
-  branch: BookOpen,
-  daemon: Terminal,
-  doctor: Layers,
-  project: GitBranch,
+  system: Terminal,
 }
 
 export const HostStatusCard = ({
