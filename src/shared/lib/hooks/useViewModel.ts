@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { container } from '../DIContainer'
 
 interface ViewModelLifecycle {
@@ -7,7 +7,16 @@ interface ViewModelLifecycle {
   unmount?: () => void
 }
 
-export const useViewModel = <T extends object>(Class: new (...args: any[]) => T, ...initArgs: any[]): T => {
+type SetupArgs<T> = 'setup' extends keyof T
+  ? NonNullable<T['setup']> extends (...args: infer A) => unknown
+    ? A
+    : []
+  : []
+
+const sameArgs = (previous: readonly unknown[], next: readonly unknown[]): boolean =>
+  previous.length === next.length && previous.every((arg, index) => arg === next[index])
+
+export const useViewModel = <T extends object>(Class: new (...args: any[]) => T, ...initArgs: SetupArgs<T>): T => {
   const [model] = useState(() => {
     const instance = container.get(Class)
     const lifecycle = instance as T & ViewModelLifecycle
@@ -15,17 +24,13 @@ export const useViewModel = <T extends object>(Class: new (...args: any[]) => T,
     return instance
   })
 
-  const [previousArgs, setPreviousArgs] = useState(initArgs)
+  const previousArgsRef = useRef<SetupArgs<T>>(initArgs)
 
-  const memoizedInitArgs = useMemo(() => {
-    if (previousArgs.length !== initArgs.length || previousArgs.some((arg, index) => arg !== initArgs[index])) {
-      setPreviousArgs(initArgs)
+  if (!sameArgs(previousArgsRef.current, initArgs)) {
+    previousArgsRef.current = initArgs
+  }
 
-      return initArgs
-    }
-
-    return previousArgs
-  }, [initArgs, previousArgs])
+  const memoizedInitArgs = previousArgsRef.current
 
   useEffect(() => {
     const lifecycle = model as T & ViewModelLifecycle
