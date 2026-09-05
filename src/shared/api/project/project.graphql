@@ -28,3 +28,15 @@ query Projects($query: String, $includeArchived: Boolean, $after: String, $first
     totalCount
   }
 }
+
+mutation CreateProject($data: ProjectCreateInput!) {
+  createProject(data: $data) {
+    projectId
+  }
+}
+
+query Project($id: ID!) {
+  project(data: { id: $id }) {
+    ...ProjectNode
+  }
+}

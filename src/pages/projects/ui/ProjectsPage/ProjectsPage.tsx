@@ -2,6 +2,8 @@ import { Box, Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react'
 import { Folder, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import type React from 'react'
+import { Link } from 'react-router'
+import { routes } from 'src/shared/config'
 import { ProjectSearchToolbar } from 'src/features/ProjectSearchToolbar'
 import {
   ProjectListContinuationError,
@@ -23,18 +25,20 @@ const Eyebrow = (
 
 const Actions = (
   <Button
+    asChild
     size="sm"
-    h="36px"
+    h={{ base: '44px', lg: '36px' }}
+    minW="44px"
     px="3.5"
     gap="2"
     bg="fg.default"
     color="action.primary.fg"
-    disabled
     _hover={{ bg: 'action.primary.hoverBg' }}
-    _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
   >
-    <Plus size={15} />
-    New project
+    <Link to={routes.projectCreate()} state={{ fromProjects: true }}>
+      <Plus size={15} />
+      Create project
+    </Link>
   </Button>
 )
 
@@ -119,7 +123,7 @@ export const ProjectsPage: React.FC = observer(() => {
         eyebrow={Eyebrow}
         title="Projects"
         description="Every project you can open, newest change first. Search by name or ID."
-        actions={Actions}
+        actions={viewModel.isEmpty && !viewModel.isNoResults ? undefined : Actions}
       />
       <Box position={{ base: 'sticky', lg: 'static' }} top="0" zIndex="10" bg="bg.canvas">
         <ProjectSearchToolbar

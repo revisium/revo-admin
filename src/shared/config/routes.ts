@@ -15,6 +15,7 @@ export const routePaths = {
   run: ':runId',
 
   projects: PROJECTS,
+  projectCreate: `${PROJECTS}/new`,
   project: `${PROJECTS}/:projectId`,
   projectKnowledgeArticle: `${PROJECTS}/:projectId/knowledge/:articleId`,
   projectAdr: `${PROJECTS}/:projectId/adrs/:adrId`,
@@ -42,6 +43,7 @@ export const routes = {
   run: (runId: string): string => `${RUNS}/${runId}`,
 
   projects: (): string => PROJECTS,
+  projectCreate: (): string => `${PROJECTS}/new`,
   project: (projectId: string): string => `${PROJECTS}/${projectId}`,
   projectTab: (projectId: string, tab: string): string => `${PROJECTS}/${projectId}/${tab}`,
   projectKnowledgeArticle: (projectId: string, articleId: string): string =>

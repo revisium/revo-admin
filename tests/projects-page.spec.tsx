@@ -219,3 +219,54 @@ describe('ProjectsPage', () => {
     expect(headingRules.some((rule) => rule.includes('background:var(--chakra-colors-bg\\.canvas)'))).toBe(true)
   })
 })
+
+it('renders exactly one create action for true-empty and filtered no-results states', () => {
+  registerReadyProjectListViewModel({
+    rows: [],
+    resultCountLabel: '0 projects',
+    isEmpty: true,
+    isNoResults: false,
+    hasNextPage: false,
+  })
+
+  const trueEmptyMarkup = renderPage()
+  expect(trueEmptyMarkup.match(/Create project/g)).toHaveLength(1)
+  expect(trueEmptyMarkup).toContain('href="/projects/new"')
+
+  registerReadyProjectListViewModel({
+    rows: [],
+    query: 'missing',
+    resultCountLabel: '0 projects',
+    isEmpty: true,
+    isNoResults: true,
+    hasNextPage: false,
+  })
+
+  const noResultsMarkup = renderPage()
+  expect(noResultsMarkup.match(/Create project/g)).toHaveLength(1)
+  expect(noResultsMarkup).toContain('href="/projects/new"')
+})
+
+it('keeps the rendered Create project action at a compact 44px touch height', () => {
+  registerReadyProjectListViewModel()
+
+  const markup = renderPage()
+  const action = markup.match(
+    /<a[^>]*class="[^"]*\s(css-[^"]+)"[^>]*href="\/projects\/new"[^>]*>[\s\S]*?Create project/,
+  )
+
+  expect(action).not.toBeNull()
+  const actionClass = action?.[1]
+  expect(markup).toMatch(new RegExp(`\\.${actionClass}\\{[^}]*height:44px`))
+  expect(markup).toMatch(
+    new RegExp(`@media screen and \\(min-width:\\s*48rem\\)\\{\\.${actionClass}\\{[^}]*height:36px`),
+  )
+})
+
+it('uses the stable route ID in the base live Project breadcrumb while legacy tabs retain fixture labels', () => {
+  const baseMarkup = renderLayout('/projects/prj_orch')
+  const legacyMarkup = renderLayout('/projects/prj_orch/repositories')
+
+  expect(baseMarkup).toMatch(/<p class="[^"]+">prj_orch<\/p>/)
+  expect(legacyMarkup).toMatch(/href="\/projects\/prj_orch"[^>]*>Orchestrator<\/a>/)
+})
