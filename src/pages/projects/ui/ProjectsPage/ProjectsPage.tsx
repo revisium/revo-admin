@@ -1,10 +1,15 @@
-import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react'
 import { Folder, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import type React from 'react'
 import { ProjectSearchToolbar } from 'src/features/ProjectSearchToolbar'
+import {
+  ProjectListContinuationError,
+  ProjectListContinuationProgress,
+  ProjectListInitialProgress,
+} from '../ProjectListContinuation/ProjectListContinuation'
 import { useViewModel } from 'src/shared/lib'
-import { EmptyState, NoResultsState, PageHeader } from 'src/shared/ui/components'
+import { EmptyState, InlineError, NoResultsState, PageHeader } from 'src/shared/ui/components'
 import { ProjectListViewModel } from '../../model/ProjectListViewModel'
 import { ProjectList } from '../ProjectList/ProjectList'
 import { ProjectListColumnHeadings } from '../ProjectListColumnHeadings/ProjectListColumnHeadings'
@@ -37,6 +42,25 @@ export const ProjectsPage: React.FC = observer(() => {
   const viewModel = useViewModel(ProjectListViewModel)
 
   const renderContent = () => {
+    if (viewModel.state === 'error') {
+      return (
+        <InlineError
+          title="Projects could not be loaded"
+          description={viewModel.error}
+          onRetry={viewModel.retry}
+          retryLabel="Retry"
+        />
+      )
+    }
+
+    if (viewModel.state === 'idle' || (viewModel.state === 'loading' && !viewModel.hasLoaded)) {
+      return (
+        <Box borderTopWidth="1px" borderColor="border.structural" flex={{ lg: '1' }} minH={{ lg: '0' }}>
+          <ProjectListInitialProgress label="Loading projects…" />
+        </Box>
+      )
+    }
+
     if (viewModel.isNoResults) {
       return (
         <NoResultsState
@@ -55,33 +79,70 @@ export const ProjectsPage: React.FC = observer(() => {
 
     return (
       <>
-        <ProjectListColumnHeadings />
-        <ProjectList rows={viewModel.rows} />
+        <Box
+          as="section"
+          aria-label="Projects collection"
+          borderTopWidth="1px"
+          borderColor="border.structural"
+          flex={{ lg: '1' }}
+          minH={{ lg: '0' }}
+          overflowY={{ lg: 'auto' }}
+          overscrollBehavior={{ lg: 'contain' }}
+          scrollbarGutter={{ lg: 'stable' }}
+        >
+          <ProjectListColumnHeadings />
+          <ProjectList rows={viewModel.rows} />
+          {viewModel.isLoadingNextPage && <ProjectListContinuationProgress label="Loading more projects…" />}
+          {viewModel.continuationState === 'error' && (
+            <ProjectListContinuationError
+              title="More projects could not be loaded"
+              description={viewModel.continuationError}
+              retryLabel="Retry"
+              onRetry={viewModel.retryNextPage}
+            />
+          )}
+        </Box>
+        {viewModel.hasNextPage && !viewModel.isRefreshing && viewModel.continuationState === 'idle' && (
+          <Box paddingBlock="4">
+            <Button variant="outline" onClick={viewModel.loadNextPage}>
+              Load more projects
+            </Button>
+          </Box>
+        )}
       </>
     )
   }
 
   return (
-    <Stack gap="6">
+    <Stack gap="6" h={{ lg: 'full' }} minH={{ lg: '0' }}>
       <PageHeader
         eyebrow={Eyebrow}
         title="Projects"
         description="Every project you can open, newest change first. Search by name or ID."
         actions={Actions}
       />
-      <ProjectSearchToolbar
-        query={viewModel.query}
-        onQueryChange={viewModel.setQuery}
-        searchLabel="Search by name or ID"
-        searchPlaceholder="For example, Orchestrator"
-        includeArchived={viewModel.includeArchived}
-        onIncludeArchivedChange={viewModel.setIncludeArchived}
-        includeArchivedLabel="Include archived"
-      />
-      <Box marginTop="-2">
-        <Text textStyle="small" color="fg.secondary" marginBottom="4">
-          {viewModel.resultCountLabel}
-        </Text>
+      <Box position={{ base: 'sticky', lg: 'static' }} top="0" zIndex="10" bg="bg.canvas">
+        <ProjectSearchToolbar
+          query={viewModel.query}
+          onQueryChange={viewModel.setQuery}
+          searchLabel="Search by name or ID"
+          searchPlaceholder="For example, Orchestrator"
+          includeArchived={viewModel.includeArchived}
+          onIncludeArchivedChange={viewModel.setIncludeArchived}
+          includeArchivedLabel="Include archived"
+        />
+      </Box>
+      <Box marginTop="-2" display={{ lg: 'flex' }} flexDirection="column" flex={{ lg: '1' }} minH={{ lg: '0' }}>
+        {viewModel.resultCountLabel && (
+          <HStack gap="2" marginBottom="4">
+            <Text textStyle="small" color="fg.secondary">
+              {viewModel.resultCountLabel}
+            </Text>
+            {viewModel.isRefreshing && (
+              <Spinner role="status" size="sm" color="action.primary.bg" aria-label="Updating projects" />
+            )}
+          </HStack>
+        )}
         {renderContent()}
       </Box>
     </Stack>

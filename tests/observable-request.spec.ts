@@ -1,4 +1,5 @@
-import type { ClientError } from 'graphql-request'
+import { GraphQLError } from 'graphql'
+import { ClientError } from 'graphql-request'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { isLeft, isRight } from 'src/shared/lib/Either'
 import { AbortError, ObservableRequest } from 'src/shared/lib/ObservableRequest'
@@ -52,13 +53,21 @@ describe('ObservableRequest', () => {
   })
 
   it('exposes the first GraphQL error message after a failed request', async () => {
-    const failure = clientError('offline')
+    const failure = new ClientError(
+      { status: 400, errors: [new GraphQLError('offline')] },
+      {
+        query: 'query Projects($token: String!) { projects(token: $token) { totalCount } }',
+        variables: { token: 'secret' },
+      },
+    )
     const request = new ObservableRequest<string, [], ClientError>(() => Promise.reject(failure))
 
     const result = await request.fetch()
 
     expect(isLeft(result) && result.error).toBe(failure)
     expect(request.errorMessage).toBe('offline')
+    expect(request.errorMessage).not.toContain('query Projects')
+    expect(request.errorMessage).not.toContain('secret')
     expect(consoleError).toHaveBeenCalledWith(failure)
   })
 
@@ -94,6 +103,9 @@ describe('ObservableRequest', () => {
 
     second.resolve('second')
     await secondSettled
+
+    expect(request.data).toBe('second')
+    expect(request.error).toBeNull()
   })
 
   it('preserves previous values between calls when skipResetting is set', async () => {
@@ -116,7 +128,7 @@ describe('ObservableRequest', () => {
     await secondSettled
   })
 
-  it('allows a superseded request to complete the shared loading state in its finally block', async () => {
+  it('keeps the current request loading when a superseded request settles', async () => {
     const first = deferred<string>()
     const second = deferred<string>()
     const fetchFunction = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
@@ -129,8 +141,7 @@ describe('ObservableRequest', () => {
     const firstResult = await firstSettled
 
     expect(isLeft(firstResult) && firstResult.error).toBeInstanceOf(AbortError)
-    expect(request.isLoading).toBe(false)
-    expect(request.isLoaded).toBe(true)
+    expect(request.isLoading).toBe(true)
     expect(request.data).toBeNull()
 
     second.resolve('second')

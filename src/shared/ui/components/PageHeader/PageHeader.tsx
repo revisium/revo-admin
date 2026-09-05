@@ -21,7 +21,7 @@ export const PageHeader = ({ title, description, actions, eyebrow, breadcrumb, i
       alignItems="flex-start"
       justifyContent="space-between"
       flexDirection={{ base: 'column', lg: 'row' }}
-      marginBottom={{ base: '7', lg: '10' }}
+      marginBottom={{ base: '2', lg: '3' }}
     >
       <Flex flexDirection="column" width="100%">
         {breadcrumb ? <Box marginBottom="5">{breadcrumb}</Box> : null}

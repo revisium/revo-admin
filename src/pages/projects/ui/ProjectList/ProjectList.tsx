@@ -1,15 +1,15 @@
-import { Box, Flex, Link as ChakraLink, Span, Text } from '@chakra-ui/react'
+import { Box, Link as ChakraLink, Text } from '@chakra-ui/react'
 import type React from 'react'
 import { Link } from 'react-router'
 import { ProjectStatusBadge } from 'src/entities/project'
-import type { ProjectListRow } from '../../model/ProjectListViewModel'
+import type { ProjectListItem } from '../../model/types'
 
 interface ProjectListProps {
-  readonly rows: readonly ProjectListRow[]
+  readonly rows: readonly ProjectListItem[]
 }
 
 export const ProjectList: React.FC<ProjectListProps> = ({ rows }) => (
-  <Box as="nav" aria-label="Projects" borderTopWidth="1px" borderColor="border.structural">
+  <Box as="nav" aria-label="Projects">
     {rows.map((row) => (
       <ChakraLink
         key={row.id}
@@ -22,11 +22,11 @@ export const ProjectList: React.FC<ProjectListProps> = ({ rows }) => (
         rowGap={{ base: '1', xl: '0' }}
         gridTemplateColumns={{
           base: 'minmax(0, 1fr) auto',
-          xl: 'minmax(200px, 1.7fr) minmax(135px, 0.9fr) minmax(170px, 1.15fr) minmax(110px, 0.65fr)',
+          xl: 'minmax(200px, 1.7fr) minmax(135px, 0.9fr) minmax(110px, 0.65fr)',
         }}
         gridTemplateAreas={{
-          base: '"name status" "context context" "updated updated"',
-          xl: '"name status context updated"',
+          base: '"name status" "updated updated"',
+          xl: '"name status updated"',
         }}
         paddingBlock="5"
         borderBottomWidth="1px"
@@ -48,16 +48,6 @@ export const ProjectList: React.FC<ProjectListProps> = ({ rows }) => (
           </Box>
           <Box gridArea="status" justifySelf="start">
             <ProjectStatusBadge status={row.status} label={row.statusLabel} />
-          </Box>
-          <Box gridArea="context" minWidth="0">
-            <Text textStyle="caption" color="fg.secondary" truncate>
-              {row.workspaces.join(' · ') || 'No workspaces'}
-            </Text>
-            <Flex gap="2" flexWrap="wrap" marginTop="1" textStyle="caption" color="fg.secondary">
-              {row.counters.map((counter) => (
-                <Span key={counter.id}>{counter.label}</Span>
-              ))}
-            </Flex>
           </Box>
           <Text gridArea="updated" textStyle="caption" color="fg.secondary">
             {row.updatedLabel}
