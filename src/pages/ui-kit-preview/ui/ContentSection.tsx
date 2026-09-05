@@ -1,13 +1,7 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Spinner, Text } from '@chakra-ui/react'
+import { ProjectCard, ProjectCardSkeleton, ProjectStatusBadge, ProjectSummaryCard } from 'src/entities/project'
+import { InlineError } from 'src/shared/ui/components'
 import { Card, Skeleton, SkeletonText } from 'src/shared/ui/kit'
-import {
-  ProjectCard,
-  ProjectCardSkeleton,
-  ProjectListContinuationError,
-  ProjectListContinuationProgress,
-  ProjectStatusBadge,
-  ProjectSummaryCard,
-} from 'src/entities/project'
 import { PreviewSectionHeading, PreviewSubsectionHeading } from './PreviewHeading'
 import { noOp } from './previewHelpers'
 import {
@@ -42,6 +36,37 @@ import {
   SUMMARY_LOADING_LINES,
 } from './sampleContent'
 
+const previewContinuationRow = {
+  paddingBlock: '5',
+  borderBottomWidth: '1px',
+  borderBottomStyle: 'solid',
+  borderBottomColor: 'border.structural',
+}
+
+const PreviewContinuationProgress = ({ label }: { readonly label: string }) => (
+  <Box role="status" {...previewContinuationRow}>
+    <HStack gap="2">
+      <Spinner size="sm" color="action.primary.bg" />
+      <Text textStyle="small" color="fg.secondary">
+        {label}
+      </Text>
+    </HStack>
+  </Box>
+)
+
+const PreviewContinuationError = ({
+  title,
+  retryLabel,
+  onRetry,
+}: {
+  readonly title: string
+  readonly retryLabel: string
+  readonly onRetry: () => void
+}) => (
+  <Box {...previewContinuationRow}>
+    <InlineError title={title} onRetry={onRetry} retryLabel={retryLabel} headingLevel="h3" />
+  </Box>
+)
 export const ContentSection = () => {
   return (
     <Box as="section">
@@ -214,8 +239,8 @@ export const ContentSection = () => {
                 Project row
               </Text>
             </Box>
-            <ProjectListContinuationProgress label={CONTINUATION_PROGRESS_LABEL} />
-            <ProjectListContinuationError
+            <PreviewContinuationProgress label={CONTINUATION_PROGRESS_LABEL} />
+            <PreviewContinuationError
               title={CONTINUATION_ERROR_TITLE}
               retryLabel={CONTINUATION_ERROR_RETRY_LABEL}
               onRetry={noOp}

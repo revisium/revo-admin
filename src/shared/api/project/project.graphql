@@ -1,0 +1,30 @@
+fragment PageInfoFields on PageInfoModel {
+  endCursor
+  hasNextPage
+  hasPreviousPage
+  startCursor
+}
+
+fragment ProjectNode on ProjectModel {
+  id
+  name
+  description
+  status
+  createdAt
+  updatedAt
+}
+
+query Projects($query: String, $includeArchived: Boolean, $after: String, $first: Int) {
+  projects(data: { query: $query, includeArchived: $includeArchived, after: $after, first: $first }) {
+    edges {
+      cursor
+      node {
+        ...ProjectNode
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+    totalCount
+  }
+}

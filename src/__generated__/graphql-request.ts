@@ -1202,12 +1202,62 @@ export enum WorkPlanStatus {
   Ready = 'ready'
 }
 
+export type PageInfoFieldsFragment = { endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null };
+
+export type ProjectNodeFragment = { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string };
+
+export type ProjectsQueryVariables = Exact<{
+  query?: InputMaybe<Scalars['String']['input']>;
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ProjectsQuery = { projects: { totalCount: number, edges: Array<{ cursor: string, node: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+
 export type SystemInfoQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type SystemInfoQuery = { systemInfo: { name: string, status: string } };
 
-
+export const PageInfoFieldsFragmentDoc = gql`
+    fragment PageInfoFields on PageInfoModel {
+  endCursor
+  hasNextPage
+  hasPreviousPage
+  startCursor
+}
+    `;
+export const ProjectNodeFragmentDoc = gql`
+    fragment ProjectNode on ProjectModel {
+  id
+  name
+  description
+  status
+  createdAt
+  updatedAt
+}
+    `;
+export const ProjectsDocument = gql`
+    query Projects($query: String, $includeArchived: Boolean, $after: String, $first: Int) {
+  projects(
+    data: {query: $query, includeArchived: $includeArchived, after: $after, first: $first}
+  ) {
+    edges {
+      cursor
+      node {
+        ...ProjectNode
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+    totalCount
+  }
+}
+    ${ProjectNodeFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
 export const SystemInfoDocument = gql`
     query SystemInfo {
   systemInfo {
@@ -1224,6 +1274,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    Projects(variables?: ProjectsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ProjectsQuery>(ProjectsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Projects', 'query', variables);
+    },
     SystemInfo(variables?: SystemInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SystemInfoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);
     }

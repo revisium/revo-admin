@@ -853,6 +853,7 @@ const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly 
 
 export const Layout = () => {
   const { pathname } = useLocation()
+  const isProjectsIndex = pathname === routes.projects()
   const [collapsed, setCollapsed] = useState(false)
   const { open, onOpen, onClose } = useDisclosure()
 
@@ -860,10 +861,23 @@ export const Layout = () => {
     <Flex h="100dvh" overflow="hidden" bg="bg.canvas">
       <Sidebar pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
       <MobileNavDrawer pathname={pathname} open={open} onClose={onClose} />
-      <Flex direction="column" flex="1" minW="0">
+      <Flex direction="column" flex="1" minW="0" minH="0">
         <TopBar pathname={pathname} onMenuOpen={onOpen} />
-        <Box flex="1" overflowY="auto" overflowX="hidden">
-          <Box maxW="1180px" mx="auto" px={{ base: '4', md: '6', lg: '10' }} pt={{ base: '5', md: '7' }} pb="24">
+        <Box
+          flex="1"
+          minH="0"
+          overflowY={{ base: 'auto', lg: isProjectsIndex ? 'hidden' : 'auto' }}
+          overflowX="hidden"
+          scrollbarGutter={{ base: 'stable', lg: isProjectsIndex ? 'auto' : 'stable' }}
+        >
+          <Box
+            maxW="1180px"
+            mx="auto"
+            px={{ base: '4', md: '6', lg: '10' }}
+            py={{ base: '5', md: '7' }}
+            h={{ lg: isProjectsIndex ? 'full' : 'auto' }}
+            minH={{ lg: isProjectsIndex ? '0' : 'auto' }}
+          >
             <Outlet />
           </Box>
         </Box>
