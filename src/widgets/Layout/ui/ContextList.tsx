@@ -1,8 +1,8 @@
-import { Box, Button, HStack, Stack, Text } from '@chakra-ui/react'
+import { Box, HStack } from '@chakra-ui/react'
 import { Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
-import { Link } from 'react-router'
 import { useViewModel } from 'src/shared/lib'
+import { SidebarAction, SidebarGroup, SidebarItem } from 'src/shared/ui/components'
 import { ContextListViewModel } from '../model/ContextListViewModel'
 
 interface ContextListProps {
@@ -16,65 +16,41 @@ export const ContextList = observer(({ pathname, onNavigate }: ContextListProps)
   if (!content) return null
 
   return (
-    <Stack className="group" flex="1" minH="0" gap="0" mt="5" mb="3" aria-label={`${content.title} section`}>
-      <Stack gap="2" px="3" py="3" flexShrink="0">
-        <HStack justify="space-between">
-          <Text textStyle="caption" color="fg.muted" fontWeight="500">
-            {content.title}
-          </Text>
-          <HStack gap="0.5" color="fg.muted">
-            {content.showOverviewAction && (
-              <Button asChild variant="ghost" size="xs" color="fg.muted" _hover={{ color: 'fg.default' }}>
-                <Link to={content.overview} onClick={onNavigate}>
-                  All
-                </Link>
-              </Button>
-            )}
-            {content.create && (
-              <Button
-                asChild
-                variant="ghost"
-                size="xs"
-                color="fg.muted"
-                _hover={{ color: 'fg.default' }}
-                aria-label={content.createLabel}
+    <Box flex="1" minH="0" mt="4" mb="3" px="4">
+      <SidebarGroup
+        label={content.title}
+        actions={
+          <HStack gap="1">
+            {content.overviewAction ? (
+              <SidebarAction label={content.overviewAction.label} to={content.overviewAction.to} onClick={onNavigate}>
+                {content.overviewAction.label}
+              </SidebarAction>
+            ) : null}
+            {content.createAction ? (
+              <SidebarAction
+                iconOnly
+                label={content.createAction.label}
+                to={content.createAction.to}
+                onClick={onNavigate}
               >
-                <Link to={content.create} onClick={onNavigate} title={content.createLabel}>
-                  <Plus size={15} />
-                </Link>
-              </Button>
-            )}
+                <Plus size={15} />
+              </SidebarAction>
+            ) : null}
           </HStack>
-        </HStack>
-      </Stack>
-      <Box overflowY="auto" minH="0" flex="1" px="2" aria-label={`${content.title} quick selection`}>
-        <Stack gap="1">
-          {model.visible(pathname).map((item) => (
-            <Box
-              key={item.to}
-              asChild
-              px="3"
-              py="2.5"
-              borderRadius="control"
-              bg={pathname === item.to ? 'bg.subtle' : 'transparent'}
-              borderLeftWidth="2px"
-              borderColor={pathname === item.to ? 'action.primary.bg' : 'transparent'}
-              _hover={{ bg: 'bg.subtle' }}
-            >
-              <Link to={item.to} onClick={onNavigate} aria-current={pathname === item.to ? 'page' : undefined}>
-                <Text textStyle="small" fontWeight={pathname === item.to ? '600' : '400'} truncate title={item.title}>
-                  {item.title}
-                </Text>
-                {item.meta && (
-                  <Text textStyle="caption" color="fg.muted" mt="1">
-                    {item.meta}
-                  </Text>
-                )}
-              </Link>
-            </Box>
-          ))}
-        </Stack>
-      </Box>
-    </Stack>
+        }
+      >
+        {content.items.map((item) => (
+          <SidebarItem
+            key={item.to}
+            active={pathname === item.to}
+            label={item.title}
+            level="nested"
+            meta={item.meta}
+            onNavigate={onNavigate}
+            to={item.to}
+          />
+        ))}
+      </SidebarGroup>
+    </Box>
   )
 })
