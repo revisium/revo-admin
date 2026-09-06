@@ -10,12 +10,15 @@ interface ContextListItem {
   readonly meta?: string
 }
 
+interface ContextListAction {
+  readonly label: string
+  readonly to: string
+}
+
 interface ContextListContent {
   readonly title: string
-  readonly overview: string
-  readonly showOverviewAction: boolean
-  readonly create?: string
-  readonly createLabel?: string
+  readonly overviewAction?: ContextListAction
+  readonly createAction?: ContextListAction
   readonly items: readonly ContextListItem[]
 }
 
@@ -32,10 +35,8 @@ export class ContextListViewModel {
     if (section === 'runs')
       return {
         title: 'Runs',
-        overview: routes.runs(),
-        showOverviewAction: true,
-        create: routes.runCreate(),
-        createLabel: 'New run',
+        overviewAction: { label: 'All', to: routes.runs() },
+        createAction: { label: 'New run', to: routes.runCreate() },
         items: TASK_RUNS.map((run) => ({
           to: routes.run(run.id),
           title: run.title,
@@ -45,8 +46,6 @@ export class ContextListViewModel {
     if (section === 'inbox')
       return {
         title: 'Inbox',
-        overview: routes.inbox(),
-        showOverviewAction: false,
         items: INBOX_ITEMS.filter((item) => item.status === 'pending').map((item) => ({
           to: routes.inboxItem(item.id),
           title: item.title,
@@ -55,10 +54,7 @@ export class ContextListViewModel {
     if (section === 'assistant')
       return {
         title: 'Chats',
-        overview: routes.assistant(),
-        showOverviewAction: false,
-        create: routes.assistant(),
-        createLabel: 'New chat',
+        createAction: { label: 'New chat', to: routes.assistant() },
         items: this.discussions.chats.map((chat) => ({
           to: routes.chat(chat.id),
           title: chat.title,
@@ -66,10 +62,6 @@ export class ContextListViewModel {
         })),
       }
     return undefined
-  }
-
-  public visible(pathname: string): readonly ContextListItem[] {
-    return this.content(pathname)?.items ?? []
   }
 }
 

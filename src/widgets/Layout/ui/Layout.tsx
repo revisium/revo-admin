@@ -32,6 +32,7 @@ import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router'
 import { PENDING_INBOX, adrsForProject, knowledgeForProject, memoryForProject, projectById } from 'src/shared/fixtures'
 import { BrandLogo } from 'src/shared/ui'
+import { SidebarAction, SidebarItem } from 'src/shared/ui/components'
 import { Avatar } from 'src/shared/ui/kit'
 import { ContextList } from './ContextList'
 import { routes } from 'src/shared/config'
@@ -54,16 +55,6 @@ interface BreadcrumbItem {
 
 interface SearchFieldProps {
   readonly full?: boolean
-}
-
-interface NavRowInnerProps {
-  readonly item: NavItem
-  readonly active: boolean
-  readonly collapsed: boolean
-}
-
-interface NavRowProps extends NavRowInnerProps {
-  readonly onNavigate?: () => void
 }
 
 interface NavRailProps {
@@ -218,7 +209,7 @@ const SearchField = (props: SearchFieldProps) => (
   <HStack
     h={props.full ? '36px' : '34px'}
     w={props.full ? 'auto' : undefined}
-    mx={props.full ? '3' : undefined}
+    mx={props.full ? '4' : undefined}
     minW={props.full ? undefined : '168px'}
     px="2.5"
     gap="2"
@@ -246,98 +237,25 @@ const SearchField = (props: SearchFieldProps) => (
   </HStack>
 )
 
-const navRowColor = (item: NavItem, active: boolean): string => {
-  if (item.disabled) return 'fg.muted'
-  return active ? 'fg.default' : 'fg.secondary'
-}
-
-const NavRowInner = ({ item, active, collapsed }: NavRowInnerProps) => {
-  const Icon = item.icon
-  return (
-    <>
-      <Box display="inline-flex" color={active ? 'action.primary.bg' : 'inherit'} position="relative">
-        <Icon size={18} />
-        {collapsed && item.badge ? (
-          <Box position="absolute" top="-2px" right="-2px" boxSize="7px" borderRadius="full" bg="dot.waiting" />
-        ) : null}
-      </Box>
-      {collapsed ? null : (
-        <>
-          <Span flex="1">{item.label}</Span>
-          {item.badge ? (
-            <Center
-              minW="19px"
-              h="19px"
-              px="1.5"
-              borderRadius="pill"
-              bg="action.primary.bg"
-              color="white"
-              textStyle="caption"
-            >
-              {item.badge}
-            </Center>
-          ) : null}
-        </>
-      )}
-    </>
-  )
-}
-
-const NavRow = ({ item, active, collapsed, onNavigate }: NavRowProps) => {
-  const content = <NavRowInner item={item} active={active} collapsed={collapsed} />
-
-  const shared = {
-    h: '34px',
-    px: collapsed ? '0' : '2.5',
-    borderRadius: '7px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: collapsed ? 'center' : 'flex-start',
-    gap: '2.5',
-    textStyle: active ? 'bodyStrong' : 'body',
-    color: navRowColor(item, active),
-  } as const
-
-  if (item.disabled) {
-    return (
-      <Box {...shared} cursor="not-allowed" title={`${item.label} · coming soon`} aria-disabled="true">
-        {content}
-      </Box>
-    )
-  }
-
-  return (
-    <ChakraLink
-      asChild
-      {...shared}
-      bg={active ? 'bg.subtle' : 'transparent'}
-      _hover={
-        active ? { textDecoration: 'none' } : { textDecoration: 'none', bg: 'blackAlpha.50', color: 'fg.default' }
-      }
-    >
-      <Link
-        to={item.to}
-        title={collapsed ? item.label : undefined}
-        onClick={onNavigate}
-        aria-current={active ? 'page' : undefined}
-      >
-        {content}
-      </Link>
-    </ChakraLink>
-  )
-}
-
 const NavRail = ({ pathname, collapsed, onNavigate }: NavRailProps) => (
-  <Stack as="nav" aria-label="Main navigation" flexShrink="0" gap="0.5" px={collapsed ? '2.5' : '3'} py="2">
-    {NAV_ITEMS.map((item) => (
-      <NavRow
-        key={item.to}
-        item={item}
-        active={isActive(pathname, item.match)}
-        collapsed={collapsed}
-        onNavigate={onNavigate}
-      />
-    ))}
+  <Stack as="nav" aria-label="Main navigation" flexShrink="0" gap="1" px={collapsed ? '2.5' : '4'} py="2">
+    {NAV_ITEMS.map((item) => {
+      const ItemIcon = item.icon
+
+      return (
+        <SidebarItem
+          key={item.to}
+          active={isActive(pathname, item.match)}
+          badge={item.badge}
+          collapsed={collapsed}
+          disabled={item.disabled}
+          icon={<ItemIcon size={18} />}
+          label={item.label}
+          onNavigate={onNavigate}
+          to={item.to}
+        />
+      )
+    })}
   </Stack>
 )
 
@@ -346,9 +264,9 @@ const Sidebar = ({ pathname, collapsed, onToggle }: SidebarProps) => {
   const ToggleIcon = collapsed ? ChevronRight : ChevronLeft
   const toggleLabel = collapsed ? 'Expand sidebar' : 'Collapse sidebar'
   const toggle = (
-    <IconButton boxSize="26px" onClick={onToggle} title={toggleLabel} aria-label={toggleLabel}>
+    <SidebarAction iconOnly label={toggleLabel} onClick={onToggle}>
       <ToggleIcon size={16} />
-    </IconButton>
+    </SidebarAction>
   )
 
   return (
@@ -373,7 +291,7 @@ const Sidebar = ({ pathname, collapsed, onToggle }: SidebarProps) => {
           {toggle}
         </Stack>
       ) : (
-        <HStack justify="space-between" px="3.5" pt="4" pb="3">
+        <HStack justify="space-between" px="4" pt="4" pb="3">
           <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
             <Link to={routes.home()}>
               <BrandWord />
@@ -402,45 +320,23 @@ const MobileNavDrawer = ({ pathname, open, onClose }: MobileNavDrawerProps) => (
       <Drawer.Positioner>
         <Drawer.Content w={SIDEBAR_W} maxW="80vw" bg="bg.surface">
           <Flex direction="column" h="100%">
-            <HStack justify="space-between" px="3.5" pt="4" pb="3">
+            <HStack justify="space-between" px="4" pt="4" pb="3">
               <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
                 <Link to={routes.home()} onClick={onClose}>
                   <BrandWord />
                 </Link>
               </ChakraLink>
-              <IconButton boxSize="26px" onClick={onClose} title="Close menu" aria-label="Close menu">
+              <SidebarAction iconOnly label="Close menu" onClick={onClose}>
                 <X size={16} />
-              </IconButton>
+              </SidebarAction>
             </HStack>
             <Box pb="1">
               <SearchField full />
             </Box>
             <NavRail pathname={pathname} collapsed={false} onNavigate={onClose} />
             <ContextList pathname={pathname} onNavigate={onClose} />
-            <Box mt="auto" flexShrink="0">
-              <ChakraLink
-                asChild
-                display="flex"
-                alignItems="center"
-                gap="2.5"
-                mx="3"
-                mb="1"
-                p="2"
-                borderRadius="9px"
-                _hover={{ bg: 'blackAlpha.50', textDecoration: 'none' }}
-              >
-                <Link to={routes.home()} onClick={onClose}>
-                  <UserAvatar />
-                  <Stack gap="0" minW="0">
-                    <Text textStyle="body" color="fg.secondary">
-                      ka
-                    </Text>
-                    <Text textStyle="caption" color="fg.muted">
-                      Account
-                    </Text>
-                  </Stack>
-                </Link>
-              </ChakraLink>
+            <Box mt="auto" mb="1" px="4" flexShrink="0">
+              <SidebarItem icon={<UserAvatar />} label="ka" meta="Account" onNavigate={onClose} to={routes.home()} />
             </Box>
           </Flex>
         </Drawer.Content>
