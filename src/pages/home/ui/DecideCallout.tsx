@@ -3,7 +3,11 @@ import { ArrowRight, DoorOpen } from 'lucide-react'
 import { Link } from 'react-router'
 import { routes } from 'src/shared/config'
 
-export const DecideCallout = ({ count }: { readonly count: number }) => (
+interface DecideCalloutProps {
+  readonly count: number
+}
+
+export const DecideCallout = ({ count }: DecideCalloutProps) => (
   <ChakraLink
     asChild
     display="block"

@@ -1,4 +1,5 @@
 const HOME = '/'
+const ASSISTANT = '/assistant'
 const RUNS = '/runs'
 const PROJECTS = '/projects'
 const INBOX = '/inbox'
@@ -9,6 +10,8 @@ const UI_KIT_PREVIEW = '/ui-kit-preview'
 // the same constants, so a renamed segment cannot leave one of them behind. Templates nested
 // under a layout stay relative, exactly as the router expects them.
 export const routePaths = {
+  assistant: ASSISTANT,
+  chat: `${ASSISTANT}/:chatId`,
   runs: RUNS,
   runCreate: 'new',
   runGraphSmoke: 'graph-smoke',
@@ -36,6 +39,8 @@ export const routePaths = {
 
 export const routes = {
   home: (): string => HOME,
+  assistant: (): string => ASSISTANT,
+  chat: (chatId: string): string => `${ASSISTANT}/${chatId}`,
 
   runs: (): string => RUNS,
   runCreate: (): string => `${RUNS}/new`,

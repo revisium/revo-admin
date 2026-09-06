@@ -7,7 +7,6 @@ import {
   Flex,
   HStack,
   Link as ChakraLink,
-  Menu,
   Portal,
   Span,
   Stack,
@@ -15,15 +14,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import {
-  ArrowRight,
   ChevronLeft,
-  ChevronDown,
   ChevronRight,
-  Check,
   Folder,
   Inbox,
-  LayoutDashboard,
-  Layers,
+  House,
+  MessageSquare,
   List,
   type LucideIcon,
   Menu as MenuIcon,
@@ -32,21 +28,12 @@ import {
   Search,
   X,
 } from 'lucide-react'
-import { observer } from 'mobx-react-lite'
-import { useState, type ReactNode } from 'react'
-import { Link, Outlet, useLocation, useNavigate } from 'react-router'
-import {
-  HOST_STATUS,
-  INBOX_ITEMS,
-  adrsForProject,
-  knowledgeForProject,
-  memoryForProject,
-  projectById,
-} from 'src/shared/fixtures'
-import { useViewModel } from 'src/shared/lib'
+import { useState } from 'react'
+import { Link, Outlet, useLocation } from 'react-router'
+import { PENDING_INBOX, adrsForProject, knowledgeForProject, memoryForProject, projectById } from 'src/shared/fixtures'
 import { BrandLogo } from 'src/shared/ui'
-import { Avatar, type IAvatarProps } from 'src/shared/ui/kit'
-import { ProjectSwitcherViewModel, type LayoutProjectTone } from '../model/ProjectSwitcherViewModel'
+import { Avatar } from 'src/shared/ui/kit'
+import { ContextList } from './ContextList'
 import { routes } from 'src/shared/config'
 
 interface NavItem {
@@ -65,7 +52,43 @@ interface BreadcrumbItem {
   readonly to?: string
 }
 
-const PENDING_INBOX = INBOX_ITEMS.filter((item) => item.status === 'pending').length
+interface SearchFieldProps {
+  readonly full?: boolean
+}
+
+interface NavRowInnerProps {
+  readonly item: NavItem
+  readonly active: boolean
+  readonly collapsed: boolean
+}
+
+interface NavRowProps extends NavRowInnerProps {
+  readonly onNavigate?: () => void
+}
+
+interface NavRailProps {
+  readonly pathname: string
+  readonly collapsed: boolean
+  readonly onNavigate?: () => void
+}
+
+interface SidebarProps {
+  readonly pathname: string
+  readonly collapsed: boolean
+  readonly onToggle: () => void
+}
+
+interface MobileNavDrawerProps {
+  readonly pathname: string
+  readonly open: boolean
+  readonly onClose: () => void
+}
+
+interface TopBarProps {
+  readonly pathname: string
+  readonly onMenuOpen: () => void
+}
+
 const PATH_SECTION_INDEX = 0
 const PROJECT_ID_INDEX = 1
 const PROJECT_TAB_INDEX = 2
@@ -73,9 +96,10 @@ const PROJECT_DETAIL_INDEX = 3
 const BREADCRUMB_ADR_NUMBER_WIDTH = 4
 
 const NAV_ITEMS: ReadonlyArray<NavItem> = [
-  { label: 'Dashboard', to: routes.home(), match: routes.home(), icon: LayoutDashboard },
+  { label: 'Home', to: routes.home(), match: routes.home(), icon: House },
+  { label: 'Assistant', to: routes.assistant(), match: routes.assistant(), icon: MessageSquare },
   { label: 'Runs', to: routes.runs(), match: routes.runs(), icon: List },
-  { label: 'Inbox', to: routes.inbox(), match: routes.inbox(), icon: Inbox, badge: PENDING_INBOX },
+  { label: 'Inbox', to: routes.inbox(), match: routes.inbox(), icon: Inbox, badge: PENDING_INBOX.length },
   { label: 'Projects', to: routes.projects(), match: routes.projects(), icon: Folder },
   { label: 'Method', to: routes.methodRoles(), match: '/method', icon: Scan },
 ]
@@ -150,15 +174,16 @@ const breadcrumbsForPath = (pathname: string): ReadonlyArray<BreadcrumbItem> => 
     return [{ label: 'Runs' }]
   }
 
+  if (section === 'assistant') return [{ label: 'Assistant' }]
   if (section === 'inbox') return [{ label: 'Inbox' }]
   if (section === 'method') return [{ label: 'Method' }]
 
   if (section === 'projects') return projectBreadcrumbs(segments)
 
-  return [{ label: 'Control plane' }]
+  return [{ label: 'Home' }]
 }
 
-const SIDEBAR_W = '232px'
+const SIDEBAR_W = '288px'
 const SIDEBAR_W_COLLAPSED = '64px'
 
 const IconButton = chakra('button', {
@@ -182,205 +207,6 @@ const BrandWord = () => (
   </HStack>
 )
 
-const AVATAR_TONE: Record<LayoutProjectTone, IAvatarProps['tone']> = {
-  all: 'accent',
-  system: 'system',
-  failed: 'muted',
-  role: 'muted',
-  waiting: 'muted',
-}
-
-const projectAvatarContent = (tone: LayoutProjectTone, initials: string): ReactNode => {
-  if (tone === 'all') return <Layers size={15} />
-  if (tone === 'system') return <Scan size={15} />
-  return initials
-}
-
-const ProjectAvatar = ({
-  initials,
-  tone,
-  size = 'sm',
-}: {
-  readonly initials: string
-  readonly tone: LayoutProjectTone
-  readonly size?: NonNullable<IAvatarProps['size']>
-}) => (
-  <Avatar size={size} tone={AVATAR_TONE[tone]}>
-    {projectAvatarContent(tone, initials)}
-  </Avatar>
-)
-
-const ProjectMenuRow = ({
-  active,
-  children,
-  onSelect,
-  value,
-}: {
-  readonly active?: boolean
-  readonly children: ReactNode
-  readonly onSelect?: () => void
-  readonly value: string
-}) => (
-  <Menu.Item
-    value={value}
-    onClick={onSelect}
-    display="flex"
-    alignItems="center"
-    gap="2.5"
-    w="full"
-    px="2.5"
-    py="2"
-    borderRadius="8px"
-    bg={active ? 'bg.subtle' : 'transparent'}
-    color="fg.secondary"
-    _highlighted={{ bg: 'bg.subtle' }}
-  >
-    {children}
-  </Menu.Item>
-)
-
-const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }) => {
-  const navigate = useNavigate()
-  const switcher = useViewModel(ProjectSwitcherViewModel)
-
-  const selectProject = (projectId: string, to: string): void => {
-    switcher.selectProject(projectId)
-    navigate(to)
-  }
-
-  return (
-    <Menu.Root positioning={{ placement: 'bottom-start' }}>
-      <Box px="3" pb="2.5" position="relative">
-        <Menu.Trigger asChild>
-          <Button
-            w="full"
-            h={collapsed ? '42px' : '46px'}
-            px={collapsed ? '0' : '2.5'}
-            justifyContent={collapsed ? 'center' : 'flex-start'}
-            gap="2.5"
-            bg="bg.surface"
-            color="fg.default"
-            borderWidth="1px"
-            borderColor="border.structural"
-            borderRadius="9px"
-            boxShadow="none"
-            _hover={{ bg: 'bg.surface', borderColor: 'border.strong' }}
-            _expanded={{ bg: 'bg.surface', borderColor: 'border.strong', boxShadow: 'popover' }}
-            title={collapsed ? 'Switch project' : undefined}
-          >
-            <ProjectAvatar initials={switcher.selectedInitials} tone={switcher.selectedTone} />
-            {collapsed ? null : (
-              <>
-                <Stack gap="0" flex="1" minW="0" align="flex-start">
-                  <Text textStyle="bodyStrong" color="fg.default" truncate>
-                    {switcher.selectedLabel}
-                  </Text>
-                  <Text className="mono" textStyle="caption" color="fg.muted" truncate>
-                    {switcher.selectedMeta}
-                  </Text>
-                </Stack>
-                <Box color="fg.muted" flexShrink="0">
-                  <ChevronDown size={15} />
-                </Box>
-              </>
-            )}
-          </Button>
-        </Menu.Trigger>
-      </Box>
-      <Portal>
-        <Menu.Positioner>
-          <Menu.Content
-            w="204px"
-            p="1.5"
-            bg="bg.surface"
-            borderWidth="1px"
-            borderColor="border.strong"
-            borderRadius="11px"
-            boxShadow="dialog"
-          >
-            <Text
-              px="2.5"
-              pt="1.5"
-              pb="1"
-              color="fg.muted"
-              fontSize="10.5px"
-              fontWeight="650"
-              textTransform="uppercase"
-              letterSpacing=".05em"
-            >
-              Workspace · agent-orchestration
-            </Text>
-            <ProjectMenuRow
-              value="all"
-              active={switcher.allProjectsSelected}
-              onSelect={() => selectProject('all', routes.projects())}
-            >
-              <ProjectAvatar initials="all" tone="all" size="xs" />
-              <Text flex="1" textStyle="bodyStrong" color="fg.default">
-                All projects
-              </Text>
-              {switcher.allProjectsSelected ? (
-                <Box color="action.primary.bg">
-                  <Check size={15} />
-                </Box>
-              ) : null}
-            </ProjectMenuRow>
-            {switcher.projects.map((project) => (
-              <ProjectMenuRow
-                key={project.id}
-                value={project.id}
-                active={switcher.selectedProjectId === project.id}
-                onSelect={() => selectProject(project.id, `/projects/${project.id}`)}
-              >
-                <ProjectAvatar initials={project.initials} tone={project.tone} size="xs" />
-                <Text flex="1" textStyle="bodyStrong" color="fg.default">
-                  {project.label}
-                </Text>
-                {switcher.selectedProjectId === project.id ? (
-                  <Box color="action.primary.bg">
-                    <Check size={15} />
-                  </Box>
-                ) : null}
-              </ProjectMenuRow>
-            ))}
-            <Box h="1px" bg="border.structural" mx="1" my="1.5" />
-            <ProjectMenuRow value="control-plane" onSelect={() => selectProject('control-plane', routes.methodRoles())}>
-              <ProjectAvatar initials="sys" tone="system" size="xs" />
-              <Stack gap="0" flex="1" minW="0">
-                <Text textStyle="bodyStrong" color="fg.default">
-                  Control plane
-                </Text>
-                <Span
-                  alignSelf="flex-start"
-                  px="1.5"
-                  borderRadius="4px"
-                  bg="bg.subtle"
-                  color="fg.muted"
-                  fontSize="9.5px"
-                  fontWeight="650"
-                  textTransform="uppercase"
-                  letterSpacing=".04em"
-                >
-                  System
-                </Span>
-              </Stack>
-              <Box color="fg.muted">
-                <ArrowRight size={14} />
-              </Box>
-            </ProjectMenuRow>
-            <ProjectMenuRow value="browse-projects" onSelect={() => selectProject('all', routes.projects())}>
-              <Plus size={15} />
-              <Text flex="1" textStyle="bodyStrong" color="fg.default">
-                Browse all projects
-              </Text>
-            </ProjectMenuRow>
-          </Menu.Content>
-        </Menu.Positioner>
-      </Portal>
-    </Menu.Root>
-  )
-})
-
 const UserAvatar = () => (
   <Avatar size="md" shape="circle" tone="brand">
     ka
@@ -388,7 +214,7 @@ const UserAvatar = () => (
 )
 
 // Search field — visual only (⌘K). In the topbar at lg+, and inside the drawer on smaller screens.
-const SearchField = (props: { readonly full?: boolean }) => (
+const SearchField = (props: SearchFieldProps) => (
   <HStack
     h={props.full ? '36px' : '34px'}
     w={props.full ? 'auto' : undefined}
@@ -425,15 +251,7 @@ const navRowColor = (item: NavItem, active: boolean): string => {
   return active ? 'fg.default' : 'fg.secondary'
 }
 
-const NavRowInner = ({
-  item,
-  active,
-  collapsed,
-}: {
-  readonly item: NavItem
-  readonly active: boolean
-  readonly collapsed: boolean
-}) => {
+const NavRowInner = ({ item, active, collapsed }: NavRowInnerProps) => {
   const Icon = item.icon
   return (
     <>
@@ -465,17 +283,7 @@ const NavRowInner = ({
   )
 }
 
-const NavRow = ({
-  item,
-  active,
-  collapsed,
-  onNavigate,
-}: {
-  readonly item: NavItem
-  readonly active: boolean
-  readonly collapsed: boolean
-  readonly onNavigate?: () => void
-}) => {
+const NavRow = ({ item, active, collapsed, onNavigate }: NavRowProps) => {
   const content = <NavRowInner item={item} active={active} collapsed={collapsed} />
 
   const shared = {
@@ -507,23 +315,20 @@ const NavRow = ({
         active ? { textDecoration: 'none' } : { textDecoration: 'none', bg: 'blackAlpha.50', color: 'fg.default' }
       }
     >
-      <Link to={item.to} title={collapsed ? item.label : undefined} onClick={onNavigate}>
+      <Link
+        to={item.to}
+        title={collapsed ? item.label : undefined}
+        onClick={onNavigate}
+        aria-current={active ? 'page' : undefined}
+      >
         {content}
       </Link>
     </ChakraLink>
   )
 }
 
-const NavRail = ({
-  pathname,
-  collapsed,
-  onNavigate,
-}: {
-  readonly pathname: string
-  readonly collapsed: boolean
-  readonly onNavigate?: () => void
-}) => (
-  <Stack as="nav" gap="0.5" px={collapsed ? '2.5' : '3'} py="2">
+const NavRail = ({ pathname, collapsed, onNavigate }: NavRailProps) => (
+  <Stack as="nav" aria-label="Main navigation" flexShrink="0" gap="0.5" px={collapsed ? '2.5' : '3'} py="2">
     {NAV_ITEMS.map((item) => (
       <NavRow
         key={item.to}
@@ -536,63 +341,8 @@ const NavRail = ({
   </Stack>
 )
 
-// Host status pill at the sidebar foot (.host-pill): beacon + daemon line.
-const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
-  const dot = <Box boxSize="2" borderRadius="full" bg="dot.success" flexShrink="0" />
-
-  if (collapsed) {
-    return (
-      <Center
-        mt="auto"
-        mx="3"
-        mb="3"
-        p="2.5"
-        borderRadius="9px"
-        bg="bg.surface"
-        borderWidth="1px"
-        borderColor="border.structural"
-        title="local · connected"
-      >
-        {dot}
-      </Center>
-    )
-  }
-
-  return (
-    <HStack
-      mt="auto"
-      mx="3"
-      mb="3"
-      p="2.5"
-      gap="2.5"
-      borderRadius="9px"
-      bg="bg.surface"
-      borderWidth="1px"
-      borderColor="border.structural"
-    >
-      {dot}
-      <Stack gap="0" minW="0">
-        <Text textStyle="caption" color="fg.secondary">
-          local · connected
-        </Text>
-        <Text className="mono" textStyle="caption" color="fg.muted" truncate>
-          daemon up · {HOST_STATUS.uptime}
-        </Text>
-      </Stack>
-    </HStack>
-  )
-}
-
 // Persistent sidebar — desktop only (lg+); on smaller screens it lives in the drawer.
-const Sidebar = ({
-  pathname,
-  collapsed,
-  onToggle,
-}: {
-  readonly pathname: string
-  readonly collapsed: boolean
-  readonly onToggle: () => void
-}) => {
+const Sidebar = ({ pathname, collapsed, onToggle }: SidebarProps) => {
   const ToggleIcon = collapsed ? ChevronRight : ChevronLeft
   const toggleLabel = collapsed ? 'Expand sidebar' : 'Collapse sidebar'
   const toggle = (
@@ -632,23 +382,14 @@ const Sidebar = ({
           {toggle}
         </HStack>
       )}
-      <ProjectSwitcher collapsed={collapsed} />
       <NavRail pathname={pathname} collapsed={collapsed} />
-      <HostPill collapsed={collapsed} />
+      {!collapsed && <ContextList pathname={pathname} />}
     </Flex>
   )
 }
 
 // Mobile navigation — the same nav inside an off-canvas drawer (<lg).
-const MobileNavDrawer = ({
-  pathname,
-  open,
-  onClose,
-}: {
-  readonly pathname: string
-  readonly open: boolean
-  readonly onClose: () => void
-}) => (
+const MobileNavDrawer = ({ pathname, open, onClose }: MobileNavDrawerProps) => (
   <Drawer.Root
     open={open}
     onOpenChange={(e) => {
@@ -675,7 +416,8 @@ const MobileNavDrawer = ({
               <SearchField full />
             </Box>
             <NavRail pathname={pathname} collapsed={false} onNavigate={onClose} />
-            <Box mt="auto">
+            <ContextList pathname={pathname} onNavigate={onClose} />
+            <Box mt="auto" flexShrink="0">
               <ChakraLink
                 asChild
                 display="flex"
@@ -699,7 +441,6 @@ const MobileNavDrawer = ({
                   </Stack>
                 </Link>
               </ChakraLink>
-              <HostPill collapsed={false} />
             </Box>
           </Flex>
         </Drawer.Content>
@@ -721,9 +462,9 @@ const InboxButton = () => (
     color="fg.secondary"
     _hover={{ bg: 'blackAlpha.50', color: 'fg.default', textDecoration: 'none' }}
   >
-    <Link to={routes.inbox()} title="Inbox" aria-label={`Inbox · ${PENDING_INBOX} pending`}>
+    <Link to={routes.inbox()} title="Inbox" aria-label={`Inbox · ${PENDING_INBOX.length} pending`}>
       <Inbox size={18} />
-      {PENDING_INBOX ? (
+      {PENDING_INBOX.length ? (
         <Center
           position="absolute"
           top="-2px"
@@ -738,7 +479,7 @@ const InboxButton = () => (
           borderWidth="2px"
           borderColor="bg.surface"
         >
-          {PENDING_INBOX}
+          {PENDING_INBOX.length}
         </Center>
       ) : null}
     </Link>
@@ -752,7 +493,7 @@ const CommandAffordance = () => (
   </Box>
 )
 
-const TopBar = ({ pathname, onMenuOpen }: { readonly pathname: string; readonly onMenuOpen: () => void }) => {
+const TopBar = ({ pathname, onMenuOpen }: TopBarProps) => {
   const breadcrumbs = breadcrumbsForPath(pathname)
 
   return (

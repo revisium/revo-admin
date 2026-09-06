@@ -5,7 +5,7 @@
 
 ## Context
 
-`orchestrator-admin` is a new admin UI for the agent orchestrator. We need
+`revo-admin` is a new admin UI for the agent orchestrator. We need
 a rendering engine that supports server-rendered routes for fast first paint and
 crawlable shells, while still hosting interactive, DOM-measuring widgets such as
 the run-progress DAG built on `@xyflow/react`. xyflow reads layout from the live

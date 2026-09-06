@@ -1,4 +1,4 @@
-# Repository: orchestrator-admin
+# Repository: revo-admin
 
 Admin UI for the Revisium agent orchestrator. React Router v7 (SSR), Chakra UI v3,
 MobX, `@xyflow/react`, organized with Feature-Sliced Design (FSD).

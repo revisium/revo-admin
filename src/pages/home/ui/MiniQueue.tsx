@@ -13,7 +13,11 @@ const KIND: Record<InboxKind, { readonly icon: LucideIcon; readonly tone: 'gate'
 const palette = (tone: 'gate' | 'running' | 'failed') =>
   tone === 'gate' ? { fg: 'fg.secondary', bg: 'bg.subtle' } : { fg: `status.${tone}.fg`, bg: 'bg.subtle' }
 
-export const MiniQueue = ({ items }: { readonly items: ReadonlyArray<InboxItem> }) => (
+interface MiniQueueProps {
+  readonly items: ReadonlyArray<InboxItem>
+}
+
+export const MiniQueue = ({ items }: MiniQueueProps) => (
   <Stack gap="0.5" mt="3.5">
     {items.map((item) => {
       const { icon: Icon, tone } = KIND[item.kind]

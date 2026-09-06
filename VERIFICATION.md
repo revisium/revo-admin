@@ -1,4 +1,4 @@
-# Verification: orchestrator-admin
+# Verification: revo-admin
 
 ## Canonical check
 
@@ -65,6 +65,8 @@ This repo uses React + MobX + MVVM + DI + FSD. Use the approved references in
 
 Expected local coverage by surface:
 
+- Every changed React surface: review the diff against the `Boundaries` in
+  `AGENTS.md`.
 - React-only presentational change: `pnpm run ts:check`, `pnpm run lint:ci`,
   `pnpm run fsd:check`, and `pnpm run build`; add browser/manual smoke when
   layout, interaction, or SSR visibility changes.
