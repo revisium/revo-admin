@@ -11,6 +11,7 @@ export default [
       route(routePaths.run, 'routes/RunDetail.tsx'),
     ]),
     route(routePaths.projects, 'routes/Projects.tsx'),
+    route(routePaths.projectCreate, 'routes/ProjectCreate.tsx'),
     route(routePaths.project, 'routes/ProjectDetail.tsx'),
     route(routePaths.projectKnowledgeArticle, 'routes/ProjectKnowledgeArticle.tsx'),
     route(routePaths.projectAdr, 'routes/ProjectAdrDetail.tsx'),

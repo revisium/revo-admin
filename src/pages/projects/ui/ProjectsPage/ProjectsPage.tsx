@@ -2,6 +2,8 @@ import { Box, Button, HStack, Spinner, Stack, Text } from '@chakra-ui/react'
 import { Folder, Plus } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import type React from 'react'
+import { Link } from 'react-router'
+import { routes } from 'src/shared/config'
 import { ProjectSearchToolbar } from 'src/features/ProjectSearchToolbar'
 import {
   ProjectListContinuationError,
@@ -23,18 +25,20 @@ const Eyebrow = (
 
 const Actions = (
   <Button
+    asChild
     size="sm"
-    h="36px"
+    h={{ base: '44px', lg: '36px' }}
+    minW="44px"
     px="3.5"
     gap="2"
     bg="fg.default"
     color="action.primary.fg"
-    disabled
     _hover={{ bg: 'action.primary.hoverBg' }}
-    _disabled={{ opacity: 0.58, cursor: 'not-allowed' }}
   >
-    <Plus size={15} />
-    New project
+    <Link to={routes.projectCreate()}>
+      <Plus size={15} />
+      Create project
+    </Link>
   </Button>
 )
 
@@ -42,7 +46,7 @@ export const ProjectsPage: React.FC = observer(() => {
   const viewModel = useViewModel(ProjectListViewModel)
 
   const renderContent = () => {
-    if (viewModel.state === 'error') {
+    if (viewModel.error) {
       return (
         <InlineError
           title="Projects could not be loaded"
@@ -53,7 +57,7 @@ export const ProjectsPage: React.FC = observer(() => {
       )
     }
 
-    if (viewModel.state === 'idle' || (viewModel.state === 'loading' && !viewModel.hasLoaded)) {
+    if (viewModel.isLoading && !viewModel.hasLoaded) {
       return (
         <Box borderTopWidth="1px" borderColor="border.structural" flex={{ lg: '1' }} minH={{ lg: '0' }}>
           <ProjectListInitialProgress label="Loading projects…" />
@@ -93,7 +97,7 @@ export const ProjectsPage: React.FC = observer(() => {
           <ProjectListColumnHeadings />
           <ProjectList rows={viewModel.rows} />
           {viewModel.isLoadingNextPage && <ProjectListContinuationProgress label="Loading more projects…" />}
-          {viewModel.continuationState === 'error' && (
+          {viewModel.continuationError && (
             <ProjectListContinuationError
               title="More projects could not be loaded"
               description={viewModel.continuationError}
@@ -102,13 +106,16 @@ export const ProjectsPage: React.FC = observer(() => {
             />
           )}
         </Box>
-        {viewModel.hasNextPage && !viewModel.isRefreshing && viewModel.continuationState === 'idle' && (
-          <Box paddingBlock="4">
-            <Button variant="outline" onClick={viewModel.loadNextPage}>
-              Load more projects
-            </Button>
-          </Box>
-        )}
+        {viewModel.hasNextPage &&
+          !viewModel.isRefreshing &&
+          !viewModel.isLoadingNextPage &&
+          !viewModel.continuationError && (
+            <Box paddingBlock="4">
+              <Button variant="outline" onClick={viewModel.loadNextPage}>
+                Load more projects
+              </Button>
+            </Box>
+          )}
       </>
     )
   }
@@ -119,7 +126,7 @@ export const ProjectsPage: React.FC = observer(() => {
         eyebrow={Eyebrow}
         title="Projects"
         description="Every project you can open, newest change first. Search by name or ID."
-        actions={Actions}
+        actions={viewModel.isEmpty && !viewModel.isNoResults ? undefined : Actions}
       />
       <Box position={{ base: 'sticky', lg: 'static' }} top="0" zIndex="10" bg="bg.canvas">
         <ProjectSearchToolbar

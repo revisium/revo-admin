@@ -25,6 +25,9 @@ export const useViewModel = <T extends object>(Class: new (...args: any[]) => T,
   })
 
   const previousArgsRef = useRef<SetupArgs<T>>(initArgs)
+  const mountedArgsRef = useRef<SetupArgs<T> | undefined>(undefined)
+  const isMountedRef = useRef(false)
+  const lifecycleGenerationRef = useRef(0)
 
   if (!sameArgs(previousArgsRef.current, initArgs)) {
     previousArgsRef.current = initArgs
@@ -34,10 +37,20 @@ export const useViewModel = <T extends object>(Class: new (...args: any[]) => T,
 
   useEffect(() => {
     const lifecycle = model as T & ViewModelLifecycle
-    lifecycle.mount?.(...memoizedInitArgs)
+    lifecycleGenerationRef.current += 1
+    if (!isMountedRef.current || !sameArgs(mountedArgsRef.current ?? [], memoizedInitArgs)) {
+      lifecycle.mount?.(...memoizedInitArgs)
+      mountedArgsRef.current = memoizedInitArgs
+      isMountedRef.current = true
+    }
 
     return () => {
-      lifecycle.unmount?.()
+      const cleanupGeneration = ++lifecycleGenerationRef.current
+      queueMicrotask(() => {
+        if (lifecycleGenerationRef.current !== cleanupGeneration) return
+        lifecycle.unmount?.()
+        isMountedRef.current = false
+      })
     }
   }, [memoizedInitArgs, model])
 

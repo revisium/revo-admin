@@ -6,7 +6,7 @@ export { ProjectCard } from './ui/ProjectCard'
 export { ProjectCardSkeleton } from './ui/ProjectCardSkeleton'
 export { ProjectSummaryCard } from './ui/ProjectSummaryCard'
 export { ProjectService } from './model/ProjectService'
-export type { Project, ProjectPage, ProjectListRequest, ProjectStatus } from './model/types'
+export type { Project, ProjectCreateInput, ProjectPage, ProjectListRequest, ProjectStatus } from './model/types'
 
 export type { ProjectStatusBadgeProps } from './ui/ProjectStatusBadge'
 export type { CopyableProjectIdProps } from './ui/CopyableProjectId'

@@ -120,6 +120,8 @@ const projectBreadcrumbs = (segments: ReadonlyArray<string>): ReadonlyArray<Brea
   const detailId = segments[PROJECT_DETAIL_INDEX]
 
   if (!projectId) return [{ label: 'Projects' }]
+  if (projectId === 'new') return [{ label: 'Projects', to: routes.projects() }, { label: 'Create project' }]
+  if (!tab) return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]
 
   const project = projectById(projectId)
   if (!project) return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]

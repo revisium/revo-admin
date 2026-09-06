@@ -3,13 +3,7 @@ import { ProjectService, type Project, type ProjectListRequest, type ProjectPage
 import { type CursorPage, type PageInfo } from 'src/shared/api'
 import { routes } from 'src/shared/config'
 import { ListContinuation, DelayedAction, errorMessageOf, container } from 'src/shared/lib'
-import { PROJECT_LIST_STATES } from './types'
-import type {
-  ProjectListContinuationError,
-  ProjectListContinuationState,
-  ProjectListItem,
-  ProjectListLoadState,
-} from './types'
+import type { ProjectListItem } from './types'
 
 const errorMessage = (error: unknown): string => errorMessageOf(error, 'Failed to load projects.')
 const PROJECT_SEARCH_DEBOUNCE_MS = 300
@@ -71,24 +65,19 @@ export class ProjectListViewModel {
   }
 
   public get isLoading(): boolean {
-    return this.continuation.isLoading
+    return this.isQueryPending || this.continuation.isLoading || this.continuation.state === 'idle'
   }
 
   public get isRefreshing(): boolean {
-    return this.continuation.hasLoaded && (this.isQueryPending || this.isLoading)
+    return this.hasLoaded && this.isLoading
   }
 
   public get hasLoaded(): boolean {
     return this.continuation.hasLoaded
   }
 
-  public get state(): ProjectListLoadState {
-    if (this.isQueryPending) return PROJECT_LIST_STATES.loading
-    return this.continuation.state
-  }
-
   public get error(): string | null {
-    if (this.isQueryPending || this.isLoading) return null
+    if (this.isLoading) return null
     return this.continuation.error ? errorMessage(this.continuation.error) : null
   }
 
@@ -110,7 +99,7 @@ export class ProjectListViewModel {
   }
 
   public get isEmpty(): boolean {
-    return !this.isRefreshing && this.state === PROJECT_LIST_STATES.ready && this.rows.length === 0
+    return this.hasLoaded && !this.isLoading && !this.error && this.rows.length === 0
   }
 
   public get isNoResults(): boolean {
@@ -125,15 +114,8 @@ export class ProjectListViewModel {
     return this.continuation.isLoadingNextPage
   }
 
-  public get continuationState(): ProjectListContinuationState {
-    if (this.isQueryPending || this.isLoading) return PROJECT_LIST_STATES.idle
-    if (this.continuation.continuationState === PROJECT_LIST_STATES.loading) return PROJECT_LIST_STATES.loading
-    if (this.continuation.continuationState === PROJECT_LIST_STATES.error) return PROJECT_LIST_STATES.error
-    return PROJECT_LIST_STATES.idle
-  }
-
-  public get continuationError(): ProjectListContinuationError {
-    if (this.isQueryPending || this.isLoading) return null
+  public get continuationError(): string | null {
+    if (this.isLoading) return null
     return this.continuation.continuationError ? errorMessage(this.continuation.continuationError) : null
   }
 
@@ -159,7 +141,7 @@ export class ProjectListViewModel {
   }
 
   public loadNextPage(): Promise<void> {
-    if (this.isQueryPending || this.isLoading) return Promise.resolve()
+    if (this.isLoading) return Promise.resolve()
     return this.continuation.loadNextPage()
   }
 
@@ -173,6 +155,11 @@ export class ProjectListViewModel {
   }
 }
 
-container.register(ProjectListViewModel, () => new ProjectListViewModel(container.get(ProjectService)), {
-  scope: 'transient',
-})
+container.register(
+  ProjectListViewModel,
+  () => {
+    const projectService = container.get(ProjectService)
+    return new ProjectListViewModel(projectService)
+  },
+  { scope: 'transient' },
+)

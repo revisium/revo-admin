@@ -17,3 +17,8 @@ export type ProjectListRequest = CursorPageRequest & {
   readonly query?: string
   readonly includeArchived?: boolean
 }
+
+export interface ProjectCreateInput {
+  readonly name: string
+  readonly description?: string
+}

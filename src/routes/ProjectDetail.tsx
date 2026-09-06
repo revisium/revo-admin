@@ -1,8 +1,10 @@
 import { useParams } from 'react-router'
-import { ProjectDetailPage } from 'src/pages/project-detail'
+import { ProjectOverviewPage } from 'src/pages/project-overview'
 
 export default function ProjectDetail() {
-  const { projectId, tab } = useParams()
+  const { projectId } = useParams()
 
-  return <ProjectDetailPage projectId={projectId ?? ''} tab={tab} />
+  const overviewProjectId = projectId ?? ''
+
+  return <ProjectOverviewPage key={overviewProjectId} projectId={overviewProjectId} />
 }

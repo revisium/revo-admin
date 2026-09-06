@@ -1216,6 +1216,20 @@ export type ProjectsQueryVariables = Exact<{
 
 export type ProjectsQuery = { projects: { totalCount: number, edges: Array<{ cursor: string, node: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
 
+export type CreateProjectMutationVariables = Exact<{
+  data: ProjectCreateInput;
+}>;
+
+
+export type CreateProjectMutation = { createProject: { projectId: string } };
+
+export type ProjectQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectQuery = { project?: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } | null };
+
 export type SystemInfoQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1258,6 +1272,20 @@ export const ProjectsDocument = gql`
 }
     ${ProjectNodeFragmentDoc}
 ${PageInfoFieldsFragmentDoc}`;
+export const CreateProjectDocument = gql`
+    mutation CreateProject($data: ProjectCreateInput!) {
+  createProject(data: $data) {
+    projectId
+  }
+}
+    `;
+export const ProjectDocument = gql`
+    query Project($id: ID!) {
+  project(data: {id: $id}) {
+    ...ProjectNode
+  }
+}
+    ${ProjectNodeFragmentDoc}`;
 export const SystemInfoDocument = gql`
     query SystemInfo {
   systemInfo {
@@ -1276,6 +1304,12 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
   return {
     Projects(variables?: ProjectsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ProjectsQuery>(ProjectsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Projects', 'query', variables);
+    },
+    CreateProject(variables: CreateProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateProjectMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateProjectMutation>(CreateProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateProject', 'mutation', variables);
+    },
+    Project(variables: ProjectQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ProjectQuery>(ProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Project', 'query', variables);
     },
     SystemInfo(variables?: SystemInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SystemInfoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);

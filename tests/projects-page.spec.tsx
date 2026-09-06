@@ -41,7 +41,7 @@ const registerReadyProjectListViewModel = (overrides: Partial<ProjectListViewMod
     ProjectListViewModel,
     () =>
       ({
-        state: 'ready',
+        isLoading: false,
         rows: [
           {
             id: 'prj_orch',
@@ -59,7 +59,6 @@ const registerReadyProjectListViewModel = (overrides: Partial<ProjectListViewMod
         isNoResults: false,
         isEmpty: false,
         isLoadingNextPage: false,
-        continuationState: 'idle',
         continuationError: null,
         hasNextPage: true,
         hasLoaded: true,
@@ -139,7 +138,7 @@ describe('ProjectsPage', () => {
 
   it('keeps the toolbar and loaded rows mounted while showing refresh progress', () => {
     registerReadyProjectListViewModel({
-      state: 'loading',
+      isLoading: true,
       isRefreshing: true,
     })
 
@@ -157,7 +156,7 @@ describe('ProjectsPage', () => {
 
   it('shows inline refresh progress instead of the initial loader for a retained empty page', () => {
     registerReadyProjectListViewModel({
-      state: 'loading',
+      isLoading: true,
       rows: [],
       resultCountLabel: '0 projects',
       isRefreshing: true,
@@ -171,6 +170,28 @@ describe('ProjectsPage', () => {
     expect(markup).toContain('aria-label="Updating projects"')
     expect(markup).not.toContain('Loading projects')
     expect(markup).not.toContain('No projects match')
+  })
+
+  it('renders a continuation error with Retry instead of the load-more action', () => {
+    registerReadyProjectListViewModel({ continuationError: 'offline' })
+
+    const markup = renderPage()
+
+    expect(markup).toContain('Orchestrator')
+    expect(markup).toContain('More projects could not be loaded')
+    expect(markup).toContain('offline')
+    expect(markup).toContain('Retry')
+    expect(markup).not.toContain('Load more projects')
+  })
+
+  it('renders continuation progress instead of the load-more action', () => {
+    registerReadyProjectListViewModel({ isLoadingNextPage: true })
+
+    const markup = renderPage()
+
+    expect(markup).toContain('Orchestrator')
+    expect(markup).toContain('Loading more projects')
+    expect(markup).not.toContain('Load more projects')
   })
 
   it('gives the projects index the desktop viewport while preserving outer scrolling for other routes', () => {
@@ -218,4 +239,55 @@ describe('ProjectsPage', () => {
     expect(headingRules.some((rule) => rule.includes('z-index:1'))).toBe(true)
     expect(headingRules.some((rule) => rule.includes('background:var(--chakra-colors-bg\\.canvas)'))).toBe(true)
   })
+})
+
+it('renders exactly one create action for true-empty and filtered no-results states', () => {
+  registerReadyProjectListViewModel({
+    rows: [],
+    resultCountLabel: '0 projects',
+    isEmpty: true,
+    isNoResults: false,
+    hasNextPage: false,
+  })
+
+  const trueEmptyMarkup = renderPage()
+  expect(trueEmptyMarkup.match(/Create project/g)).toHaveLength(1)
+  expect(trueEmptyMarkup).toContain('href="/projects/new"')
+
+  registerReadyProjectListViewModel({
+    rows: [],
+    query: 'missing',
+    resultCountLabel: '0 projects',
+    isEmpty: true,
+    isNoResults: true,
+    hasNextPage: false,
+  })
+
+  const noResultsMarkup = renderPage()
+  expect(noResultsMarkup.match(/Create project/g)).toHaveLength(1)
+  expect(noResultsMarkup).toContain('href="/projects/new"')
+})
+
+it('keeps the rendered Create project action at a compact 44px touch height', () => {
+  registerReadyProjectListViewModel()
+
+  const markup = renderPage()
+  const action = markup.match(
+    /<a[^>]*class="[^"]*\s(css-[^"]+)"[^>]*href="\/projects\/new"[^>]*>[\s\S]*?Create project/,
+  )
+
+  expect(action).not.toBeNull()
+  const actionClass = action?.[1]
+  expect(markup).toMatch(new RegExp(`\\.${actionClass}\\{[^}]*height:44px`))
+  expect(markup).toMatch(
+    new RegExp(`@media screen and \\(min-width:\\s*48rem\\)\\{\\.${actionClass}\\{[^}]*height:36px`),
+  )
+})
+
+it('uses the stable route ID in the base live Project breadcrumb while legacy tabs retain fixture labels', () => {
+  const baseMarkup = renderLayout('/projects/prj_orch')
+  const legacyMarkup = renderLayout('/projects/prj_orch/repositories')
+
+  expect(baseMarkup).toMatch(/<p class="[^"]+">prj_orch<\/p>/)
+  expect(legacyMarkup).toMatch(/href="\/projects\/prj_orch"[^>]*>Orchestrator<\/a>/)
 })
