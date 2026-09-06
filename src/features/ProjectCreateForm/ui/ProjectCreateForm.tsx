@@ -1,10 +1,10 @@
 import { Box, Flex, Stack, Text } from '@chakra-ui/react'
 import { observer } from 'mobx-react-lite'
-import { type FormEvent, useCallback, useRef } from 'react'
+import { type SubmitEvent, useCallback, useRef } from 'react'
 import { useInputAutofocus } from 'src/shared/lib'
 import { FormField, type ControlWiringProps } from 'src/shared/ui/components'
 import { Button, Textarea, TextInput } from 'src/shared/ui/kit'
-import { type ProjectCreateOutcome, ProjectCreateViewModel } from '../model/ProjectCreateViewModel'
+import { ProjectCreateViewModel } from '../model/ProjectCreateViewModel'
 
 interface ProjectCreateFormProps {
   readonly viewModel: ProjectCreateViewModel
@@ -30,7 +30,7 @@ const ProjectNameControl = observer(({ control, controlProps, setInput }: Projec
     invalid={Boolean(control.visibleError)}
     value={control.value}
     onChange={(event) => control.setValue(event.currentTarget.value)}
-    onBlur={control.blur}
+    onBlur={() => control.blur()}
   />
 ))
 
@@ -39,22 +39,9 @@ const ProjectDescriptionControl = observer(({ control, controlProps }: ProjectDe
     {...controlProps}
     value={control.value}
     onChange={(event) => control.setValue(event.currentTarget.value)}
-    onBlur={control.blur}
+    onBlur={() => control.blur()}
   />
 ))
-
-const completeProjectCreateOutcome = (
-  outcome: ProjectCreateOutcome,
-  focusName: () => void,
-  onCreated: (projectId: string) => void,
-): void => {
-  if (outcome.kind === 'invalid') {
-    focusName()
-    return
-  }
-
-  if (outcome.kind === 'created') onCreated(outcome.projectId)
-}
 
 export const ProjectCreateForm = observer(({ viewModel, onCreated, onCancel }: ProjectCreateFormProps) => {
   const nameInputRef = useRef<HTMLInputElement | null>(null)
@@ -67,10 +54,10 @@ export const ProjectCreateForm = observer(({ viewModel, onCreated, onCancel }: P
     [autofocus],
   )
 
-  const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+  const submit = async (event: SubmitEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault()
-    const outcome = await viewModel.submit()
-    completeProjectCreateOutcome(outcome, () => nameInputRef.current?.focus(), onCreated)
+    const projectId = await viewModel.submit(() => nameInputRef.current?.focus())
+    if (projectId !== undefined) onCreated(projectId)
   }
 
   return (

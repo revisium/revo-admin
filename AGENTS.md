@@ -89,9 +89,23 @@ Use these references from `../agent-playbook` for this repository:
 - Use MobX view models for live admin state. Components observe view models via
   `useViewModel`; view models own observable state, derived state, UI actions,
   and lifecycle. Services own IO and generated clients.
+- View-model async requests use the existing `ObservableRequest`: derive loading,
+  data, and error state from the request instead of duplicating its lifecycle
+  manually, and call `abort()` on owned requests during disposal. This suppresses
+  late results; do not claim transport cancellation unless the transport receives
+  and honors an abort signal. Keep form validation and submission guards in their
+  existing owners.
 - Follow the existing DI boundary. Concrete services and view models are
   registered in `src/shared/lib/DIContainer`; units that need tests should
   accept dependencies through constructors instead of reading globals directly.
+  Resolve each constructor dependency into a named local inside the registration
+  factory, then pass those locals to `new Model(...)`. Do not resolve dependencies
+  in constructor defaults. Preserve the registered lifetime when changing wiring.
+- Group data and model type contracts by responsibility: use local `model/types.ts`
+  for one cohesive group, or `<responsibility>.types.ts` for independent groups
+  in the same directory. Avoid one file per type and a shared `types` dump.
+  Private one-off types and component props may stay colocated with their owner.
+  Keep runtime functions, constants, and enums out of type-only files.
 - Preserve Feature-Sliced Design import direction. Shared API/client code stays
   in `shared`, domain read models/services in `entities`, user actions in
   `features`, composed blocks in `widgets`, and routes/screens in `pages`.

@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ProjectListViewModel } from 'src/pages/projects/model/ProjectListViewModel'
-import { PROJECT_LIST_STATES } from 'src/pages/projects/model/types'
 import type { ProjectPage, ProjectService } from 'src/entities/project'
 import { DEFAULT_PAGE_SIZE } from 'src/shared/api'
 import { container } from 'src/shared/lib/DIContainer'
@@ -63,12 +62,12 @@ describe('ProjectListViewModel', () => {
       list: vi.fn().mockReturnValue(pending.promise),
     } as unknown as ProjectService)
 
-    expect(model.state).toBe(PROJECT_LIST_STATES.idle)
+    expect(model.isLoading).toBe(true)
     expect(model.isEmpty).toBe(false)
     expect(model.resultCountLabel).toBeNull()
 
     const load = model.mount()
-    expect(model.state).toBe(PROJECT_LIST_STATES.loading)
+    expect(model.isLoading).toBe(true)
     expect(model.isEmpty).toBe(false)
     expect(model.resultCountLabel).toBeNull()
 
@@ -81,7 +80,7 @@ describe('ProjectListViewModel', () => {
     )
     await load
 
-    expect(model.state).toBe(PROJECT_LIST_STATES.ready)
+    expect(model.isLoading).toBe(false)
     expect(model.isEmpty).toBe(true)
     expect(model.resultCountLabel).toBe('0 projects')
   })
@@ -90,10 +89,11 @@ describe('ProjectListViewModel', () => {
     const list = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(page())
     const model = new ProjectListViewModel({ list } as unknown as ProjectService)
     model.setQuery('schema')
-    await vi.waitFor(() => expect(model.state).toBe(PROJECT_LIST_STATES.error))
+    await vi.waitFor(() => expect(model.error).not.toBeNull())
     expect(model.error).toBe('offline')
     model.setIncludeArchived(true)
-    await vi.waitFor(() => expect(model.state).toBe(PROJECT_LIST_STATES.ready))
+    await vi.waitFor(() => expect(model.isLoading).toBe(false))
+    expect(model.error).toBeNull()
     expect(list).toHaveBeenLastCalledWith({
       after: undefined,
       first: DEFAULT_PAGE_SIZE,
@@ -185,12 +185,11 @@ describe('ProjectListViewModel', () => {
     } as unknown as ProjectService)
 
     await model.mount()
-    expect(model.state).toBe(PROJECT_LIST_STATES.error)
     expect(model.error).toBe('stale initial error')
 
     model.setQuery('retry')
 
-    expect(model.state).toBe(PROJECT_LIST_STATES.loading)
+    expect(model.isLoading).toBe(true)
     expect(model.error).toBeNull()
 
     model.unmount()
@@ -211,11 +210,10 @@ describe('ProjectListViewModel', () => {
 
     await model.mount()
     await model.loadNextPage()
-    expect(model.continuationState).toBe(PROJECT_LIST_STATES.error)
+    expect(model.continuationError).not.toBeNull()
 
     model.setQuery('new result')
 
-    expect(model.continuationState).toBe(PROJECT_LIST_STATES.idle)
     expect(model.continuationError).toBeNull()
 
     model.unmount()
@@ -336,12 +334,11 @@ describe('ProjectListViewModel', () => {
     await model.loadNextPage()
 
     expect(model.rows).toHaveLength(1)
-    expect(model.continuationState).toBe(PROJECT_LIST_STATES.error)
     expect(model.continuationError).toBe('offline')
 
     await model.retryNextPage()
 
-    expect(model.continuationState).toBe(PROJECT_LIST_STATES.idle)
+    expect(model.continuationError).toBeNull()
     expect(model.rows).toHaveLength(1)
     expect(list).toHaveBeenLastCalledWith({
       after: 'cursor-1',
@@ -370,7 +367,6 @@ describe('ProjectListViewModel', () => {
     await firstLoad
 
     expect(model.isLoading).toBe(true)
-    expect(model.state).toBe(PROJECT_LIST_STATES.loading)
     second.resolve(page({ items: [{ ...page().items[0], id: 'newer' }] }))
     await vi.waitFor(() => expect(model.rows[0]?.id).toBe('newer'))
     expect(model.rows[0]?.id).toBe('newer')

@@ -1,6 +1,5 @@
 import { Box, Link as ChakraLink, Stack, Text } from '@chakra-ui/react'
 import { observer } from 'mobx-react-lite'
-import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
 import { ProjectIdentityBlock, ProjectStatusBadge } from 'src/entities/project'
 import { routes } from 'src/shared/config'
@@ -36,7 +35,7 @@ const FailedProject = ({ viewModel }: { readonly viewModel: ProjectOverviewViewM
       Project could not be loaded
     </Text>
     <Text textStyle="body" color="fg.secondary">
-      {viewModel.state.kind === 'error' ? viewModel.state.message : undefined}
+      {viewModel.error}
     </Text>
     <Stack gap="3" alignItems="flex-start">
       <Button variant="secondary" onClick={viewModel.retry}>
@@ -49,15 +48,8 @@ const FailedProject = ({ viewModel }: { readonly viewModel: ProjectOverviewViewM
 
 export const ProjectOverviewPage = observer(({ projectId }: ProjectOverviewPageProps) => {
   const viewModel = useViewModel(ProjectOverviewViewModel, projectId)
-  const hasFocusedReadyPageRef = useRef(false)
 
-  useEffect(() => {
-    if (viewModel.state.kind !== 'ready' || hasFocusedReadyPageRef.current) return
-    document.getElementById('project-overview-heading')?.focus()
-    hasFocusedReadyPageRef.current = true
-  }, [viewModel.state])
-
-  if (viewModel.state.kind === 'idle' || viewModel.state.kind === 'loading') {
+  if (viewModel.isLoading) {
     return (
       <Stack gap="6">
         <Box role="status" aria-live="polite">
@@ -70,10 +62,11 @@ export const ProjectOverviewPage = observer(({ projectId }: ProjectOverviewPageP
     )
   }
 
-  if (viewModel.state.kind === 'unavailable') return <UnavailableProject />
-  if (viewModel.state.kind === 'error') return <FailedProject viewModel={viewModel} />
+  if (viewModel.isUnavailable) return <UnavailableProject />
+  if (viewModel.error) return <FailedProject viewModel={viewModel} />
 
-  const { project } = viewModel.state
+  const { project } = viewModel
+  if (!project) return null
   return (
     <Stack gap="8">
       <ProjectIdentityBlock

@@ -35,7 +35,7 @@ const Actions = (
     color="action.primary.fg"
     _hover={{ bg: 'action.primary.hoverBg' }}
   >
-    <Link to={routes.projectCreate()} state={{ fromProjects: true }}>
+    <Link to={routes.projectCreate()}>
       <Plus size={15} />
       Create project
     </Link>
@@ -46,7 +46,7 @@ export const ProjectsPage: React.FC = observer(() => {
   const viewModel = useViewModel(ProjectListViewModel)
 
   const renderContent = () => {
-    if (viewModel.state === 'error') {
+    if (viewModel.error) {
       return (
         <InlineError
           title="Projects could not be loaded"
@@ -57,7 +57,7 @@ export const ProjectsPage: React.FC = observer(() => {
       )
     }
 
-    if (viewModel.state === 'idle' || (viewModel.state === 'loading' && !viewModel.hasLoaded)) {
+    if (viewModel.isLoading && !viewModel.hasLoaded) {
       return (
         <Box borderTopWidth="1px" borderColor="border.structural" flex={{ lg: '1' }} minH={{ lg: '0' }}>
           <ProjectListInitialProgress label="Loading projects…" />
@@ -97,7 +97,7 @@ export const ProjectsPage: React.FC = observer(() => {
           <ProjectListColumnHeadings />
           <ProjectList rows={viewModel.rows} />
           {viewModel.isLoadingNextPage && <ProjectListContinuationProgress label="Loading more projects…" />}
-          {viewModel.continuationState === 'error' && (
+          {viewModel.continuationError && (
             <ProjectListContinuationError
               title="More projects could not be loaded"
               description={viewModel.continuationError}
@@ -106,13 +106,16 @@ export const ProjectsPage: React.FC = observer(() => {
             />
           )}
         </Box>
-        {viewModel.hasNextPage && !viewModel.isRefreshing && viewModel.continuationState === 'idle' && (
-          <Box paddingBlock="4">
-            <Button variant="outline" onClick={viewModel.loadNextPage}>
-              Load more projects
-            </Button>
-          </Box>
-        )}
+        {viewModel.hasNextPage &&
+          !viewModel.isRefreshing &&
+          !viewModel.isLoadingNextPage &&
+          !viewModel.continuationError && (
+            <Box paddingBlock="4">
+              <Button variant="outline" onClick={viewModel.loadNextPage}>
+                Load more projects
+              </Button>
+            </Box>
+          )}
       </>
     )
   }

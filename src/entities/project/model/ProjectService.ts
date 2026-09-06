@@ -13,7 +13,7 @@ const projectOf = (node: ProjectNodeFragment): Project => ({
 })
 
 export class ProjectService {
-  public constructor(private readonly graphqlService: GraphqlService = container.get(GraphqlService)) {}
+  public constructor(private readonly graphqlService: GraphqlService) {}
 
   public async create(input: ProjectCreateInput): Promise<string> {
     const data = await this.graphqlService.client.CreateProject({
@@ -48,4 +48,11 @@ export class ProjectService {
   }
 }
 
-container.register(ProjectService, () => new ProjectService(), { scope: 'singleton' })
+container.register(
+  ProjectService,
+  () => {
+    const graphqlService = container.get(GraphqlService)
+    return new ProjectService(graphqlService)
+  },
+  { scope: 'singleton' },
+)

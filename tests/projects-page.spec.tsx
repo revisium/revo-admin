@@ -41,7 +41,7 @@ const registerReadyProjectListViewModel = (overrides: Partial<ProjectListViewMod
     ProjectListViewModel,
     () =>
       ({
-        state: 'ready',
+        isLoading: false,
         rows: [
           {
             id: 'prj_orch',
@@ -59,7 +59,6 @@ const registerReadyProjectListViewModel = (overrides: Partial<ProjectListViewMod
         isNoResults: false,
         isEmpty: false,
         isLoadingNextPage: false,
-        continuationState: 'idle',
         continuationError: null,
         hasNextPage: true,
         hasLoaded: true,
@@ -139,7 +138,7 @@ describe('ProjectsPage', () => {
 
   it('keeps the toolbar and loaded rows mounted while showing refresh progress', () => {
     registerReadyProjectListViewModel({
-      state: 'loading',
+      isLoading: true,
       isRefreshing: true,
     })
 
@@ -157,7 +156,7 @@ describe('ProjectsPage', () => {
 
   it('shows inline refresh progress instead of the initial loader for a retained empty page', () => {
     registerReadyProjectListViewModel({
-      state: 'loading',
+      isLoading: true,
       rows: [],
       resultCountLabel: '0 projects',
       isRefreshing: true,
@@ -171,6 +170,28 @@ describe('ProjectsPage', () => {
     expect(markup).toContain('aria-label="Updating projects"')
     expect(markup).not.toContain('Loading projects')
     expect(markup).not.toContain('No projects match')
+  })
+
+  it('renders a continuation error with Retry instead of the load-more action', () => {
+    registerReadyProjectListViewModel({ continuationError: 'offline' })
+
+    const markup = renderPage()
+
+    expect(markup).toContain('Orchestrator')
+    expect(markup).toContain('More projects could not be loaded')
+    expect(markup).toContain('offline')
+    expect(markup).toContain('Retry')
+    expect(markup).not.toContain('Load more projects')
+  })
+
+  it('renders continuation progress instead of the load-more action', () => {
+    registerReadyProjectListViewModel({ isLoadingNextPage: true })
+
+    const markup = renderPage()
+
+    expect(markup).toContain('Orchestrator')
+    expect(markup).toContain('Loading more projects')
+    expect(markup).not.toContain('Load more projects')
   })
 
   it('gives the projects index the desktop viewport while preserving outer scrolling for other routes', () => {

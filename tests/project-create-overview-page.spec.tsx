@@ -19,15 +19,18 @@ import { system } from 'src/shared/ui/theme/theme'
 type Deferred<T> = {
   readonly promise: Promise<T>
   resolve: (value: T) => void
+  reject: (reason: unknown) => void
 }
 
 const deferred = <T,>(): Deferred<T> => {
   let resolve!: (value: T) => void
-  const promise = new Promise<T>((resolvePromise) => {
+  let reject!: (reason: unknown) => void
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
     resolve = resolvePromise
+    reject = rejectPromise
   })
 
-  return { promise, resolve }
+  return { promise, resolve, reject }
 }
 
 const project = (id: string): Project => ({
@@ -168,7 +171,7 @@ const registerReadyProjectListViewModel = () => {
     ProjectListViewModel,
     () =>
       ({
-        state: 'ready',
+        isLoading: false,
         rows: [
           {
             id: 'prj_existing',
@@ -186,7 +189,6 @@ const registerReadyProjectListViewModel = () => {
         isNoResults: false,
         isEmpty: false,
         isLoadingNextPage: false,
-        continuationState: 'idle',
         continuationError: null,
         hasNextPage: false,
         hasLoaded: true,
@@ -276,20 +278,31 @@ describe('Project create and Overview page boundaries', () => {
     )
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledOnce())
-    const activeModel = models.find((model) => model.state.kind === 'loading')
+    const activeModel = models.find((model) => model.isLoading)
     expect(activeModel).toBeDefined()
 
     await act(async () => {
       root?.unmount()
       await Promise.resolve()
     })
+    const unmountedState = {
+      project: activeModel?.project,
+      error: activeModel?.error,
+      isLoading: activeModel?.isLoading,
+      isUnavailable: activeModel?.isUnavailable,
+    }
     await act(async () => {
       request.resolve(project('prj_late'))
       await Promise.resolve()
     })
 
     expect(page.textContent).toBe('')
-    expect(activeModel?.state).toEqual({ kind: 'loading' })
+    expect({
+      project: activeModel?.project,
+      error: activeModel?.error,
+      isLoading: activeModel?.isLoading,
+      isUnavailable: activeModel?.isUnavailable,
+    }).toEqual(unmountedState)
   })
 
   it('submits the real form, focuses invalid Name, and preserves its ARIA error linkage', async () => {
@@ -341,17 +354,12 @@ describe('Project create and Overview page boundaries', () => {
     })
   })
 
-  it('uses the rendered Cancel action for marked history-back and unmarked Projects fallback', async () => {
+  it('always returns to Projects on Cancel regardless of prior history', async () => {
     registerCreateViewModel(vi.fn())
-    let page = await render(
-      <CreateRoutes
-        initialEntries={['/runs', { pathname: '/projects/new', state: { fromProjects: true } }]}
-        initialIndex={1}
-      />,
-    )
+    let page = await render(<CreateRoutes initialEntries={['/runs', '/projects/new']} initialIndex={1} />)
 
     await click(page.querySelector('button[type="button"]') as HTMLButtonElement)
-    expect(currentPath()).toBe('/runs')
+    expect(currentPath()).toBe('/projects')
 
     await act(async () => {
       root?.unmount()
@@ -406,6 +414,43 @@ describe('Project create and Overview page boundaries', () => {
     expect(page.textContent).not.toContain('prj_late')
   })
 
+  it('does not focus invalid Name for an ignored submit or a server failure during creation', async () => {
+    const request = deferred<string>()
+    registerCreateViewModel(vi.fn().mockReturnValue(request.promise))
+    const page = await render(<CreateRoutes initialEntries={['/projects/new']} />)
+    const name = page.querySelector('input') as HTMLInputElement
+    const description = page.querySelector('textarea') as HTMLTextAreaElement
+    const form = page.querySelector('form') as HTMLFormElement
+
+    await setInputValue(name, 'Pending project')
+    await submit(form)
+    await vi.waitFor(() => expect(page.textContent).toContain('Creating…'))
+    await setInputValue(name, '')
+    await act(async () => {
+      description.focus()
+    })
+
+    await submit(form)
+
+    expect(document.activeElement).toBe(description)
+    expect(currentPath()).toBe('/projects/new')
+
+    await act(async () => {
+      request.reject(new Error('offline'))
+      await Promise.resolve()
+    })
+
+    await vi.waitFor(() => expect(page.textContent).toContain('offline'))
+    expect(document.activeElement).toBe(description)
+    expect(currentPath()).toBe('/projects/new')
+
+    await act(async () => {
+      name.focus()
+    })
+    expect(document.activeElement).toBe(name)
+    expect(name.getAttribute('aria-invalid')).toBe('true')
+  })
+
   it('keeps the actual primary button dimensions stable through its busy state in a wrapping narrow row', async () => {
     const request = deferred<string>()
     const create = vi.fn().mockReturnValue(request.promise)
@@ -440,7 +485,7 @@ describe('Project create and Overview page boundaries', () => {
     expect(page.textContent).toContain('offline')
     await click(page.querySelector('button') as HTMLButtonElement)
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_live'))
-    expect(document.activeElement).toBe(page.querySelector('#project-overview-heading'))
+    expect(document.activeElement).not.toBe(page.querySelector('#project-overview-heading'))
 
     registerOverviewViewModel(vi.fn().mockResolvedValue(null))
     await act(async () => {
@@ -455,7 +500,7 @@ describe('Project create and Overview page boundaries', () => {
     expect(unavailablePage.textContent).not.toContain('Retry')
   })
 
-  it('remounts the real project route by ID, removes the old identity, and focuses the new ready heading once', async () => {
+  it('remounts the real project route by ID, removes the old identity, without automatically focusing the ready heading', async () => {
     const oldRequest = deferred<Project | null>()
     const newRequest = deferred<Project | null>()
     const get = vi.fn((id: string) => (id === 'prj_old' ? oldRequest.promise : newRequest.promise))
@@ -468,7 +513,7 @@ describe('Project create and Overview page boundaries', () => {
       await Promise.resolve()
     })
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_old'))
-    expect(document.activeElement).toBe(page.querySelector('#project-overview-heading'))
+    expect(document.activeElement).not.toBe(page.querySelector('#project-overview-heading'))
 
     await click(page.querySelector('[data-testid="open-new-project"]') as HTMLAnchorElement)
     await vi.waitFor(() => expect(get).toHaveBeenCalledWith('prj_new'))
@@ -480,7 +525,7 @@ describe('Project create and Overview page boundaries', () => {
     })
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_new'))
     expect(page.textContent).not.toContain('Live prj_old')
-    expect(document.activeElement).toBe(page.querySelector('#project-overview-heading'))
+    expect(document.activeElement).not.toBe(page.querySelector('#project-overview-heading'))
   })
 
   it('places the real static create route before the dynamic project route', () => {
