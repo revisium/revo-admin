@@ -75,6 +75,15 @@ const setInputValue = async (input: HTMLInputElement, value: string): Promise<vo
   })
 }
 
+const setTextareaValue = async (textarea: HTMLTextAreaElement, value: string): Promise<void> => {
+  const valueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set
+  valueSetter?.call(textarea, value)
+
+  await act(async () => {
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+}
+
 const currentPath = (): string => host?.querySelector('[data-testid="location"]')?.textContent ?? ''
 
 const LocationProbe = () => {
@@ -134,10 +143,18 @@ const StrictProjectsCreateRoutes = () => (
   </StrictMode>
 )
 
-const registerCreateViewModel = (create: ProjectService['create']) => {
-  container.register(ProjectCreateViewModel, () => new ProjectCreateViewModel({ create } as ProjectService), {
-    scope: 'transient',
-  })
+const registerCreateViewModel = (create: ProjectService['create']): ProjectCreateViewModel[] => {
+  const models: ProjectCreateViewModel[] = []
+  container.register(
+    ProjectCreateViewModel,
+    () => {
+      const model = new ProjectCreateViewModel({ create } as ProjectService)
+      models.push(model)
+      return model
+    },
+    { scope: 'transient' },
+  )
+  return models
 }
 
 const registerOverviewViewModel = (get: ProjectService['get']) => {
@@ -288,6 +305,40 @@ describe('Project create and Overview page boundaries', () => {
     expect(describedBy).toBeTruthy()
     expect(document.getElementById(describedBy ?? '')?.textContent).toContain('Name is required.')
     expect(document.activeElement).toBe(name)
+  })
+
+  it('keeps the rendered Description textarea synchronized through multi-line editing, clearing, and submit', async () => {
+    const create = vi.fn().mockResolvedValue('prj_created')
+    const models = registerCreateViewModel(create)
+    const page = await render(<CreateRoutes initialEntries={['/projects/new']} />)
+    const name = page.querySelector('input') as HTMLInputElement
+    const description = page.querySelector('textarea') as HTMLTextAreaElement
+
+    await setInputValue(name, 'Description project')
+    expect(name.value).toBe('Description project')
+    await setTextareaValue(description, 'First line')
+    expect(description.value).toBe('First line')
+
+    await setTextareaValue(description, 'First line\nSecond line')
+    expect(description.value).toBe('First line\nSecond line')
+
+    await act(async () => {
+      models[0]?.description.setValue('Programmatic line\nProgrammatic second line')
+    })
+    expect(description.value).toBe('Programmatic line\nProgrammatic second line')
+
+    await setTextareaValue(description, '')
+    expect(description.value).toBe('')
+
+    await setTextareaValue(description, 'Final line\nSecond final line')
+    expect(description.value).toBe('Final line\nSecond final line')
+    await submit(page.querySelector('form') as HTMLFormElement)
+
+    await vi.waitFor(() => expect(create).toHaveBeenCalledOnce())
+    expect(create).toHaveBeenCalledWith({
+      name: 'Description project',
+      description: 'Final line\nSecond final line',
+    })
   })
 
   it('uses the rendered Cancel action for marked history-back and unmarked Projects fallback', async () => {

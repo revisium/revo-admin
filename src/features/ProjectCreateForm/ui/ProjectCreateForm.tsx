@@ -2,7 +2,7 @@ import { Box, Flex, Stack, Text } from '@chakra-ui/react'
 import { observer } from 'mobx-react-lite'
 import { type FormEvent, useCallback, useRef } from 'react'
 import { useInputAutofocus } from 'src/shared/lib'
-import { FormField } from 'src/shared/ui/components'
+import { FormField, type ControlWiringProps } from 'src/shared/ui/components'
 import { Button, Textarea, TextInput } from 'src/shared/ui/kit'
 import { type ProjectCreateOutcome, ProjectCreateViewModel } from '../model/ProjectCreateViewModel'
 
@@ -11,6 +11,37 @@ interface ProjectCreateFormProps {
   readonly onCreated: (projectId: string) => void
   readonly onCancel: () => void
 }
+
+interface ProjectNameControlProps {
+  readonly control: ProjectCreateViewModel['name']
+  readonly controlProps: ControlWiringProps
+  readonly setInput: (node: HTMLInputElement | null) => void
+}
+
+interface ProjectDescriptionControlProps {
+  readonly control: ProjectCreateViewModel['description']
+  readonly controlProps: ControlWiringProps
+}
+
+const ProjectNameControl = observer(({ control, controlProps, setInput }: ProjectNameControlProps) => (
+  <TextInput
+    {...controlProps}
+    ref={setInput}
+    invalid={Boolean(control.visibleError)}
+    value={control.value}
+    onChange={(event) => control.setValue(event.currentTarget.value)}
+    onBlur={control.blur}
+  />
+))
+
+const ProjectDescriptionControl = observer(({ control, controlProps }: ProjectDescriptionControlProps) => (
+  <Textarea
+    {...controlProps}
+    value={control.value}
+    onChange={(event) => control.setValue(event.currentTarget.value)}
+    onBlur={control.blur}
+  />
+))
 
 const completeProjectCreateOutcome = (
   outcome: ProjectCreateOutcome,
@@ -54,25 +85,11 @@ export const ProjectCreateForm = observer(({ viewModel, onCreated, onCancel }: P
         ) : null}
         <FormField label="Name" error={viewModel.name.visibleError} required>
           {(controlProps) => (
-            <TextInput
-              {...controlProps}
-              ref={setNameInput}
-              invalid={Boolean(viewModel.name.visibleError)}
-              value={viewModel.name.value}
-              onChange={(event) => viewModel.name.setValue(event.currentTarget.value)}
-              onBlur={viewModel.name.blur}
-            />
+            <ProjectNameControl control={viewModel.name} controlProps={controlProps} setInput={setNameInput} />
           )}
         </FormField>
         <FormField label="Description" reserveErrorSpace={false}>
-          {(controlProps) => (
-            <Textarea
-              {...controlProps}
-              value={viewModel.description.value}
-              onChange={(event) => viewModel.description.setValue(event.currentTarget.value)}
-              onBlur={viewModel.description.blur}
-            />
-          )}
+          {(controlProps) => <ProjectDescriptionControl control={viewModel.description} controlProps={controlProps} />}
         </FormField>
         <Flex gap="3" flexWrap="wrap" alignItems="center">
           <Button type="button" variant="secondary" onClick={onCancel}>
