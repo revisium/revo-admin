@@ -1,4 +1,4 @@
-# orchestrator-admin
+# revo-admin
 
 Admin UI for the Revisium agent orchestrator.
 
@@ -126,7 +126,7 @@ MobX view models registered in `src/shared/lib/DIContainer`.
 
 ## Embedded SSR package contract
 
-The published package is `@revisium/orchestrator-admin`. Its production build is
+The published package is `@revisium/revo-admin`. Its production build is
 prepared for embedding into `@revisium/orchestrator`:
 
 ```text

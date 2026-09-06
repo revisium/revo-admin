@@ -1,4 +1,4 @@
-# orchestrator-admin
+# revo-admin
 
 Admin UI for the Revisium agent orchestrator. This repository is a child of the
 Revisium workspace and follows the canonical agent playbook in the workspace
@@ -86,6 +86,14 @@ Use these references from `../agent-playbook` for this repository:
 - React components render state and wire events only. Components may derive
   trivial display text, but loading, refresh, expected failures, and product
   visible state transitions belong in services or MobX view models.
+- React components do not own workflow logic, option or suggestion arrays,
+  filtering, derived labels, state-dependent copy, or submission decisions.
+  Put these in a MobX view model and keep the component limited to rendering
+  model state and wiring user events.
+- Declare component props with a named `interface`; do not use inline object
+  types in component signatures.
+- Put each new React component in its own file. Do not add a second component
+  to an existing component file; extract it and import it instead.
 - Use MobX view models for live admin state. Components observe view models via
   `useViewModel`; view models own observable state, derived state, UI actions,
   and lifecycle. Services own IO and generated clients.

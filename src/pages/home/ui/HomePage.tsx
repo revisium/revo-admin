@@ -1,5 +1,6 @@
-import { Box, Button, Link as ChakraLink, Flex, Grid, HStack, SimpleGrid, Stack, Text } from '@chakra-ui/react'
-import { ArrowRight, CircleCheck, DoorOpen, Play, RefreshCw, TriangleAlert } from 'lucide-react'
+import { DiscussionComposer } from 'src/features/DiscussionComposer'
+import { Box, Link as ChakraLink, Flex, Grid, HStack, SimpleGrid, Stack, Text } from '@chakra-ui/react'
+import { ArrowRight, CircleCheck, DoorOpen, Play, TriangleAlert } from 'lucide-react'
 import { observer } from 'mobx-react-lite'
 import { Link } from 'react-router'
 import { SystemStatusViewModel } from 'src/entities/system-status'
@@ -13,6 +14,7 @@ import { RunRow } from 'src/entities/run'
 import { StatCard, type StatDef } from './StatCard'
 import { routes } from 'src/shared/config'
 import { PageHeader } from 'src/shared/ui/components'
+import { RefreshButton } from './RefreshButton'
 
 const STAT_DEFS: ReadonlyArray<StatDef> = [
   { key: 'running', label: 'Running', tone: 'running', icon: Play, hint: 'agents active now', to: routes.runs() },
@@ -43,46 +45,27 @@ const Eyebrow = (
   </HStack>
 )
 
-const RefreshButton = ({ loading, onRefresh }: { readonly loading: boolean; readonly onRefresh: () => void }) => (
-  <Button
-    size="sm"
-    h="36px"
-    px="3.5"
-    gap="2"
-    bg="transparent"
-    color="fg.secondary"
-    borderRadius="control"
-    disabled={loading}
-    onClick={onRefresh}
-    _hover={{ bg: 'action.secondary.hoverBg', color: 'fg.default' }}
-  >
-    <RefreshCw size={15} />
-    Refresh
-  </Button>
-)
-
-export const DashboardPage = observer(() => {
+export const HomePage = observer(() => {
   const systemStatus = useViewModel(SystemStatusViewModel)
 
   return (
     <Stack gap="7">
       <PageHeader
         eyebrow={Eyebrow}
-        title="Dashboard"
-        description="Calm control over the local orchestrator — what's running, what needs you, what it cost."
+        title="Home"
+        description="Start something new or pick up where you left off."
         actions={<RefreshButton loading={systemStatus.isLoading} onRefresh={systemStatus.refresh} />}
       />
 
-      <HostStatusCard
-        error={systemStatus.error}
-        hostLabel={systemStatus.hostLabel}
-        issues={systemStatus.issues}
-        metaLabel={systemStatus.metaLabel}
-        metaValue={systemStatus.metaValue}
-        statusLabel={systemStatus.statusLabel}
-        statusTone={systemStatus.statusTone}
-        stats={systemStatus.stats}
-      />
+      <Stack gap="3">
+        <Text fontSize={{ base: '24px', md: '30px' }} fontWeight="600" letterSpacing="-0.03em">
+          What would you like to do?
+        </Text>
+        <Text textStyle="body" color="fg.secondary">
+          Discuss an idea with Assistant. No project or pipeline required.
+        </Text>
+        <DiscussionComposer suggestions />
+      </Stack>
 
       <SimpleGrid columns={{ base: 1, sm: 2, xl: 4 }} gap="4">
         {STAT_DEFS.map((def) => (
@@ -138,6 +121,16 @@ export const DashboardPage = observer(() => {
           <MiniQueue items={PENDING_QUEUE} />
         </Stack>
       </Grid>
+      <HostStatusCard
+        error={systemStatus.error}
+        hostLabel={systemStatus.hostLabel}
+        issues={systemStatus.issues}
+        metaLabel={systemStatus.metaLabel}
+        metaValue={systemStatus.metaValue}
+        statusLabel={systemStatus.statusLabel}
+        statusTone={systemStatus.statusTone}
+        stats={systemStatus.stats}
+      />
     </Stack>
   )
 })

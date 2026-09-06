@@ -8,7 +8,19 @@ import { routes } from 'src/shared/config'
 
 const FIRST_PENDING = INBOX_ITEMS.find((item) => item.status === 'pending')
 
-const DetailCard = ({ children }: { readonly children: React.ReactNode }) => (
+interface DetailCardProps {
+  readonly children: React.ReactNode
+}
+
+interface ResolvedPlaceholderProps {
+  readonly runId?: string
+}
+
+interface InboxViewProps {
+  readonly selectedId?: string
+}
+
+const DetailCard = ({ children }: DetailCardProps) => (
   <Box
     display="flex"
     flexDirection="column"
@@ -20,13 +32,12 @@ const DetailCard = ({ children }: { readonly children: React.ReactNode }) => (
     overflow="hidden"
     position={{ xl: 'sticky' }}
     top={{ xl: '1.5rem' }}
-    maxH={{ xl: 'calc(100dvh - 7rem)' }}
   >
     {children}
   </Box>
 )
 
-const ResolvedPlaceholder = ({ runId }: { readonly runId?: string }) => (
+const ResolvedPlaceholder = ({ runId }: ResolvedPlaceholderProps) => (
   <Center flexDirection="column" textAlign="center" gap="3" p="10" minH="280px">
     <Center boxSize="48px" borderRadius="13px" bg="bg.subtle" color="status.success.fg">
       <CheckCircle2 size={26} />
@@ -42,22 +53,22 @@ const ResolvedPlaceholder = ({ runId }: { readonly runId?: string }) => (
   </Center>
 )
 
-export const InboxView = ({ selectedId }: { readonly selectedId?: string }) => {
+export const InboxView = ({ selectedId }: InboxViewProps) => {
   const effectiveId = selectedId ?? FIRST_PENDING?.id
   const selected = effectiveId ? INBOX_ITEMS.find((item) => item.id === effectiveId) : undefined
   const resolved = selected?.status === 'resolved'
 
   return (
-    <Grid templateColumns={{ base: '1fr', xl: '320px minmax(0, 1fr)' }} gap="5" alignItems="start">
-      <Box display={{ base: selectedId ? 'none' : 'block', xl: 'block' }}>
+    <Grid templateColumns="1fr" gap="5" alignItems="start">
+      <Box display={{ base: selectedId ? 'none' : 'block', lg: 'none' }}>
         <InboxList items={INBOX_ITEMS} activeId={effectiveId} />
       </Box>
 
-      <Stack gap="3" display={{ base: selectedId ? 'flex' : 'none', xl: 'flex' }} minW="0">
+      <Stack gap="3" display={{ base: selectedId ? 'flex' : 'none', lg: 'flex' }} minW="0">
         {selectedId ? (
           <ChakraLink
             asChild
-            display={{ base: 'inline-flex', xl: 'none' }}
+            display={{ base: 'inline-flex', lg: 'none' }}
             color="fg.secondary"
             textStyle="body"
             _hover={{ color: 'fg.default', textDecoration: 'none' }}

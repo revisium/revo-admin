@@ -14,7 +14,12 @@ export interface StatDef {
   readonly accent?: boolean
 }
 
-export const StatCard = ({ def, count }: { readonly def: StatDef; readonly count: number }) => {
+interface StatCardProps {
+  readonly def: StatDef
+  readonly count: number
+}
+
+export const StatCard = ({ def, count }: StatCardProps) => {
   const Icon = def.icon
   return (
     <ChakraLink

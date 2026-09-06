@@ -1,5 +1,5 @@
 {
-  "name": "@revisium/orchestrator-admin",
+  "name": "@revisium/revo-admin",
   "version": "0.0.0",
   "description": "SSR admin UI for the Revisium agent orchestrator",
   "private": false,
@@ -7,9 +7,9 @@
   "author": "Anton Kashirov",
   "repository": {
     "type": "git",
-    "url": "https://github.com/revisium/orchestrator-admin.git"
+    "url": "https://github.com/revisium/revo-admin.git"
   },
-  "homepage": "https://github.com/revisium/orchestrator-admin#readme",
+  "homepage": "https://github.com/revisium/revo-admin#readme",
   "type": "module",
   "packageManager": "pnpm@11.5.2",
   "engines": {

@@ -1,4 +1,4 @@
-# Review policy: orchestrator-admin
+# Review policy: revo-admin
 
 ## Before review
 

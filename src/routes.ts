@@ -4,6 +4,8 @@ import { routePaths } from './shared/config'
 export default [
   layout('routes/AppLayout.tsx', [
     index('routes/Home.tsx'),
+    route(routePaths.assistant, 'routes/Assistant.tsx'),
+    route(routePaths.chat, 'routes/Chat.tsx'),
     route(routePaths.runs, 'routes/RunsLayout.tsx', [
       index('routes/RunsBoard.tsx'),
       route(routePaths.runCreate, 'routes/RunCreate.tsx'),
