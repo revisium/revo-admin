@@ -61,6 +61,7 @@ export class ObservableRequest<T, Args extends any[], E = unknown> {
 
   public setDataDirectly(value: T | null): void {
     this._data = value
+    this._error = null
     this._isLoaded = true
   }
 

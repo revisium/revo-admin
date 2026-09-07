@@ -82,3 +82,25 @@ it('preserves a nullable project result and GraphQL rejection', async () => {
   await expect(missing.get('prj_missing')).resolves.toBeNull()
   await expect(rejected.get('prj_1')).rejects.toBe(failure)
 })
+
+it('updates project details through the generated input envelope and preserves an empty description', async () => {
+  const UpdateProject = vi.fn().mockResolvedValue({ updateProject: true })
+  const service = new ProjectService({ client: { UpdateProject } } as unknown as GraphqlService)
+
+  await expect(service.update('prj_1', { name: '  Server trims  ', description: '' })).resolves.toBe(true)
+
+  expect(UpdateProject).toHaveBeenCalledWith({
+    data: { id: 'prj_1', name: '  Server trims  ', description: '' },
+  })
+})
+
+it.each([
+  ['archive', 'ArchiveProject', 'archiveProject'],
+  ['restore', 'RestoreProject', 'restoreProject'],
+] as const)('settles %s through its generated project input envelope', async (method, sdkMethod, resultField) => {
+  const operation = vi.fn().mockResolvedValue({ [resultField]: false })
+  const service = new ProjectService({ client: { [sdkMethod]: operation } } as unknown as GraphqlService)
+
+  await expect(service[method]('prj_1')).resolves.toBe(false)
+  expect(operation).toHaveBeenCalledWith({ data: { id: 'prj_1' } })
+})

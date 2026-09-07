@@ -1,5 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ProjectOverviewViewModel } from 'src/pages/project-overview/model/ProjectOverviewViewModel'
+import { ProjectLayoutViewModel } from 'src/widgets/ProjectLayout/model/ProjectLayoutViewModel'
 import type { Project, ProjectService } from 'src/entities/project'
 
 type Deferred<T> = {
@@ -28,7 +29,13 @@ const project = (id: string): Project => ({
   updatedAt: '2026-01-01T00:00:00.000Z',
 })
 
-describe('ProjectOverviewViewModel', () => {
+it('keeps the shared project read owner out of the Overview page slice', () => {
+  const obsoleteOwnerName = ['Project', 'Overview', 'ViewModel'].join('')
+  expect(existsSync(`src/pages/project-overview/model/${obsoleteOwnerName}.ts`)).toBe(false)
+  expect(readFileSync('src/pages/project-overview/index.ts', 'utf8')).not.toContain(obsoleteOwnerName)
+})
+
+describe('ProjectLayoutViewModel', () => {
   beforeEach(() => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
@@ -39,7 +46,7 @@ describe('ProjectOverviewViewModel', () => {
 
   it('shows loading during SSR setup without IO, then loads the route project on mount', async () => {
     const get = vi.fn().mockResolvedValue(project('prj_1'))
-    const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+    const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
     model.setup('prj_1')
     expect(model.isLoading).toBe(true)
@@ -63,7 +70,7 @@ describe('ProjectOverviewViewModel', () => {
       .mockResolvedValueOnce(null)
       .mockRejectedValueOnce(new Error('offline'))
       .mockResolvedValueOnce(project('prj_1'))
-    const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+    const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
     await model.mount('prj_1')
     expect(model.isUnavailable).toBe(true)
@@ -88,7 +95,7 @@ describe('ProjectOverviewViewModel', () => {
     'keeps a rejection of %s distinct from an unavailable project',
     async (failure) => {
       const get = vi.fn().mockRejectedValueOnce(failure)
-      const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+      const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
       await model.mount('prj_1')
 
@@ -103,7 +110,7 @@ describe('ProjectOverviewViewModel', () => {
     const first = deferred<Project | null>()
     const second = deferred<Project | null>()
     const get = vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
-    const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+    const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
     const oldMount = model.mount('prj_old')
     const newMount = model.mount('prj_new')
@@ -145,14 +152,14 @@ describe('ProjectOverviewViewModel', () => {
   })
 })
 
-describe('ProjectOverviewViewModel request lifecycle', () => {
+describe('ProjectLayoutViewModel request lifecycle', () => {
   it.each(['resolve', 'reject'] as const)(
     'ignores an old %s after remount while the new request is loading',
     async (settle) => {
       const old = deferred<Project | null>()
       const current = deferred<Project | null>()
       const get = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise)
-      const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+      const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
       const oldMount = model.mount('prj_old')
       model.unmount()
@@ -175,7 +182,7 @@ describe('ProjectOverviewViewModel request lifecycle', () => {
   it('ignores a stale failure after the latest request succeeds', async () => {
     const old = deferred<Project | null>()
     const get = vi.fn().mockReturnValueOnce(old.promise).mockResolvedValueOnce(project('prj_current'))
-    const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
+    const model = new ProjectLayoutViewModel({ get } as unknown as ProjectService)
 
     const oldMount = model.mount('prj_old')
     await model.mount('prj_current')

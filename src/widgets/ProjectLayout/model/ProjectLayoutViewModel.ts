@@ -1,11 +1,12 @@
 import { makeAutoObservable } from 'mobx'
 import { type Project, ProjectService } from 'src/entities/project'
-import { errorMessageOf, container, ObservableRequest } from 'src/shared/lib'
+import { container, errorMessageOf, ObservableRequest } from 'src/shared/lib'
 
 const loadErrorOf = (error: unknown): string => errorMessageOf(error, 'Failed to load project.')
 
-export class ProjectOverviewViewModel {
+export class ProjectLayoutViewModel {
   private projectId = ''
+  private initialProject: Project | null = null
   private readonly projectRequest: ObservableRequest<Project | null, [string], Error>
 
   public constructor(projectService: ProjectService) {
@@ -24,6 +25,7 @@ export class ProjectOverviewViewModel {
   }
 
   public get project(): Project | null {
+    if (this.projectRequest.isLoading || !this.projectRequest.isLoaded) return this.initialProject
     return this.projectRequest.data
   }
 
@@ -35,11 +37,12 @@ export class ProjectOverviewViewModel {
     return !this.isLoading && !this.error && this.project === null
   }
 
-  public setup(projectId: string): void {
+  public setup(projectId: string, initialProject?: Project): void {
     this.projectId = projectId
+    this.initialProject = initialProject?.id === projectId ? initialProject : null
   }
 
-  public async mount(projectId: string): Promise<void> {
+  public async mount(projectId: string, _initialProject?: Project): Promise<void> {
     this.projectId = projectId
     await this.projectRequest.fetch(projectId)
   }
@@ -48,16 +51,22 @@ export class ProjectOverviewViewModel {
     return this.mount(this.projectId)
   }
 
+  public updateProject(project: Project): void {
+    if (project.id !== this.projectId) return
+    this.initialProject = project
+    this.projectRequest.setDataDirectly(project)
+  }
+
   public unmount(): void {
     this.projectRequest.abort()
   }
 }
 
 container.register(
-  ProjectOverviewViewModel,
+  ProjectLayoutViewModel,
   () => {
     const projectService = container.get(ProjectService)
-    return new ProjectOverviewViewModel(projectService)
+    return new ProjectLayoutViewModel(projectService)
   },
   { scope: 'transient' },
 )

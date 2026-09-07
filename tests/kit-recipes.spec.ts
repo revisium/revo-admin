@@ -82,6 +82,12 @@ describe('kit recipes', () => {
     expect(confirmDialogRecipe.slots).toEqual(['backdrop', 'positioner', 'content', 'title', 'body', 'footer'])
   })
 
+  it('keeps the programmatically focused confirm dialog title visually quiet', () => {
+    expect(confirmDialogRecipe.base?.title).toMatchObject({
+      _focusVisible: { outline: 'none' },
+    })
+  })
+
   it('never uses transform in base or variants', () => {
     const recipes = [
       buttonRecipe,

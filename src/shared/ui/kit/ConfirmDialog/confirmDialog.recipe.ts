@@ -29,6 +29,9 @@ export const confirmDialogRecipe = defineSlotRecipe({
     title: {
       textStyle: 'sectionTitle',
       color: 'fg.default',
+      _focusVisible: {
+        outline: 'none',
+      },
     },
     body: {
       textStyle: 'body',

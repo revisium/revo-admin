@@ -5,9 +5,6 @@ const INBOX = '/inbox'
 const METHOD = '/method'
 const UI_KIT_PREVIEW = '/ui-kit-preview'
 
-// Route templates feed the router config; builders feed links and navigation. Both come from
-// the same constants, so a renamed segment cannot leave one of them behind. Templates nested
-// under a layout stay relative, exactly as the router expects them.
 export const routePaths = {
   runs: RUNS,
   runCreate: 'new',
@@ -17,10 +14,7 @@ export const routePaths = {
   projects: PROJECTS,
   projectCreate: `${PROJECTS}/new`,
   project: `${PROJECTS}/:projectId`,
-  projectKnowledgeArticle: `${PROJECTS}/:projectId/knowledge/:articleId`,
-  projectAdr: `${PROJECTS}/:projectId/adrs/:adrId`,
-  projectMemoryTable: `${PROJECTS}/:projectId/memory/:tableId`,
-  projectTab: `${PROJECTS}/:projectId/:tab`,
+  projectSettings: `${PROJECTS}/:projectId/settings`,
 
   inbox: INBOX,
   inboxItem: `${INBOX}/:itemId`,
@@ -45,11 +39,7 @@ export const routes = {
   projects: (): string => PROJECTS,
   projectCreate: (): string => `${PROJECTS}/new`,
   project: (projectId: string): string => `${PROJECTS}/${projectId}`,
-  projectTab: (projectId: string, tab: string): string => `${PROJECTS}/${projectId}/${tab}`,
-  projectKnowledgeArticle: (projectId: string, articleId: string): string =>
-    `${PROJECTS}/${projectId}/knowledge/${articleId}`,
-  projectAdr: (projectId: string, adrId: string): string => `${PROJECTS}/${projectId}/adrs/${adrId}`,
-  projectMemoryTable: (projectId: string, tableId: string): string => `${PROJECTS}/${projectId}/memory/${tableId}`,
+  projectSettings: (projectId: string): string => `${PROJECTS}/${projectId}/settings`,
 
   inbox: (): string => INBOX,
   inboxItem: (itemId: string): string => `${INBOX}/${itemId}`,

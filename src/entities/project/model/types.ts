@@ -22,3 +22,8 @@ export interface ProjectCreateInput {
   readonly name: string
   readonly description?: string
 }
+
+export interface ProjectUpdateInput {
+  readonly name: string
+  readonly description: string
+}

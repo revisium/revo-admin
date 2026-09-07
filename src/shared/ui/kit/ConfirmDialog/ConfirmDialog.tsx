@@ -1,5 +1,5 @@
 import { Box, Dialog, useSlotRecipe } from '@chakra-ui/react'
-import { type ReactNode, useRef } from 'react'
+import { type ReactElement, type ReactNode, useEffect, useRef } from 'react'
 import { confirmDialogRecipe } from './confirmDialog.recipe'
 
 interface ConfirmDialogProps {
@@ -12,6 +12,8 @@ interface ConfirmDialogProps {
   readonly confirmAction: ReactNode
   readonly confirming?: boolean
   readonly dismissLockedWhileConfirming?: boolean
+  readonly restoreFocus?: boolean
+  readonly trigger?: ReactElement
 }
 
 export const ConfirmDialog = ({
@@ -24,6 +26,8 @@ export const ConfirmDialog = ({
   confirmAction,
   confirming,
   dismissLockedWhileConfirming,
+  restoreFocus = true,
+  trigger,
 }: ConfirmDialogProps) => {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const recipe = useSlotRecipe({ recipe: confirmDialogRecipe })
@@ -31,24 +35,24 @@ export const ConfirmDialog = ({
 
   const dismissLocked = Boolean(dismissLockedWhileConfirming && confirming)
 
-  /* trapFocus and restoreFocus are left at their defaults on purpose —
-   * Ark traps focus while open and returns it to the invoking control
-   * on close. Do not hand-roll either. */
+  useEffect(() => {
+    if (!open) return
+    const frame = requestAnimationFrame(() => titleRef.current?.focus())
+    return () => cancelAnimationFrame(frame)
+  }, [open])
+
   return (
     <Dialog.Root
       open={open}
       onOpenChange={(details) => onOpenChange(details.open)}
-      initialFocusEl={() => titleRef.current}
       closeOnEscape={!dismissLocked}
       closeOnInteractOutside={!dismissLocked}
+      restoreFocus={restoreFocus}
     >
+      {trigger ? <Dialog.Trigger asChild>{trigger}</Dialog.Trigger> : null}
       <Dialog.Backdrop unstyled css={styles.backdrop} />
       <Dialog.Positioner unstyled css={styles.positioner}>
         <Dialog.Content unstyled css={styles.content}>
-          {/* Initial focus goes to the title, never to the confirm button: a
-           * consequential confirmation must not receive surprise initial focus.
-           * That is why the title carries tabIndex={-1} and initialFocusEl
-           * points at it. */}
           <Dialog.Title unstyled css={styles.title} ref={titleRef} tabIndex={-1}>
             {title}
           </Dialog.Title>
@@ -57,9 +61,6 @@ export const ConfirmDialog = ({
           </Dialog.Body>
           {blockers ? <Box>{blockers}</Box> : null}
           <Dialog.Footer unstyled css={styles.footer} flexDirection={{ base: 'column-reverse', lg: 'row' }}>
-            {/* The actions arrive as slots rather than being rendered here,
-             * so this component does not dictate which button variants a caller
-             * uses, and stays free of composition. */}
             {cancelAction}
             {confirmAction}
           </Dialog.Footer>

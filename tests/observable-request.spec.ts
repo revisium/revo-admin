@@ -52,6 +52,17 @@ describe('ObservableRequest', () => {
     expect(request.isLoading).toBe(false)
   })
 
+  it('clears a stale request error when data is set directly', async () => {
+    const failure = clientError('offline')
+    const request = new ObservableRequest<string, [], ClientError>(() => Promise.reject(failure))
+
+    await request.fetch()
+    request.setDataDirectly('reconciled')
+
+    expect(request.data).toBe('reconciled')
+    expect(request.error).toBeNull()
+  })
+
   it('exposes the first GraphQL error message after a failed request', async () => {
     const failure = new ClientError(
       { status: 400, errors: [new GraphQLError('offline')] },

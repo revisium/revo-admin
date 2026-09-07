@@ -40,3 +40,15 @@ query Project($id: ID!) {
     ...ProjectNode
   }
 }
+
+mutation UpdateProject($data: ProjectUpdateInput!) {
+  updateProject(data: $data)
+}
+
+mutation ArchiveProject($data: ProjectInput!) {
+  archiveProject(data: $data)
+}
+
+mutation RestoreProject($data: ProjectInput!) {
+  restoreProject(data: $data)
+}

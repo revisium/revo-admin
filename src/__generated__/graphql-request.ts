@@ -1230,6 +1230,27 @@ export type ProjectQueryVariables = Exact<{
 
 export type ProjectQuery = { project?: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } | null };
 
+export type UpdateProjectMutationVariables = Exact<{
+  data: ProjectUpdateInput;
+}>;
+
+
+export type UpdateProjectMutation = { updateProject: boolean };
+
+export type ArchiveProjectMutationVariables = Exact<{
+  data: ProjectInput;
+}>;
+
+
+export type ArchiveProjectMutation = { archiveProject: boolean };
+
+export type RestoreProjectMutationVariables = Exact<{
+  data: ProjectInput;
+}>;
+
+
+export type RestoreProjectMutation = { restoreProject: boolean };
+
 export type SystemInfoQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -1286,6 +1307,21 @@ export const ProjectDocument = gql`
   }
 }
     ${ProjectNodeFragmentDoc}`;
+export const UpdateProjectDocument = gql`
+    mutation UpdateProject($data: ProjectUpdateInput!) {
+  updateProject(data: $data)
+}
+    `;
+export const ArchiveProjectDocument = gql`
+    mutation ArchiveProject($data: ProjectInput!) {
+  archiveProject(data: $data)
+}
+    `;
+export const RestoreProjectDocument = gql`
+    mutation RestoreProject($data: ProjectInput!) {
+  restoreProject(data: $data)
+}
+    `;
 export const SystemInfoDocument = gql`
     query SystemInfo {
   systemInfo {
@@ -1310,6 +1346,15 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     Project(variables: ProjectQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ProjectQuery>(ProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Project', 'query', variables);
+    },
+    UpdateProject(variables: UpdateProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateProjectMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<UpdateProjectMutation>(UpdateProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateProject', 'mutation', variables);
+    },
+    ArchiveProject(variables: ArchiveProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ArchiveProjectMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ArchiveProjectMutation>(ArchiveProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ArchiveProject', 'mutation', variables);
+    },
+    RestoreProject(variables: RestoreProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RestoreProjectMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RestoreProjectMutation>(RestoreProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RestoreProject', 'mutation', variables);
     },
     SystemInfo(variables?: SystemInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SystemInfoQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);

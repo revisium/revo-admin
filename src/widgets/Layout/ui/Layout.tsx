@@ -35,14 +35,7 @@ import {
 import { observer } from 'mobx-react-lite'
 import { useState, type ReactNode } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
-import {
-  HOST_STATUS,
-  INBOX_ITEMS,
-  adrsForProject,
-  knowledgeForProject,
-  memoryForProject,
-  projectById,
-} from 'src/shared/fixtures'
+import { HOST_STATUS, INBOX_ITEMS } from 'src/shared/fixtures'
 import { useViewModel } from 'src/shared/lib'
 import { BrandLogo } from 'src/shared/ui'
 import { Avatar, type IAvatarProps } from 'src/shared/ui/kit'
@@ -52,11 +45,9 @@ import { routes } from 'src/shared/config'
 interface NavItem {
   readonly label: string
   readonly to: string
-  // Prefix used to mark the active section (e.g. /method matches /method/roles).
   readonly match: string
   readonly icon: LucideIcon
   readonly badge?: number
-  // Sections whose pages do not exist yet render disabled (no navigation).
   readonly disabled?: boolean
 }
 
@@ -69,8 +60,6 @@ const PENDING_INBOX = INBOX_ITEMS.filter((item) => item.status === 'pending').le
 const PATH_SECTION_INDEX = 0
 const PROJECT_ID_INDEX = 1
 const PROJECT_TAB_INDEX = 2
-const PROJECT_DETAIL_INDEX = 3
-const BREADCRUMB_ADR_NUMBER_WIDTH = 4
 
 const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { label: 'Dashboard', to: routes.home(), match: routes.home(), icon: LayoutDashboard },
@@ -83,62 +72,22 @@ const NAV_ITEMS: ReadonlyArray<NavItem> = [
 const isActive = (pathname: string, match: string): boolean =>
   match === '/' ? pathname === '/' : pathname === match || pathname.startsWith(`${match}/`)
 
-const PROJECT_TAB_LABELS: Readonly<Record<string, string>> = {
-  repositories: 'Repositories',
-  knowledge: 'Knowledge base',
-  adrs: 'ADRs',
-  memory: 'Memory',
-  activity: 'Activity',
-}
-
-const breadcrumbAdrRouteId = (number: number): string =>
-  `adr-${String(number).padStart(BREADCRUMB_ADR_NUMBER_WIDTH, '0')}`
-
-const breadcrumbAdrLabel = (projectId: string, adrId: string): string => {
-  const adr = adrsForProject(projectId).find(
-    (candidate) => candidate.id === adrId || breadcrumbAdrRouteId(candidate.number) === adrId.toLowerCase(),
-  )
-
-  return adr ? `ADR-${String(adr.number).padStart(BREADCRUMB_ADR_NUMBER_WIDTH, '0')}` : adrId.toUpperCase()
-}
-
-const breadcrumbProjectDetailLabel = (projectId: string, tab: string, detailId: string): string => {
-  if (tab === 'adrs') return breadcrumbAdrLabel(projectId, detailId)
-  if (tab === 'knowledge') {
-    return knowledgeForProject(projectId).find((article) => article.id === detailId)?.title ?? detailId
-  }
-  if (tab === 'memory') {
-    return memoryForProject(projectId).find((table) => table.id === detailId)?.name ?? detailId
-  }
-
-  return detailId
-}
-
 const projectBreadcrumbs = (segments: ReadonlyArray<string>): ReadonlyArray<BreadcrumbItem> => {
   const projectId = segments[PROJECT_ID_INDEX]
   const tab = segments[PROJECT_TAB_INDEX]
-  const detailId = segments[PROJECT_DETAIL_INDEX]
 
   if (!projectId) return [{ label: 'Projects' }]
   if (projectId === 'new') return [{ label: 'Projects', to: routes.projects() }, { label: 'Create project' }]
   if (!tab) return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]
-
-  const project = projectById(projectId)
-  if (!project) return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]
-
-  const crumbs: Array<BreadcrumbItem> = [
-    { label: 'Projects', to: routes.projects() },
-    { label: project.name, to: `/projects/${project.id}` },
-  ]
-
-  if (tab) {
-    const tabCrumb = { label: PROJECT_TAB_LABELS[tab] ?? tab, to: `/projects/${project.id}/${tab}` }
-    crumbs.push(detailId ? tabCrumb : { label: tabCrumb.label })
+  if (tab === 'settings') {
+    return [
+      { label: 'Projects', to: routes.projects() },
+      { label: projectId, to: routes.project(projectId) },
+      { label: 'Settings' },
+    ]
   }
 
-  if (tab && detailId) crumbs.push({ label: breadcrumbProjectDetailLabel(project.id, tab, detailId) })
-
-  return crumbs
+  return [{ label: 'Projects', to: routes.projects() }, { label: projectId }]
 }
 
 const breadcrumbsForPath = (pathname: string): ReadonlyArray<BreadcrumbItem> => {
@@ -387,7 +336,6 @@ const UserAvatar = () => (
   </Avatar>
 )
 
-// Search field — visual only (⌘K). In the topbar at lg+, and inside the drawer on smaller screens.
 const SearchField = (props: { readonly full?: boolean }) => (
   <HStack
     h={props.full ? '36px' : '34px'}
@@ -536,7 +484,6 @@ const NavRail = ({
   </Stack>
 )
 
-// Host status pill at the sidebar foot (.host-pill): beacon + daemon line.
 const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
   const dot = <Box boxSize="2" borderRadius="full" bg="dot.success" flexShrink="0" />
 
@@ -583,7 +530,6 @@ const HostPill = ({ collapsed }: { readonly collapsed: boolean }) => {
   )
 }
 
-// Persistent sidebar — desktop only (lg+); on smaller screens it lives in the drawer.
 const Sidebar = ({
   pathname,
   collapsed,
@@ -639,7 +585,6 @@ const Sidebar = ({
   )
 }
 
-// Mobile navigation — the same nav inside an off-canvas drawer (<lg).
 const MobileNavDrawer = ({
   pathname,
   open,
@@ -708,8 +653,6 @@ const MobileNavDrawer = ({
   </Drawer.Root>
 )
 
-// Mobile-only Inbox shortcut: surfaces the pending-decisions count in the topbar
-// since the sidebar nav badge is hidden inside the drawer on small screens.
 const InboxButton = () => (
   <ChakraLink
     asChild
@@ -745,7 +688,6 @@ const InboxButton = () => (
   </ChakraLink>
 )
 
-// Search lives in the topbar at lg+; on smaller screens it moves into the drawer.
 const CommandAffordance = () => (
   <Box display={{ base: 'none', lg: 'block' }}>
     <SearchField />

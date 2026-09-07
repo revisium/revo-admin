@@ -284,10 +284,13 @@ it('keeps the rendered Create project action at a compact 44px touch height', ()
   )
 })
 
-it('uses the stable route ID in the base live Project breadcrumb while legacy tabs retain fixture labels', () => {
+it('uses stable route IDs for live Project breadcrumbs without fixture-backed deep-route labels', () => {
   const baseMarkup = renderLayout('/projects/prj_orch')
-  const legacyMarkup = renderLayout('/projects/prj_orch/repositories')
+  const settingsMarkup = renderLayout('/projects/prj_orch/settings')
+  const unsupportedMarkup = renderLayout('/projects/prj_orch/repositories')
 
   expect(baseMarkup).toMatch(/<p class="[^"]+">prj_orch<\/p>/)
-  expect(legacyMarkup).toMatch(/href="\/projects\/prj_orch"[^>]*>Orchestrator<\/a>/)
+  expect(settingsMarkup).toMatch(/href="\/projects\/prj_orch"[^>]*>prj_orch<\/a>/)
+  expect(settingsMarkup).toMatch(/<p class="[^"]+">Settings<\/p>/)
+  expect(unsupportedMarkup).not.toContain('Orchestrator')
 })
