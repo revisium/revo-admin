@@ -1,16 +1,14 @@
 import { Box, Link as ChakraLink, Stack, Text } from '@chakra-ui/react'
 import { observer } from 'mobx-react-lite'
-import { useRef } from 'react'
 import { Link, Outlet, useMatch } from 'react-router'
 import { type Project, ProjectPageHeader } from 'src/entities/project'
-import { routes } from 'src/shared/config'
+import { routePaths, routes } from 'src/shared/config'
 import { useViewModel } from 'src/shared/lib'
 import { Button } from 'src/shared/ui/kit'
 import { ProjectLayoutViewModel } from '../model/ProjectLayoutViewModel'
 
 interface ProjectLayoutProps {
   readonly projectId: string
-  readonly initialProject?: Project
 }
 
 interface ProjectLayoutContext {
@@ -24,18 +22,7 @@ const BackToProjects = () => (
   </ChakraLink>
 )
 
-const LoadingProject = () => (
-  <Stack gap="4">
-    <Box role="status" aria-live="polite">
-      <Text textStyle="body" color="fg.secondary">
-        Loading project…
-      </Text>
-    </Box>
-    <BackToProjects />
-  </Stack>
-)
-
-const LoadingProjectContent = () => (
+const ProjectLoadingMessage = () => (
   <Box role="status" aria-live="polite">
     <Text textStyle="body" color="fg.secondary">
       Loading project…
@@ -72,12 +59,17 @@ const FailedProject = ({ viewModel }: { readonly viewModel: ProjectLayoutViewMod
   </Stack>
 )
 
-export const ProjectLayout = observer(({ projectId, initialProject }: ProjectLayoutProps) => {
-  const initialProjectRef = useRef(initialProject)
-  const viewModel = useViewModel(ProjectLayoutViewModel, projectId, initialProjectRef.current)
-  const settingsMatch = useMatch('/projects/:projectId/settings')
+export const ProjectLayout = observer(({ projectId }: ProjectLayoutProps) => {
+  const viewModel = useViewModel(ProjectLayoutViewModel, projectId)
+  const settingsMatch = useMatch(routePaths.projectSettings)
 
-  if (viewModel.isLoading && !viewModel.project) return <LoadingProject />
+  if (viewModel.isLoading && !viewModel.project)
+    return (
+      <Stack gap="4">
+        <ProjectLoadingMessage />
+        <BackToProjects />
+      </Stack>
+    )
   if (viewModel.isUnavailable) return <UnavailableProject />
   if (viewModel.error) return <FailedProject viewModel={viewModel} />
 
@@ -91,7 +83,7 @@ export const ProjectLayout = observer(({ projectId, initialProject }: ProjectLay
   return (
     <Stack data-testid="project-layout" gap="8">
       <ProjectPageHeader project={project} currentSection={currentSection} headingId={headingId} />
-      {viewModel.isLoading ? <LoadingProjectContent /> : <Outlet context={context} />}
+      {viewModel.isLoading ? <ProjectLoadingMessage /> : <Outlet context={context} />}
     </Stack>
   )
 })

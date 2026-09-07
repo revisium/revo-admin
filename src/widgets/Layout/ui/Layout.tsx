@@ -279,7 +279,7 @@ const ProjectSwitcher = observer(({ collapsed }: { readonly collapsed: boolean }
                 key={project.id}
                 value={project.id}
                 active={switcher.selectedProjectId === project.id}
-                onSelect={() => selectProject(project.id, `/projects/${project.id}`)}
+                onSelect={() => selectProject(project.id, routes.project(project.id))}
               >
                 <ProjectAvatar initials={project.initials} tone={project.tone} size="xs" />
                 <Text flex="1" textStyle="bodyStrong" color="fg.default">

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { ChakraProvider } from '@chakra-ui/react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter, Route, Routes } from 'react-router'
@@ -293,4 +294,11 @@ it('uses stable route IDs for live Project breadcrumbs without fixture-backed de
   expect(settingsMarkup).toMatch(/href="\/projects\/prj_orch"[^>]*>prj_orch<\/a>/)
   expect(settingsMarkup).toMatch(/<p class="[^"]+">Settings<\/p>/)
   expect(unsupportedMarkup).not.toContain('Orchestrator')
+})
+
+it('uses the canonical project route builder for Project switcher navigation', () => {
+  const source = readFileSync('src/widgets/Layout/ui/Layout.tsx', 'utf8')
+
+  expect(source).toContain('selectProject(project.id, routes.project(project.id))')
+  expect(source).not.toContain('`/projects/${project.id}`')
 })

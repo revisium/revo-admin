@@ -6,7 +6,6 @@ const loadErrorOf = (error: unknown): string => errorMessageOf(error, 'Failed to
 
 export class ProjectLayoutViewModel {
   private projectId = ''
-  private initialProject: Project | null = null
   private readonly projectRequest: ObservableRequest<Project | null, [string], Error>
 
   public constructor(projectService: ProjectService) {
@@ -25,7 +24,6 @@ export class ProjectLayoutViewModel {
   }
 
   public get project(): Project | null {
-    if (this.projectRequest.isLoading || !this.projectRequest.isLoaded) return this.initialProject
     return this.projectRequest.data
   }
 
@@ -37,12 +35,11 @@ export class ProjectLayoutViewModel {
     return !this.isLoading && !this.error && this.project === null
   }
 
-  public setup(projectId: string, initialProject?: Project): void {
+  public setup(projectId: string): void {
     this.projectId = projectId
-    this.initialProject = initialProject?.id === projectId ? initialProject : null
   }
 
-  public async mount(projectId: string, _initialProject?: Project): Promise<void> {
+  public async mount(projectId: string): Promise<void> {
     this.projectId = projectId
     await this.projectRequest.fetch(projectId)
   }
@@ -53,7 +50,6 @@ export class ProjectLayoutViewModel {
 
   public updateProject(project: Project): void {
     if (project.id !== this.projectId) return
-    this.initialProject = project
     this.projectRequest.setDataDirectly(project)
   }
 

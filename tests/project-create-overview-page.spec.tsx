@@ -1,5 +1,6 @@
 /* @vitest-environment jsdom */
 
+import { readFileSync } from 'node:fs'
 import { ChakraProvider } from '@chakra-ui/react'
 import { act, StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
@@ -15,7 +16,7 @@ import {
   useNavigate,
 } from 'react-router'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { type Project, projectFromNavigationState, ProjectService } from 'src/entities/project'
+import { type Project, ProjectService } from 'src/entities/project'
 import { ProjectCreateViewModel } from 'src/features/ProjectCreateForm'
 import { ProjectCreatePage } from 'src/pages/project-create'
 import { ProjectLayoutViewModel } from 'src/widgets/ProjectLayout'
@@ -152,17 +153,9 @@ const setTextareaValue = async (textarea: HTMLTextAreaElement, value: string): P
 const currentPath = (): string => host?.querySelector('[data-testid="location"]')?.textContent ?? ''
 
 const LocationProbe = () => {
-  const location = useLocation()
-  const stateProject =
-    location.state && typeof location.state === 'object' && 'project' in location.state
-      ? location.state.project
-      : undefined
+  const { pathname } = useLocation()
 
-  return (
-    <output data-testid="location" data-state-project={stateProject ? JSON.stringify(stateProject) : undefined}>
-      {location.pathname}
-    </output>
-  )
+  return <output data-testid="location">{pathname}</output>
 }
 
 const RouterBack = () => {
@@ -533,6 +526,34 @@ describe('ConfirmDialog focus ownership', () => {
 })
 
 describe('Project create and Overview page boundaries', () => {
+  it('shares one loading message component between the empty and persistent project shells', () => {
+    const source = readFileSync('src/widgets/ProjectLayout/ui/ProjectLayout.tsx', 'utf8')
+
+    expect(source.match(/Loading project…/g)).toHaveLength(1)
+    expect(source.match(/aria-live="polite"/g)).toHaveLength(1)
+    expect(source.match(/<ProjectLoadingMessage \/>/g)).toHaveLength(2)
+    expect(source).not.toContain('LoadingProjectContent')
+  })
+
+  it('matches the active Settings section through the canonical route template', () => {
+    const source = readFileSync('src/widgets/ProjectLayout/ui/ProjectLayout.tsx', 'utf8')
+
+    expect(source).toContain('useMatch(routePaths.projectSettings)')
+    expect(source).not.toContain("useMatch('/projects/:projectId/settings')")
+  })
+
+  it('loads the Project layout only from the route ID without a navigation snapshot', () => {
+    const routeAdapter = readFileSync('src/routes/ProjectDetail.tsx', 'utf8')
+    const projectLayout = readFileSync('src/widgets/ProjectLayout/ui/ProjectLayout.tsx', 'utf8')
+    const projectLayoutViewModel = readFileSync('src/widgets/ProjectLayout/model/ProjectLayoutViewModel.ts', 'utf8')
+
+    expect(routeAdapter).not.toContain('useLocation')
+    expect(routeAdapter).not.toContain('projectFromNavigationState')
+    expect(routeAdapter).not.toContain('initialProject')
+    expect(projectLayout).not.toContain('initialProject')
+    expect(projectLayoutViewModel).not.toContain('initialProject')
+  })
+
   it('survives StrictMode replay after navigating through the rendered Projects create action', async () => {
     const create = vi.fn().mockResolvedValue('prj_created')
     registerCreateViewModel(create)
@@ -846,6 +867,9 @@ describe('Project create and Overview page boundaries', () => {
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledWith('prj_1'))
     expect(page.textContent).toContain('Loading project…')
+    const loadingSources = page.querySelectorAll('[role="status"][aria-live="polite"]')
+    expect(loadingSources).toHaveLength(1)
+    expect(loadingSources[0]?.textContent?.trim()).toBe('Loading project…')
     expect(page.querySelector('section[aria-label="Project header"]')).toBeNull()
     expect(page.querySelector('[data-testid="project-content-overview"]')).toBeNull()
     expect(page.querySelector('a[href="/projects"]')?.textContent).toBe('Back to projects')
@@ -858,20 +882,17 @@ describe('Project create and Overview page boundaries', () => {
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_1'))
   })
 
-  it.each([
-    ['mismatched', { project: project('prj_1', { name: 'Stale overview' }) }],
-    ['malformed', { project: { ...project('prj_2'), description: false } }],
-  ])('rejects a %s Overview navigation snapshot before loading the route project', async (_label, state) => {
+  it('ignores Overview navigation state and loads only the route project', async () => {
     const projectRead = deferred<Project | null>()
     const get = vi.fn().mockReturnValue(projectRead.promise)
     registerProjectLayoutViewModel(get)
-    expect(projectFromNavigationState(state, 'prj_2')).toBeUndefined()
+    const ignoredProject = project('prj_2', { name: 'Ignored overview state' })
     const page = await render(
       <ProjectRoutes
         initialEntries={[
           {
             pathname: '/projects/prj_2',
-            state,
+            state: { project: ignoredProject },
           },
         ]}
       />,
@@ -879,7 +900,7 @@ describe('Project create and Overview page boundaries', () => {
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledWith('prj_2'))
     expect(page.querySelector('section[aria-label="Project header"]')).toBeNull()
-    expect(page.textContent).not.toContain('Stale overview')
+    expect(page.textContent).not.toContain('Ignored overview state')
     expect(page.textContent).toContain('Loading project…')
 
     await act(async () => {
@@ -888,10 +909,10 @@ describe('Project create and Overview page boundaries', () => {
     })
 
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_2'))
-    expect(page.textContent).not.toContain('Stale overview')
+    expect(page.textContent).not.toContain('Ignored overview state')
   })
 
-  it('refetches the shared project shell after leaving and returning to Overview with Forward', async () => {
+  it('loads Overview from the server after entry and again after Back and Forward', async () => {
     const firstRead = deferred<Project | null>()
     const secondRead = deferred<Project | null>()
     const get = vi
@@ -913,8 +934,13 @@ describe('Project create and Overview page boundaries', () => {
     )
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(1))
-    expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Overview snapshot')
+    expect(page.querySelector('#project-overview-heading')).toBeNull()
+    expect(page.textContent).not.toContain('Overview snapshot')
     expect(page.textContent).toContain('Loading project…')
+    const loadingSources = page.querySelectorAll('[role="status"][aria-live="polite"]')
+    expect(loadingSources).toHaveLength(1)
+    expect(loadingSources[0]?.textContent?.trim()).toBe('Loading project…')
+    expect(page.querySelector('a[href="/projects"]')).not.toBeNull()
     expect(page.querySelector('[data-testid="project-content-overview"]')).toBeNull()
 
     await act(async () => {
@@ -930,7 +956,8 @@ describe('Project create and Overview page boundaries', () => {
     await click(page.querySelector('[data-testid="router-forward"]') as HTMLButtonElement)
     await vi.waitFor(() => expect(currentPath()).toBe('/projects/prj_1'))
     await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(2))
-    expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Overview snapshot')
+    expect(page.querySelector('#project-overview-heading')).toBeNull()
+    expect(page.textContent).not.toContain('Overview snapshot')
     expect(page.textContent).toContain('Loading project…')
     expect(page.querySelector('[data-testid="project-content-overview"]')).toBeNull()
 
@@ -1030,7 +1057,6 @@ describe('Project Settings page boundaries', () => {
 
     await click(overviewHeader.querySelector('a[href="/projects/prj_1/settings"]') as HTMLAnchorElement)
     await vi.waitFor(() => expect(currentPath()).toBe('/projects/prj_1/settings'))
-    expect(page.querySelector('[data-testid="location"]')?.getAttribute('data-state-project')).toBeNull()
 
     expect(page.querySelector('section[aria-label="Project header"]')).toBe(overviewHeader)
     expect(overviewHeader.parentElement).toBe(projectShell)
@@ -1045,14 +1071,7 @@ describe('Project Settings page boundaries', () => {
     const get = vi.fn().mockResolvedValue(project('prj_1'))
     registerProjectLayoutViewModel(get)
     registerSettingsViewModel({ get } as unknown as ProjectService)
-    const page = await render(
-      <ProjectSectionRoutes
-        initialEntry={{
-          pathname: '/projects/prj_1/settings',
-          state: { project: project('prj_1', { name: 'Settings snapshot' }) },
-        }}
-      />,
-    )
+    const page = await render(<ProjectSectionRoutes initialEntry="/projects/prj_1/settings" />)
 
     const settingsHeader = await vi.waitFor(() => {
       expect((page.querySelector('input') as HTMLInputElement).value).toBe('Live prj_1')
@@ -1074,18 +1093,17 @@ describe('Project Settings page boundaries', () => {
     expect(get).toHaveBeenCalledOnce()
   })
 
-  it('rejects a mismatched navigation snapshot and loads only the route project', async () => {
+  it('ignores Settings navigation state and loads only the route project', async () => {
     const projectRead = deferred<Project | null>()
     const get = vi.fn().mockReturnValue(projectRead.promise)
-    const staleProject = project('prj_1', { name: 'Stale project' })
+    const ignoredProject = project('prj_2', { name: 'Ignored settings state' })
     registerSettingsViewModel({ get } as unknown as ProjectService)
-    expect(projectFromNavigationState({ project: staleProject }, 'prj_2')).toBeUndefined()
     const page = await render(
       <SettingsRoutes
         initialEntries={[
           {
             pathname: '/projects/prj_2/settings',
-            state: { project: staleProject },
+            state: { project: ignoredProject },
           },
         ]}
       />,
@@ -1093,7 +1111,7 @@ describe('Project Settings page boundaries', () => {
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledWith('prj_2'))
     expect(page.querySelector('section[aria-label="Project header"]')).toBeNull()
-    expect(page.textContent).not.toContain('Stale project')
+    expect(page.textContent).not.toContain('Ignored settings state')
     expect(page.querySelector('input')).toBeNull()
     expect(Array.from(page.querySelectorAll('button'), (button) => button.textContent)).not.toContain('Archive project')
 
@@ -1106,46 +1124,10 @@ describe('Project Settings page boundaries', () => {
       expect(page.querySelector('#project-settings-project-heading')?.textContent).toBe('Live prj_2'),
     )
     expect((page.querySelector('input') as HTMLInputElement).value).toBe('Live prj_2')
-    expect(page.textContent).not.toContain('Stale project')
+    expect(page.textContent).not.toContain('Ignored settings state')
   })
 
-  it('rejects a malformed navigation snapshot and loads the route project', async () => {
-    const projectRead = deferred<Project | null>()
-    const get = vi.fn().mockReturnValue(projectRead.promise)
-    const malformedProject = {
-      ...project('prj_2'),
-      name: 42,
-    }
-    registerSettingsViewModel({ get } as unknown as ProjectService)
-    expect(projectFromNavigationState({ project: malformedProject }, 'prj_2')).toBeUndefined()
-    const page = await render(
-      <SettingsRoutes
-        initialEntries={[
-          {
-            pathname: '/projects/prj_2/settings',
-            state: { project: malformedProject },
-          },
-        ]}
-      />,
-    )
-
-    await vi.waitFor(() => expect(get).toHaveBeenCalledWith('prj_2'))
-    expect(page.querySelector('section[aria-label="Project header"]')).toBeNull()
-    expect(page.querySelector('input')).toBeNull()
-    expect(Array.from(page.querySelectorAll('button'), (button) => button.textContent)).not.toContain('Archive project')
-
-    await act(async () => {
-      projectRead.resolve(project('prj_2'))
-      await Promise.resolve()
-    })
-
-    await vi.waitFor(() =>
-      expect(page.querySelector('#project-settings-project-heading')?.textContent).toBe('Live prj_2'),
-    )
-    expect((page.querySelector('input') as HTMLInputElement).value).toBe('Live prj_2')
-  })
-
-  it('refetches a valid navigation snapshot again after Back and Forward', async () => {
+  it('loads Settings from the server after entry and again after Back and Forward', async () => {
     const firstRead = deferred<Project | null>()
     const secondRead = deferred<Project | null>()
     const get = vi
@@ -1167,7 +1149,8 @@ describe('Project Settings page boundaries', () => {
     )
 
     await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(1))
-    expect(page.querySelector('#project-settings-project-heading')?.textContent).toBe('Navigation snapshot')
+    expect(page.querySelector('#project-settings-project-heading')).toBeNull()
+    expect(page.textContent).not.toContain('Navigation snapshot')
     expect(page.textContent).toContain('Loading project…')
 
     await act(async () => {
@@ -1183,7 +1166,8 @@ describe('Project Settings page boundaries', () => {
     await click(page.querySelector('button') as HTMLButtonElement)
     await vi.waitFor(() => expect(currentPath()).toBe('/projects/prj_1/settings'))
     await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(2))
-    expect(page.querySelector('#project-settings-project-heading')?.textContent).toBe('Navigation snapshot')
+    expect(page.querySelector('#project-settings-project-heading')).toBeNull()
+    expect(page.textContent).not.toContain('Navigation snapshot')
     expect(page.textContent).toContain('Loading project…')
 
     await act(async () => {

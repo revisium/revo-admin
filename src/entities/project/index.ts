@@ -7,7 +7,6 @@ export { ProjectCard } from './ui/ProjectCard'
 export { ProjectCardSkeleton } from './ui/ProjectCardSkeleton'
 export { ProjectSummaryCard } from './ui/ProjectSummaryCard'
 export { ProjectService } from './model/ProjectService'
-export { projectFromNavigationState } from './model/projectNavigationState'
 export type {
   Project,
   ProjectCreateInput,
