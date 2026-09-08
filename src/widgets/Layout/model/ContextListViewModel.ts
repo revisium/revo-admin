@@ -1,5 +1,4 @@
 import { makeAutoObservable } from 'mobx'
-import { DiscussionStore } from 'src/entities/discussion'
 import { INBOX_ITEMS, TASK_RUNS } from 'src/shared/fixtures'
 import { routes } from 'src/shared/config'
 import { container } from 'src/shared/lib'
@@ -23,7 +22,7 @@ interface ContextListContent {
 }
 
 export class ContextListViewModel {
-  public constructor(private readonly discussions: DiscussionStore) {
+  public constructor() {
     makeAutoObservable(this, {}, { autoBind: true })
   }
 
@@ -51,16 +50,6 @@ export class ContextListViewModel {
           title: item.title,
         })),
       }
-    if (section === 'assistant')
-      return {
-        title: 'Chats',
-        createAction: { label: 'New chat', to: routes.assistant() },
-        items: this.discussions.chats.map((chat) => ({
-          to: routes.chat(chat.id),
-          title: chat.title,
-          meta: chat.category,
-        })),
-      }
     return undefined
   }
 }
@@ -68,8 +57,7 @@ export class ContextListViewModel {
 container.register(
   ContextListViewModel,
   () => {
-    const discussions = container.get(DiscussionStore)
-    return new ContextListViewModel(discussions)
+    return new ContextListViewModel()
   },
   { scope: 'singleton' },
 )

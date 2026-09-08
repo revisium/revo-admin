@@ -14,12 +14,13 @@ interface SidebarItemProps {
   readonly label: string
   readonly level?: NonNullable<SidebarItemVariantProps['level']>
   readonly meta?: string
+  readonly reserveMetaSpace?: boolean
   readonly onNavigate?: () => void
   readonly to: string
 }
 
-const resolveLines = (meta: string | undefined, collapsed: boolean): 'single' | 'double' =>
-  meta && !collapsed ? 'double' : 'single'
+const resolveLines = (meta: string | undefined, collapsed: boolean, reserveMetaSpace: boolean): 'single' | 'double' =>
+  (meta || reserveMetaSpace) && !collapsed ? 'double' : 'single'
 
 const resolveLevel = (
   level: NonNullable<SidebarItemVariantProps['level']>,
@@ -35,6 +36,7 @@ export const SidebarItem = ({
   label,
   level = 'root',
   meta,
+  reserveMetaSpace = false,
   onNavigate,
   to,
 }: SidebarItemProps) => {
@@ -43,7 +45,7 @@ export const SidebarItem = ({
     collapsed,
     disabled,
     level: resolveLevel(level, collapsed),
-    lines: resolveLines(meta, collapsed),
+    lines: resolveLines(meta, collapsed, reserveMetaSpace),
   })
   const content = (
     <>
@@ -61,8 +63,8 @@ export const SidebarItem = ({
             <Text textStyle={level === 'root' ? 'body' : 'small'} fontWeight="400" truncate title={label}>
               {label}
             </Text>
-            {meta ? (
-              <Text textStyle="caption" color="fg.muted" truncate title={meta}>
+            {meta || reserveMetaSpace ? (
+              <Text minH="4" textStyle="caption" color="fg.muted" truncate title={meta}>
                 {meta}
               </Text>
             ) : null}
