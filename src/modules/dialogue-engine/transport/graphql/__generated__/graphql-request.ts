@@ -1602,98 +1602,426 @@ export enum WorkPlanStatus {
   Ready = 'ready'
 }
 
-export type PageInfoFieldsFragment = { endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null };
+export type DialogueSummaryFieldsFragment = { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null };
 
-export type ProjectNodeFragment = { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string };
+export type DialogueItemFieldsFragment = { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean };
 
-export type ProjectsQueryVariables = Exact<{
-  query?: InputMaybe<Scalars['String']['input']>;
-  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+export type DialogueTurnFieldsFragment = { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null };
+
+export type DialogueChangeFieldsFragment = { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null };
+
+export type DialogueListQueryVariables = Exact<{
+  first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-export type ProjectsQuery = { projects: { totalCount: number, edges: Array<{ cursor: string, node: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null } } };
+export type DialogueListQuery = { dialogues: { snapshotCursor: string, totalCount: number, edges: Array<{ cursor: string, node: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
 
-export type CreateProjectMutationVariables = Exact<{
-  data: ProjectCreateInput;
-}>;
-
-
-export type CreateProjectMutation = { createProject: { projectId: string } };
-
-export type ProjectQueryVariables = Exact<{
+export type DialogueDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ProjectQuery = { project?: { id: string, name: string, description: string, status: ProjectStatus, createdAt: string, updatedAt: string } | null };
+export type DialogueDetailsQuery = { dialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
-export type SystemInfoQueryVariables = Exact<{ [key: string]: never; }>;
+export type DialogueHistoryQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type SystemInfoQuery = { systemInfo: { name: string, status: string } };
+export type DialogueHistoryQuery = { dialogueHistory: { snapshotCursor: string, totalCount: number, observedSignificantSequence?: string | null, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
 
-export const PageInfoFieldsFragmentDoc = gql`
-    fragment PageInfoFields on PageInfoModel {
-  endCursor
-  hasNextPage
-  hasPreviousPage
-  startCursor
+export type DialogueItemQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  itemId: Scalars['ID']['input'];
+}>;
+
+
+export type DialogueItemQuery = { dialogueHistoryItem: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } };
+
+export type DialogueTurnsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type DialogueTurnsQuery = { dialogueTurns: { snapshotCursor: string, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+
+export type DialogueInteractionsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type DialogueInteractionsQuery = { dialogueInteractions: { snapshotCursor: string, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, turnId?: string | null, status: string, request: unknown, response?: unknown | null, responseCommandId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+
+export type DialogueAgentsQueryVariables = Exact<{
+  first: Scalars['Int']['input'];
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type DialogueAgentsQuery = { agentDefinitions: { edges: Array<{ node: { displayName: string, description?: string | null, agent: { id: string, version: string } } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+
+export type DialogueAgentConfigurationQueryVariables = Exact<{
+  id: Scalars['String']['input'];
+  version: Scalars['String']['input'];
+}>;
+
+
+export type DialogueAgentConfigurationQuery = { inspectAgentConfiguration: { catalogRevision: string, options: Array<{ __typename: 'AgentConfigurationBooleanModel', id: string, name: string, enabled: boolean } | { __typename: 'AgentConfigurationSelectModel', id: string, name: string, selected: string, values: Array<{ value: string, name: string }> }> } };
+
+export type CreateDialogueMutationVariables = Exact<{
+  input: CreateDialogueInput;
+}>;
+
+
+export type CreateDialogueMutation = { createDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+
+export type SendDialogueMutationVariables = Exact<{
+  input: SendDialogueInput;
+}>;
+
+
+export type SendDialogueMutation = { sendDialogueMessage: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } };
+
+export type RespondToDialogueMutationVariables = Exact<{
+  input: RespondDialogueInput;
+}>;
+
+
+export type RespondToDialogueMutation = { respondDialogue: { id: string, dialogueId: string, turnId?: string | null, status: string, request: unknown, response?: unknown | null, responseCommandId?: string | null } };
+
+export type CancelDialogueMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  turnId: Scalars['ID']['input'];
+}>;
+
+
+export type CancelDialogueMutation = { cancelDialogueTurn: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } };
+
+export type ReadDialogueMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  through: Scalars['String']['input'];
+}>;
+
+
+export type ReadDialogueMutation = { markDialogueRead: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+
+export type ReopenDialogueMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ReopenDialogueMutation = { reopenDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+
+export type ForkDialogueMutationVariables = Exact<{
+  input: ForkDialogueInput;
+}>;
+
+
+export type ForkDialogueMutation = { forkDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+
+export type DialogueEventsSubscriptionVariables = Exact<{
+  after?: InputMaybe<Scalars['String']['input']>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type DialogueEventsSubscription = { dialogueChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
+
+export type DialogueSummariesSubscriptionVariables = Exact<{
+  after?: InputMaybe<Scalars['String']['input']>;
+  ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
+}>;
+
+
+export type DialogueSummariesSubscription = { dialogueSummaryChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
+
+export const DialogueTurnFieldsFragmentDoc = gql`
+    fragment DialogueTurnFields on DialogueTurnModel {
+  id
+  dialogueId
+  commandId
+  userItemId
+  status
+  dispatchState
+  cancelRequested
+  completedAt
+  endItemSequence
+  outcome
 }
     `;
-export const ProjectNodeFragmentDoc = gql`
-    fragment ProjectNode on ProjectModel {
+export const DialogueItemFieldsFragmentDoc = gql`
+    fragment DialogueItemFields on DialogueHistoryItemModel {
   id
-  name
-  description
+  dialogueId
+  sequence
+  turnId
+  kind
+  source
+  text
+  payload
   status
+  version
+  createdAt
+  historical
+}
+    `;
+export const DialogueSummaryFieldsFragmentDoc = gql`
+    fragment DialogueSummaryFields on DialogueSummaryModel {
+  id
+  title
+  agentId
+  agentVersion
+  agentConfiguration
+  status
+  progress
+  pendingCount
+  lastOutcome
+  activeTurnId
   createdAt
   updatedAt
+  version
+  significantSequence
+  readSignificantSequence
+  unreadCount
+  contextMode
+  originDialogueId
+  originTurnId
 }
     `;
-export const ProjectsDocument = gql`
-    query Projects($query: String, $includeArchived: Boolean, $after: String, $first: Int) {
-  projects(
-    data: {query: $query, includeArchived: $includeArchived, after: $after, first: $first}
-  ) {
+export const DialogueChangeFieldsFragmentDoc = gql`
+    fragment DialogueChangeFields on DialogueChangeModel {
+  cursor
+  dialogueId
+  kind
+  itemId
+  itemVersion
+  baseItemVersion
+  itemSequence
+  turnId
+  itemKind
+  itemSource
+  textDelta
+  item {
+    ...DialogueItemFields
+  }
+  summary {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueItemFieldsFragmentDoc}
+${DialogueSummaryFieldsFragmentDoc}`;
+export const DialogueListDocument = gql`
+    query DialogueList($first: Int!, $after: String) {
+  dialogues(first: $first, after: $after) {
     edges {
       cursor
       node {
-        ...ProjectNode
+        ...DialogueSummaryFields
       }
     }
     pageInfo {
-      ...PageInfoFields
+      endCursor
+      hasNextPage
     }
+    snapshotCursor
     totalCount
   }
 }
-    ${ProjectNodeFragmentDoc}
-${PageInfoFieldsFragmentDoc}`;
-export const CreateProjectDocument = gql`
-    mutation CreateProject($data: ProjectCreateInput!) {
-  createProject(data: $data) {
-    projectId
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const DialogueDetailsDocument = gql`
+    query DialogueDetails($id: ID!) {
+  dialogue(dialogueId: $id) {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const DialogueHistoryDocument = gql`
+    query DialogueHistory($id: ID!, $first: Int!, $after: String) {
+  dialogueHistory(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...DialogueItemFields
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+    totalCount
+    observedSignificantSequence
+  }
+}
+    ${DialogueItemFieldsFragmentDoc}`;
+export const DialogueItemDocument = gql`
+    query DialogueItem($id: ID!, $itemId: ID!) {
+  dialogueHistoryItem(dialogueId: $id, itemId: $itemId) {
+    ...DialogueItemFields
+  }
+}
+    ${DialogueItemFieldsFragmentDoc}`;
+export const DialogueTurnsDocument = gql`
+    query DialogueTurns($id: ID!, $first: Int!, $after: String) {
+  dialogueTurns(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...DialogueTurnFields
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+  }
+}
+    ${DialogueTurnFieldsFragmentDoc}`;
+export const DialogueInteractionsDocument = gql`
+    query DialogueInteractions($id: ID!, $first: Int!, $after: String) {
+  dialogueInteractions(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        id
+        dialogueId
+        turnId
+        status
+        request
+        response
+        responseCommandId
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
   }
 }
     `;
-export const ProjectDocument = gql`
-    query Project($id: ID!) {
-  project(data: {id: $id}) {
-    ...ProjectNode
+export const DialogueAgentsDocument = gql`
+    query DialogueAgents($first: Int!, $after: String) {
+  agentDefinitions(first: $first, after: $after) {
+    edges {
+      node {
+        displayName
+        description
+        agent {
+          id
+          version
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
   }
 }
-    ${ProjectNodeFragmentDoc}`;
-export const SystemInfoDocument = gql`
-    query SystemInfo {
-  systemInfo {
-    name
+    `;
+export const DialogueAgentConfigurationDocument = gql`
+    query DialogueAgentConfiguration($id: String!, $version: String!) {
+  inspectAgentConfiguration(agentId: $id, agentVersion: $version) {
+    catalogRevision
+    options {
+      __typename
+      ... on AgentConfigurationSelectModel {
+        id
+        name
+        selected: currentValue
+        values {
+          value
+          name
+        }
+      }
+      ... on AgentConfigurationBooleanModel {
+        id
+        name
+        enabled: currentValue
+      }
+    }
+  }
+}
+    `;
+export const CreateDialogueDocument = gql`
+    mutation CreateDialogue($input: CreateDialogueInput!) {
+  createDialogue(input: $input) {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const SendDialogueDocument = gql`
+    mutation SendDialogue($input: SendDialogueInput!) {
+  sendDialogueMessage(input: $input) {
+    ...DialogueTurnFields
+  }
+}
+    ${DialogueTurnFieldsFragmentDoc}`;
+export const RespondToDialogueDocument = gql`
+    mutation RespondToDialogue($input: RespondDialogueInput!) {
+  respondDialogue(input: $input) {
+    id
+    dialogueId
+    turnId
     status
+    request
+    response
+    responseCommandId
   }
 }
     `;
+export const CancelDialogueDocument = gql`
+    mutation CancelDialogue($id: ID!, $turnId: ID!) {
+  cancelDialogueTurn(dialogueId: $id, turnId: $turnId) {
+    ...DialogueTurnFields
+  }
+}
+    ${DialogueTurnFieldsFragmentDoc}`;
+export const ReadDialogueDocument = gql`
+    mutation ReadDialogue($id: ID!, $through: String!) {
+  markDialogueRead(dialogueId: $id, through: $through) {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const ReopenDialogueDocument = gql`
+    mutation ReopenDialogue($id: ID!) {
+  reopenDialogue(dialogueId: $id) {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const ForkDialogueDocument = gql`
+    mutation ForkDialogue($input: ForkDialogueInput!) {
+  forkDialogue(input: $input) {
+    ...DialogueSummaryFields
+  }
+}
+    ${DialogueSummaryFieldsFragmentDoc}`;
+export const DialogueEventsDocument = gql`
+    subscription DialogueEvents($after: String, $ids: [ID!]) {
+  dialogueChanges(after: $after, dialogueIds: $ids) {
+    ...DialogueChangeFields
+  }
+}
+    ${DialogueChangeFieldsFragmentDoc}`;
+export const DialogueSummariesDocument = gql`
+    subscription DialogueSummaries($after: String, $ids: [ID!]) {
+  dialogueSummaryChanges(after: $after, dialogueIds: $ids) {
+    ...DialogueChangeFields
+  }
+}
+    ${DialogueChangeFieldsFragmentDoc}`;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -1702,17 +2030,56 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    Projects(variables?: ProjectsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ProjectsQuery>(ProjectsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Projects', 'query', variables);
+    DialogueList(variables: DialogueListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueListQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueListQuery>(DialogueListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueList', 'query', variables);
     },
-    CreateProject(variables: CreateProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateProjectMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateProjectMutation>(CreateProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateProject', 'mutation', variables);
+    DialogueDetails(variables: DialogueDetailsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueDetailsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueDetailsQuery>(DialogueDetailsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueDetails', 'query', variables);
     },
-    Project(variables: ProjectQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ProjectQuery>(ProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Project', 'query', variables);
+    DialogueHistory(variables: DialogueHistoryQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueHistoryQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueHistoryQuery>(DialogueHistoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueHistory', 'query', variables);
     },
-    SystemInfo(variables?: SystemInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SystemInfoQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);
+    DialogueItem(variables: DialogueItemQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueItemQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueItemQuery>(DialogueItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueItem', 'query', variables);
+    },
+    DialogueTurns(variables: DialogueTurnsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueTurnsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueTurnsQuery>(DialogueTurnsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueTurns', 'query', variables);
+    },
+    DialogueInteractions(variables: DialogueInteractionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueInteractionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueInteractionsQuery>(DialogueInteractionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueInteractions', 'query', variables);
+    },
+    DialogueAgents(variables: DialogueAgentsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueAgentsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueAgentsQuery>(DialogueAgentsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueAgents', 'query', variables);
+    },
+    DialogueAgentConfiguration(variables: DialogueAgentConfigurationQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueAgentConfigurationQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueAgentConfigurationQuery>(DialogueAgentConfigurationDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueAgentConfiguration', 'query', variables);
+    },
+    CreateDialogue(variables: CreateDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateDialogueMutation>(CreateDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateDialogue', 'mutation', variables);
+    },
+    SendDialogue(variables: SendDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SendDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<SendDialogueMutation>(SendDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SendDialogue', 'mutation', variables);
+    },
+    RespondToDialogue(variables: RespondToDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RespondToDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<RespondToDialogueMutation>(RespondToDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RespondToDialogue', 'mutation', variables);
+    },
+    CancelDialogue(variables: CancelDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CancelDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CancelDialogueMutation>(CancelDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CancelDialogue', 'mutation', variables);
+    },
+    ReadDialogue(variables: ReadDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReadDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ReadDialogueMutation>(ReadDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ReadDialogue', 'mutation', variables);
+    },
+    ReopenDialogue(variables: ReopenDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReopenDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ReopenDialogueMutation>(ReopenDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ReopenDialogue', 'mutation', variables);
+    },
+    ForkDialogue(variables: ForkDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ForkDialogueMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<ForkDialogueMutation>(ForkDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ForkDialogue', 'mutation', variables);
+    },
+    DialogueEvents(variables?: DialogueEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueEventsSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueEventsSubscription>(DialogueEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueEvents', 'subscription', variables);
+    },
+    DialogueSummaries(variables?: DialogueSummariesSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueSummariesSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<DialogueSummariesSubscription>(DialogueSummariesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueSummaries', 'subscription', variables);
     }
   };
 }

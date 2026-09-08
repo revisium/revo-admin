@@ -1,3 +1,4 @@
+import './dialogue/registerDialogueEngine'
 export {
   GraphqlService,
   GraphqlSubscriptionService,

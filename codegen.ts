@@ -45,7 +45,6 @@ const disablePlugin = {
 const config: CodegenConfig = {
   overwrite: true,
   schema: isDownload ? graphqlEndpoint : SCHEMA_SNAPSHOT,
-  documents: ['src/**/*.graphql'],
   ignoreNoDocuments: false,
   generates: {
     ...(isDownload
@@ -59,12 +58,18 @@ const config: CodegenConfig = {
         }
       : {
           './src/__generated__/graphql-request.ts': {
+            documents: ['src/shared/**/*.graphql'],
             plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typescript-graphql-request'],
             config: {
               rawRequest: false,
               skipTypename: true,
               scalars,
             },
+          },
+          './src/modules/dialogue-engine/transport/graphql/__generated__/graphql-request.ts': {
+            documents: ['src/modules/dialogue-engine/transport/graphql/*.graphql'],
+            plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typescript-graphql-request'],
+            config: { rawRequest: false, skipTypename: true, scalars },
           },
         }),
   },

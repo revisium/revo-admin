@@ -1,0 +1,236 @@
+fragment DialogueSummaryFields on DialogueSummaryModel {
+  id
+  title
+  agentId
+  agentVersion
+  agentConfiguration
+  status
+  progress
+  pendingCount
+  lastOutcome
+  activeTurnId
+  createdAt
+  updatedAt
+  version
+  significantSequence
+  readSignificantSequence
+  unreadCount
+  contextMode
+  originDialogueId
+  originTurnId
+}
+fragment DialogueItemFields on DialogueHistoryItemModel {
+  id
+  dialogueId
+  sequence
+  turnId
+  kind
+  source
+  text
+  payload
+  status
+  version
+  createdAt
+  historical
+}
+fragment DialogueTurnFields on DialogueTurnModel {
+  id
+  dialogueId
+  commandId
+  userItemId
+  status
+  dispatchState
+  cancelRequested
+  completedAt
+  endItemSequence
+  outcome
+}
+fragment DialogueChangeFields on DialogueChangeModel {
+  cursor
+  dialogueId
+  kind
+  itemId
+  itemVersion
+  baseItemVersion
+  itemSequence
+  turnId
+  itemKind
+  itemSource
+  textDelta
+  item {
+    ...DialogueItemFields
+  }
+  summary {
+    ...DialogueSummaryFields
+  }
+}
+query DialogueList($first: Int!, $after: String) {
+  dialogues(first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...DialogueSummaryFields
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+    totalCount
+  }
+}
+query DialogueDetails($id: ID!) {
+  dialogue(dialogueId: $id) {
+    ...DialogueSummaryFields
+  }
+}
+query DialogueHistory($id: ID!, $first: Int!, $after: String) {
+  dialogueHistory(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...DialogueItemFields
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+    totalCount
+    observedSignificantSequence
+  }
+}
+query DialogueItem($id: ID!, $itemId: ID!) {
+  dialogueHistoryItem(dialogueId: $id, itemId: $itemId) {
+    ...DialogueItemFields
+  }
+}
+query DialogueTurns($id: ID!, $first: Int!, $after: String) {
+  dialogueTurns(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        ...DialogueTurnFields
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+  }
+}
+query DialogueInteractions($id: ID!, $first: Int!, $after: String) {
+  dialogueInteractions(dialogueId: $id, first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        id
+        dialogueId
+        turnId
+        status
+        request
+        response
+        responseCommandId
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    snapshotCursor
+  }
+}
+query DialogueAgents($first: Int!, $after: String) {
+  agentDefinitions(first: $first, after: $after) {
+    edges {
+      node {
+        displayName
+        description
+        agent {
+          id
+          version
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+query DialogueAgentConfiguration($id: String!, $version: String!) {
+  inspectAgentConfiguration(agentId: $id, agentVersion: $version) {
+    catalogRevision
+    options {
+      __typename
+      ... on AgentConfigurationSelectModel {
+        id
+        name
+        selected: currentValue
+        values {
+          value
+          name
+        }
+      }
+      ... on AgentConfigurationBooleanModel {
+        id
+        name
+        enabled: currentValue
+      }
+    }
+  }
+}
+mutation CreateDialogue($input: CreateDialogueInput!) {
+  createDialogue(input: $input) {
+    ...DialogueSummaryFields
+  }
+}
+mutation SendDialogue($input: SendDialogueInput!) {
+  sendDialogueMessage(input: $input) {
+    ...DialogueTurnFields
+  }
+}
+mutation RespondToDialogue($input: RespondDialogueInput!) {
+  respondDialogue(input: $input) {
+    id
+    dialogueId
+    turnId
+    status
+    request
+    response
+    responseCommandId
+  }
+}
+mutation CancelDialogue($id: ID!, $turnId: ID!) {
+  cancelDialogueTurn(dialogueId: $id, turnId: $turnId) {
+    ...DialogueTurnFields
+  }
+}
+mutation ReadDialogue($id: ID!, $through: String!) {
+  markDialogueRead(dialogueId: $id, through: $through) {
+    ...DialogueSummaryFields
+  }
+}
+mutation ReopenDialogue($id: ID!) {
+  reopenDialogue(dialogueId: $id) {
+    ...DialogueSummaryFields
+  }
+}
+mutation ForkDialogue($input: ForkDialogueInput!) {
+  forkDialogue(input: $input) {
+    ...DialogueSummaryFields
+  }
+}
+subscription DialogueEvents($after: String, $ids: [ID!]) {
+  dialogueChanges(after: $after, dialogueIds: $ids) {
+    ...DialogueChangeFields
+  }
+}
+subscription DialogueSummaries($after: String, $ids: [ID!]) {
+  dialogueSummaryChanges(after: $after, dialogueIds: $ids) {
+    ...DialogueChangeFields
+  }
+}
