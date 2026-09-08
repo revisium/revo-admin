@@ -104,6 +104,7 @@ export default [
       '.sonar/**',
       '.scannerwork/**',
       'src/__generated__/**',
+      'src/modules/dialogue-engine/transport/graphql/__generated__/**',
       'eslint.config.js',
     ],
   },

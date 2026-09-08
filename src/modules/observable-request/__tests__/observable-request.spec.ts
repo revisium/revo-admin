@@ -1,8 +1,8 @@
 import { GraphQLError } from 'graphql'
 import { ClientError } from 'graphql-request'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { isLeft, isRight } from 'src/shared/lib/Either'
-import { AbortError, ObservableRequest } from 'src/shared/lib/ObservableRequest'
+import { isLeft, isRight } from '../index'
+import { AbortError, ObservableRequest } from '../index'
 
 type Deferred<T> = {
   promise: Promise<T>

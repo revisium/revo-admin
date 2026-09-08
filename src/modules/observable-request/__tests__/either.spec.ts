@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLeft, isRight, type Either } from 'src/shared/lib/Either'
+import { isLeft, isRight, type Either } from '../index'
 
 const right: Either<string, number> = { isRight: true, data: 7 }
 const left: Either<string, number> = { isRight: false, error: 'boom' }

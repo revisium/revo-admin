@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx'
 import { type CursorPage, type CursorPageRequest, type PageInfo } from 'src/shared/api'
-import { AbortError, ObservableRequest } from '../ObservableRequest'
+import { AbortError, ObservableRequest } from 'src/modules/observable-request'
 
 export type ListLoadState = 'idle' | 'loading' | 'ready' | 'error'
 export type ContinuationState = 'idle' | 'loading' | 'error'
