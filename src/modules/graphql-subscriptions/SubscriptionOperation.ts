@@ -31,8 +31,6 @@ export class SubscriptionOperation<Data, Variables extends Record<string, unknow
       this.resolve = resolve
       this.reject = reject
     })
-    // A caller may observe errors through callbacks instead of awaiting the lease.
-    this.done.catch(() => {})
     options.signal.addEventListener('abort', this.dispose, { once: true })
   }
 

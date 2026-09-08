@@ -1,5 +1,5 @@
 import { pageOf, snapshotOf } from './page-mapping'
-import { transportError } from './graphql-error'
+import { executionError, transportError } from './graphql-error'
 import type { AgentOption } from '../../contracts/agent.types'
 import {
   getSdk,
@@ -12,7 +12,6 @@ import type { DialogueBackend, WatchChanges } from '../../contracts/backend.type
 import { GraphQLClient } from 'graphql-request'
 import type { GraphqlDialogueOptions } from './transport.types'
 import { SubscriptionExecutionError, type SubscriptionTransport } from 'src/modules/graphql-subscriptions'
-import { executionError } from './graphql-error'
 
 export const DIALOGUE_PAGE_SIZE = 50
 

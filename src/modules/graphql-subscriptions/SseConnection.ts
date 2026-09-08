@@ -13,7 +13,7 @@ export class SseConnection {
   public readonly client: Client<true>
   private readonly controller = new AbortController()
   private heartbeat?: ReturnType<typeof setTimeout>
-  private connecting?: ReturnType<typeof setTimeout>
+  private readonly connecting: ReturnType<typeof setTimeout>
   private disposed = false
 
   public constructor(
@@ -53,7 +53,7 @@ export class SseConnection {
     this.client.dispose()
   }
 
-  private fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  private readonly fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const signal = AbortSignal.any([this.controller.signal, ...(init?.signal ? [init.signal] : [])])
     signal.throwIfAborted()
     let response: Response
@@ -127,7 +127,7 @@ export class SseConnection {
       // graphql-sse reserves before validation but only auto-cancels after receiving 202.
       // Cover rejected POSTs and cancellation while that acknowledgement is in flight.
       await (this.options.fetch ?? globalThis.fetch)(
-        `${String(input)}?operationId=${encodeURIComponent(operationId)}`,
+        `${input instanceof Request ? input.url : input.toString()}?operationId=${encodeURIComponent(operationId)}`,
         {
           method: 'DELETE',
           headers: init.headers,

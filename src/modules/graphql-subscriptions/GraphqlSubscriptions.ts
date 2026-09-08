@@ -57,6 +57,8 @@ export class GraphqlSubscriptions implements SubscriptionTransport {
     const operation = new SubscriptionOperation(document, options, this.options.queueLimit ?? QUEUE_LIMIT, () =>
       this.release(operation),
     )
+    // A caller may observe errors through callbacks instead of awaiting the lease.
+    operation.done.catch(() => {})
 
     if (options.signal.aborted || this.stopped || !(this.options.enabled?.() ?? typeof window !== 'undefined')) {
       operation.dispose()
