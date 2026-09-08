@@ -71,8 +71,10 @@ Expected local coverage by surface:
 - React-only presentational change: `pnpm run ts:check`, `pnpm run lint:ci`,
   `pnpm run fsd:check`, and `pnpm run build`; add browser/manual smoke when
   layout, interaction, or SSR visibility changes.
-- MobX view-model change: targeted `vitest` coverage for loading, success,
-  error, actions, and derived state, then `pnpm run test:unit`.
+- Views and presentation view models: use browser/manual verification for
+  loading, errors, actions, navigation, and responsive behavior. Do not add
+  automated presentation tests for now; automated tests cover domain models,
+  engine logic, transport, and storage.
 - Service or GraphQL client change: generated SDK drift check plus unit coverage
   at the service boundary; do not mock private internals.
 - FSD boundary or DI composition change: `pnpm run fsd:check` plus targeted
