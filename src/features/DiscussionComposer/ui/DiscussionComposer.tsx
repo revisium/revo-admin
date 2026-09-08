@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { useNavigate } from 'react-router'
 import { useViewModel } from 'src/shared/lib'
 import { DiscussionComposerViewModel } from '../model/DiscussionComposerViewModel'
+import { AgentSelection } from './AgentSelection'
 
 interface DiscussionComposerProps {
   readonly chatId?: string
@@ -11,21 +12,17 @@ interface DiscussionComposerProps {
 }
 
 export const DiscussionComposer = observer(({ chatId, suggestions = false }: DiscussionComposerProps) => {
-  const model = useViewModel(DiscussionComposerViewModel, chatId, suggestions)
   const navigate = useNavigate()
-
-  const submit = (): void => {
-    const destination = model.submit()
-    if (destination) navigate(destination)
-  }
+  const model = useViewModel(DiscussionComposerViewModel, chatId, suggestions, navigate)
 
   return (
-    <Stack gap="3">
+    <Stack gap="3" flexShrink="0">
+      {model.showConfiguration && <AgentSelection model={model.agent} />}
       <Box
         as="form"
         onSubmit={(event) => {
           event.preventDefault()
-          submit()
+          model.submit()
         }}
         p="3"
         bg="bg.surface"
@@ -38,7 +35,9 @@ export const DiscussionComposer = observer(({ chatId, suggestions = false }: Dis
           placeholder={model.placeholder}
           value={model.draft}
           onChange={(event) => model.setDraft(event.target.value)}
-          rows={3}
+          disabled={model.inputDisabled}
+          rows={2}
+          maxH="160px"
           border="0"
           resize="vertical"
         />
@@ -46,11 +45,16 @@ export const DiscussionComposer = observer(({ chatId, suggestions = false }: Dis
           <Text textStyle="caption" color="fg.muted">
             {model.statusLabel}
           </Text>
-          <Button type="submit" size="sm" disabled={!model.canSubmit} aria-label="Send message">
+          <Button type="submit" size="sm" disabled={!model.canSubmit} loading={model.sending} aria-label="Send message">
             <ArrowUp size={16} /> {model.sendLabel}
           </Button>
         </HStack>
       </Box>
+      {model.error && (
+        <Text role="alert" textStyle="small">
+          {model.error}
+        </Text>
+      )}
       {model.suggestions.length > 0 && (
         <HStack gap="2" flexWrap="wrap">
           {model.suggestions.map((suggestion) => (

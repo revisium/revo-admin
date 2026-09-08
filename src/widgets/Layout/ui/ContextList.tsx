@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { useViewModel } from 'src/shared/lib'
 import { SidebarAction, SidebarGroup, SidebarItem } from 'src/shared/ui/components'
 import { ContextListViewModel } from '../model/ContextListViewModel'
+import { DialogueSidebar } from './DialogueSidebar'
 
 interface ContextListProps {
   readonly pathname: string
@@ -12,6 +13,7 @@ interface ContextListProps {
 
 export const ContextList = observer(({ pathname, onNavigate }: ContextListProps) => {
   const model = useViewModel(ContextListViewModel)
+  if (model.section(pathname) === 'assistant') return <DialogueSidebar pathname={pathname} onNavigate={onNavigate} />
   const content = model.content(pathname)
   if (!content) return null
 

@@ -26,15 +26,18 @@ export const globalCss: SystemConfig['globalCss'] = {
   '.mono': { fontFamily: 'mono', fontVariantLigatures: 'none' },
   '.tnum': { fontVariantNumeric: 'tabular-nums' },
   '::selection': { background: 'selection.bg' },
-  // Custom scrollbar (prototype .app__scroll).
+  // Preserve scrollbar geometry; reveal only the thumb on hover.
+  '*': { scrollbarWidth: 'thin', scrollbarColor: 'transparent transparent' },
+  '*:hover': { scrollbarColor: '{colors.border.strong} transparent' },
   '*::-webkit-scrollbar': { width: '11px', height: '11px' },
   '*::-webkit-scrollbar-thumb': {
-    background: '{colors.border.structural}',
+    background: 'transparent',
+    backgroundClip: 'padding-box',
     borderRadius: '8px',
     border: '3px solid',
-    borderColor: 'bg.canvas',
+    borderColor: 'transparent',
   },
-  '*::-webkit-scrollbar-thumb:hover': { background: '{colors.border.strong}' },
+  '*:hover::-webkit-scrollbar-thumb': { background: '{colors.border.strong}' },
   // Dotted radial background used behind the DAG canvas (.dotgrid).
   '.dotgrid': {
     backgroundImage: 'radial-gradient({colors.border.structural} 1px, transparent 1px)',

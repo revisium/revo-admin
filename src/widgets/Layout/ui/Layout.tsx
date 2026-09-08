@@ -29,6 +29,8 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
+import { LayoutLifecycleViewModel } from '../model/LayoutLifecycleViewModel'
+import { useViewModel } from 'src/shared/lib'
 import { Link, Outlet, useLocation } from 'react-router'
 import { PENDING_INBOX, adrsForProject, knowledgeForProject, memoryForProject, projectById } from 'src/shared/fixtures'
 import { BrandLogo } from 'src/shared/ui'
@@ -491,8 +493,10 @@ const TopBar = ({ pathname, onMenuOpen }: TopBarProps) => {
 }
 
 export const Layout = () => {
+  useViewModel(LayoutLifecycleViewModel)
   const { pathname } = useLocation()
   const isProjectsIndex = pathname === routes.projects()
+  const isAssistant = pathname.startsWith(routes.assistant())
   const [collapsed, setCollapsed] = useState(false)
   const { open, onOpen, onClose } = useDisclosure()
 
@@ -505,7 +509,7 @@ export const Layout = () => {
         <Box
           flex="1"
           minH="0"
-          overflowY={{ base: 'auto', lg: isProjectsIndex ? 'hidden' : 'auto' }}
+          overflowY={{ base: isAssistant ? 'hidden' : 'auto', lg: isAssistant || isProjectsIndex ? 'hidden' : 'auto' }}
           overflowX="hidden"
           scrollbarGutter={{ base: 'stable', lg: isProjectsIndex ? 'auto' : 'stable' }}
         >
@@ -513,8 +517,8 @@ export const Layout = () => {
             maxW="1180px"
             mx="auto"
             px={{ base: '4', md: '6', lg: '10' }}
-            py={{ base: '5', md: '7' }}
-            h={{ lg: isProjectsIndex ? 'full' : 'auto' }}
+            py={{ base: isAssistant ? '4' : '5', md: isAssistant ? '5' : '7' }}
+            h={{ base: isAssistant ? 'full' : 'auto', lg: isAssistant || isProjectsIndex ? 'full' : 'auto' }}
             minH={{ lg: isProjectsIndex ? '0' : 'auto' }}
           >
             <Outlet />

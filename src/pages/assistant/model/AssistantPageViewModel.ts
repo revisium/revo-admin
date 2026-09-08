@@ -1,93 +1,172 @@
-import { makeAutoObservable } from 'mobx'
-import { DiscussionStore } from 'src/entities/discussion'
-import { routes } from 'src/shared/config'
-import { container } from 'src/shared/lib'
-
-interface AssistantMessageItem {
-  readonly id: string
-  readonly content: string
-  readonly authorLabel: string
-  readonly fromUser: boolean
-}
-
-interface AssistantChatItem {
-  readonly id: string
-  readonly title: string
-  readonly to: string
-}
+import { makeAutoObservable, observable } from 'mobx'
+import { DialogueEngine } from 'src/modules/dialogue-engine'
+import { container, ObservableRequest } from 'src/shared/lib'
 
 export class AssistantPageViewModel {
   private chatId?: string
+  private readonly openRequest
+  private readonly actionRequest
+  private readonly pageRequest
 
-  public readonly unavailableMessage = 'Conversation unavailable in this preview.'
-  public readonly unavailableActionLabel = 'New conversation'
-  public readonly newChatLabel = 'New chat'
-  public readonly recentChatsLabel = 'Continue a conversation'
-  public readonly retentionNotice =
-    'Demo conversations stay available while this app is open. Reloading resets this preview.'
+  private lease?: ReturnType<DialogueEngine['open']>
 
-  public constructor(private readonly discussions: DiscussionStore) {
-    makeAutoObservable(this, {}, { autoBind: true })
+  public constructor(private readonly engine: DialogueEngine) {
+    this.openRequest = ObservableRequest.of((id: string) => this.openDialogue(id))
+    this.actionRequest = ObservableRequest.of((action: () => Promise<void>) => action())
+    this.pageRequest = ObservableRequest.of(async () => {
+      if (this.chat) await this.chat.history.loadMore()
+    })
+    makeAutoObservable<this, 'lease'>(this, { lease: observable.ref }, { autoBind: true })
   }
 
-  public setup(chatId?: string): void {
-    this.chatId = chatId
+  public setup(id?: string): void {
+    this.chatId = id
   }
 
-  public get chat() {
-    return this.chatId ? this.discussions.find(this.chatId) : undefined
+  public mount(id?: string): void {
+    this.chatId = id
+
+    if (id) this.openRequest.fetch(id)
   }
 
-  public get unavailable(): boolean {
-    return this.chatId !== undefined && this.chat === undefined
+  public unmount(): void {
+    this.lease?.release()
+    this.lease = undefined
+    this.openRequest.abort()
+    this.actionRequest.abort()
+    this.pageRequest.abort()
   }
 
-  public get title(): string {
+  private async openDialogue(id: string): Promise<void> {
+    this.lease?.release()
+    const lease = this.engine.open(id)
+    this.lease = lease
+    await lease.ready
+
+    if (this.lease !== lease) {
+      return
+    }
+
+    await lease.dialogue.markRead()
+  }
+
+  private get chat() {
+    return this.chatId ? this.engine.get(this.chatId) : undefined
+  }
+
+  public get title() {
     return this.chat?.title ?? 'What would you like to do?'
   }
 
   public get description(): string {
-    return this.chat
-      ? 'System discussion · no project required'
-      : 'Explore an idea, prepare a project, or design your next pipeline.'
+    return this.isNew ? 'Explore an idea, prepare a project, or design your next pipeline.' : ''
   }
 
-  public get messages(): readonly AssistantMessageItem[] {
-    return (this.chat?.messages ?? []).map((message) => ({
-      id: message.id,
-      content: message.content,
-      authorLabel: message.role === 'user' ? 'You' : 'Assistant · preview',
-      fromUser: message.role === 'user',
-    }))
+  private get connection() {
+    return this.chatId ? this.engine.get(this.chatId).connection : undefined
   }
 
-  public get chats(): readonly AssistantChatItem[] {
-    return this.discussions.chats.map((chat) => ({
-      id: chat.id,
-      title: chat.title,
-      to: routes.chat(chat.id),
-    }))
+  public get dialogueId(): string {
+    return this.chatId ?? ''
   }
 
-  public get showNewChatAction(): boolean {
-    return this.chat !== undefined
+  public get hasDialogue(): boolean {
+    return Boolean(this.chat?.ready)
   }
 
-  public get showSuggestions(): boolean {
-    return this.chat === undefined
+  public get connectionLabel(): string {
+    return this.connection?.status ?? 'Connecting'
   }
 
-  public get newChatPath(): string {
-    return routes.assistant()
+  public get showConnectionStatus() {
+    return Boolean(this.connection && this.connection.status !== 'Live')
+  }
+
+  public get connectionError(): string {
+    return this.connection?.error ?? ''
+  }
+
+  public get hasMoreHistory(): boolean {
+    return this.chat?.history.hasMore ?? false
+  }
+
+  public get loadingHistory(): boolean {
+    return this.pageRequest.isLoading
+  }
+
+  public loadMoreHistory(): void {
+    this.pageRequest.fetch()
+  }
+
+  public get isNew() {
+    return !this.chatId
+  }
+
+  public get loading() {
+    return Boolean(this.chat?.loading)
+  }
+
+  public get error() {
+    return (
+      this.openRequest.errorMessage ??
+      this.actionRequest.errorMessage ??
+      this.pageRequest.errorMessage ??
+      this.chat?.error ??
+      ''
+    )
+  }
+
+  public get working() {
+    return this.actionRequest.isLoading
+  }
+
+  public get canCancel() {
+    return Boolean(this.chat?.canCancel && !this.working)
+  }
+
+  public get canReopen() {
+    return Boolean(this.chat?.canReopen && !this.working)
+  }
+
+  public get notice() {
+    if (this.chat?.status === 'UNCERTAIN')
+      return 'The previous execution could not be confirmed. Review the saved history, then explicitly reopen to continue. No work will be retried automatically.'
+
+    if (this.chat?.contextMode === 'FORK')
+      return 'Forked conversation. Earlier entries are copied history; the agent continues with transferred context.'
+
+    return ''
+  }
+
+  public get showControls() {
+    return !this.isNew && (this.showConnectionStatus || this.canCancel || this.canReopen)
+  }
+
+  public cancel(): void {
+    const chat = this.chat
+
+    if (!chat || !this.canCancel) return
+    this.actionRequest.fetch(async () => {
+      await chat.cancel()
+    })
+  }
+
+  public reopen(): void {
+    const chat = this.chat
+
+    if (!chat || !this.canReopen) return
+    this.actionRequest.fetch(async () => {
+      await chat.reopen()
+    })
   }
 }
 
 container.register(
   AssistantPageViewModel,
   () => {
-    const discussions = container.get(DiscussionStore)
+    const engine = container.get(DialogueEngine)
 
-    return new AssistantPageViewModel(discussions)
+    return new AssistantPageViewModel(engine)
   },
   { scope: 'transient' },
 )
