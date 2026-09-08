@@ -94,8 +94,8 @@ snapshot is shared code-generation input, not a runtime dependency. `observable-
 primitive; the existing shared exports remain compatibility entry points.
 
 Application consumers use module public exports. Dialogue-engine tests live in
-`__tests__/`: engine, projection, integration and support. Only
-`__tests__/integration/*.spec.ts` may import application adapters and view models.
+`__tests__/`: engine, projection, transport, storage integration and support.
+Keep application views and presentation view models out of these tests.
 Production imports of test code are forbidden; there is no public test entry.
 Vitest discovers the specs, and Sonar classifies helpers as test sources.
 
@@ -120,5 +120,4 @@ item models and dispose their pending requests with the list lifecycle.
 - `widgets/Layout/model/dialogue`: chat list and sidebar items.
 
 React adapts DOM/router/viewport events and renders these models. Navigation
-after creation and scroll-follow decisions belong to models. Integration tests
-live in `modules/dialogue-engine/__tests__/integration`.
+after creation and scroll-follow decisions belong to models. Presentation is verified manually in the browser; see `VERIFICATION.md`.

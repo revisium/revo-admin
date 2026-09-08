@@ -45,7 +45,7 @@ __tests__/
   engine/       consumer API, lifecycle, replay, retries and read receipts
   projection/   versions and delta repair
   transport/    GraphQL/SSE adapters and connection liveness
-  integration/  application view models and browser storage
+  integration/  browser storage
   support/      scenario DSL, controlled backend and memory storage
 ```
 
@@ -53,7 +53,7 @@ __tests__/
 pnpm exec vitest run src/modules/dialogue-engine/__tests__
 ```
 
-Only integration specs may import application code. Production cannot import `__tests__/`.
+Tests cover engine behavior, transport and storage. Production cannot import `__tests__/`.
 
 `pnpm run gql:codegen` generates separate application and engine clients from the repository schema snapshot. `gql:codegen:check` checks both. The engine imports only its own generated SDK.
 
