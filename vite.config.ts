@@ -48,7 +48,6 @@ export default defineConfig(({ mode }) => {
         '/graphql': {
           target: graphqlTarget,
           changeOrigin: true,
-          ws: true,
         },
       },
     },

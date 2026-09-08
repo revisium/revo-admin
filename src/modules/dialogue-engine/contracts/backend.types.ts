@@ -6,10 +6,13 @@ import type { AgentDefinition, AgentConfiguration } from './agent.types'
 export type HistoryPage = SnapshotPage<DialogueItem> & { readonly observed: string }
 export type WatchChanges = (
   scope: string | undefined,
-  after: string,
-  signal: AbortSignal,
-  receive: (change: DialogueChange) => Promise<void>,
-  connected: () => void,
+  options: {
+    readonly signal: AbortSignal
+    readonly prepare: (signal: AbortSignal) => Promise<string>
+    readonly receive: (change: DialogueChange, signal: AbortSignal) => Promise<void>
+    readonly changed: (state: { status: string; error: string }) => void
+    readonly recover: (error: unknown, signal: AbortSignal) => boolean
+  },
 ) => Promise<void>
 
 export interface DialogueBackend {

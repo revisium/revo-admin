@@ -1,6 +1,6 @@
+import { parse } from 'graphql'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Client, Sink } from 'graphql-ws'
-import { GraphqlService, GraphqlSubscriptionService, resolveGraphqlHttpUrl, resolveGraphqlWsUrl } from 'src/shared/api'
+import { GraphqlService, GraphqlSubscriptions, resolveGraphqlHttpUrl, resolveGraphqlSseUrl } from 'src/shared/api'
 
 const GRAPHQL_ENDPOINT = 'http://admin.test/graphql'
 const HTTP_ORIGIN = 'http://127.0.0.1:5173/runs'
@@ -14,22 +14,20 @@ afterEach(() => {
   vi.restoreAllMocks()
   delete process.env.REVO_ADMIN_GRAPHQL_HTTP_URL
   delete process.env.REVO_ADMIN_GRAPHQL_ENDPOINT
-  delete process.env.REVO_ADMIN_GRAPHQL_WS_URL
 })
 
 describe('GraphQL endpoints', () => {
-  it('resolves same-origin HTTP and WS URLs from a request origin', () => {
+  it('resolves same-origin HTTP and SSE URLs from a request origin', () => {
     expect(resolveGraphqlHttpUrl(HTTP_ORIGIN)).toBe('http://127.0.0.1:5173/graphql')
-    expect(resolveGraphqlWsUrl(HTTP_ORIGIN)).toBe('ws://127.0.0.1:5173/graphql')
-    expect(resolveGraphqlWsUrl(HTTPS_ORIGIN)).toBe('wss://admin.revisium.test/graphql')
+    expect(resolveGraphqlSseUrl(HTTP_ORIGIN)).toBe('http://127.0.0.1:5173/graphql/stream')
+    expect(resolveGraphqlSseUrl(HTTPS_ORIGIN)).toBe('https://admin.revisium.test/graphql/stream')
   })
 
   it('uses explicit GraphQL environment overrides', () => {
     process.env.REVO_ADMIN_GRAPHQL_HTTP_URL = GRAPHQL_ENDPOINT
-    process.env.REVO_ADMIN_GRAPHQL_WS_URL = 'ws://admin.test/graphql'
 
     expect(resolveGraphqlHttpUrl(HTTP_ORIGIN)).toBe(GRAPHQL_ENDPOINT)
-    expect(resolveGraphqlWsUrl(HTTP_ORIGIN)).toBe('ws://admin.test/graphql')
+    expect(resolveGraphqlSseUrl(HTTP_ORIGIN)).toBe('http://admin.test/graphql/stream')
   })
 })
 
@@ -50,26 +48,18 @@ describe('GraphqlService', () => {
   })
 })
 
-describe('GraphqlSubscriptionService', () => {
-  it('unwraps graphql-ws execution result data for subscribers', () => {
-    const unsubscribe = vi.fn()
-    const subscribe = vi.fn((_payload: { query: string; variables: Record<string, unknown> }, sink: Sink) => {
-      sink.next?.({ data: { ok: true } })
-
-      return unsubscribe
+describe('Shared subscription composition', () => {
+  it('does not connect during server-side rendering', async () => {
+    const fetch = vi.fn()
+    const service = new GraphqlSubscriptions({ endpoint: GRAPHQL_ENDPOINT, fetch })
+    const controller = new AbortController()
+    const lease = service.subscribe(parse('subscription { ping }'), {
+      signal: controller.signal,
+      prepare: () => ({}),
+      next: vi.fn(),
     })
-    const service = new GraphqlSubscriptionService({ client: { subscribe } as unknown as Client })
-    const next = vi.fn()
-
-    const dispose = service.subscribe('subscription { ping }', { runId: 'run_1' }, { next })
-
-    expect(subscribe).toHaveBeenCalledWith(
-      { query: 'subscription { ping }', variables: { runId: 'run_1' } },
-      expect.objectContaining({ next: expect.any(Function) }),
-    )
-    expect(next).toHaveBeenCalledWith({ ok: true })
-
-    dispose()
-    expect(unsubscribe).toHaveBeenCalledOnce()
+    await lease.done
+    expect(fetch).not.toHaveBeenCalled()
+    service.dispose()
   })
 })

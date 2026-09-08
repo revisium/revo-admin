@@ -1,11 +1,12 @@
 # Dialogue engine
 
-MobX state, command delivery and SSE recovery. No React, application DI or application SDK dependencies. Import through `index.ts`.
+MobX state, command delivery and cursor recovery. No React, application DI or application SDK dependencies. Import through `index.ts`.
 
 ## API
 
 ```ts
-const backend = new GraphqlDialogueBackend({ endpoint: '/graphql' })
+// Inject the same GraphqlSubscriptions singleton used by other application features.
+const backend = new GraphqlDialogueBackend({ endpoint: '/graphql' }, subscriptions)
 const commandStorage = new PersistentCommandStorage(() => sessionStorage)
 const engine = new DialogueEngine(backend, commandStorage)
 engine.start() // Shared sidebar feed
@@ -32,19 +33,19 @@ engine.dispose() // Close all feeds
 - `createAgentSelection()`: agent catalog and configuration.
 - `createDraft().send(input, text)`: create and send once. Draft `state` distinguishes `ready`, `creating`, `sending`, `retryable`, `creationUncertain`; `retry()` only retries message delivery.
 
-Actions reject on failure. List/history also retain their request error. Consumers handle action promises; the engine reconnects feeds automatically without retrying agent work. `open()` ownership must be released on unmount. `get()` alone retains no subscription.
+Actions reject on failure. List/history also retain their request error. Consumers handle action promises; the shared subscription module reconnects feeds automatically without retrying agent work. `open()` ownership must be released on unmount. `get()` alone retains no subscription.
 
 Inject `DialogueBackend` and `DialogueCommandStorage`, or use the module-owned `GraphqlDialogueBackend` and `PersistentCommandStorage`. Transport accepts endpoint, fetch, headers and credentials; storage accepts a key-value provider and defaults to memory. Application endpoint/storage configuration and DI registration live in `src/shared/api/dialogue`. View models project display values and actions. Draft text, scroll position, follow-output intent and visual labels belong to the application.
 
 ## Layout
 
-`transport/graphql/`: operations, generated SDK, HTTP/SSE and liveness. `storage/`: retry persistence. `engine/`: composition and public facade. `resources/`: consumer resources. `lifecycle/`: subscription ownership and cancellable loading. `state/`, `projection/`, `synchronization/`: private records and replay. `commands/`: delivery and read receipts. `configuration/`: typed agent options. `contracts/`: explicit public interfaces and transport-independent IO ports. `errors/`: recovery policy. See `REPOSITORY.md` for internal dependency direction.
+`transport/graphql/`: operations, generated SDK, HTTP and domain subscription adapter. Shared transport, liveness and network retries belong to `graphql-subscriptions`. `storage/`: retry persistence. `engine/`: composition and public facade. `resources/`: consumer resources. `lifecycle/`: subscription ownership and cancellable loading. `state/`, `projection/`, `synchronization/`: private records and replay. `commands/`: delivery and read receipts. `configuration/`: typed agent options. `contracts/`: explicit public interfaces and transport-independent IO ports. `errors/`: recovery policy. See `REPOSITORY.md` for internal dependency direction.
 
 ```text
 __tests__/
   engine/       consumer API, lifecycle, replay, retries and read receipts
   projection/   versions and delta repair
-  transport/    GraphQL/SSE adapters and connection liveness
+  transport/    GraphQL/domain subscription adapters
   integration/  browser storage
   support/      scenario DSL, controlled backend and memory storage
 ```

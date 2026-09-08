@@ -61,7 +61,7 @@ a `.client` module from a route loader or any server-reachable module. See
 
 Use GraphQL over same-origin `/graphql`.
 
-- Local dev: Vite proxies `/graphql` HTTP and WS to the `revo serve` host.
+- Local dev: Vite proxies `/graphql` HTTP requests and `/graphql/stream` multiplex SSE to the backend host.
 - Production embedding: `@revisium/orchestrator` owns the HTTP server, mounts
   GraphQL first, then mounts the React Router SSR admin fallback.
 - Do not import `@revisium/client` or use Revisium/DBOS storage APIs from this
@@ -87,11 +87,16 @@ IO dependencies.
 
 `dialogue-engine` owns engine lifecycle, commands, normalized state, event
 projection, synchronization, agent configuration and backend/storage contracts.
-GraphQL documents, its generated client, HTTP/SSE transport and command-storage
+GraphQL documents, its generated client, HTTP/domain subscription adapter and command-storage
 implementation live inside the engine. `shared/api/dialogue` only configures
 endpoint/storage and registers the engine in application DI. The root schema
 snapshot is shared code-generation input, not a runtime dependency. `observable-request` owns the reusable MobX request
 primitive; the existing shared exports remain compatibility entry points.
+
+`graphql-subscriptions` owns the common multiplex SSE connection, leases, bounded queues,
+heartbeat and reconnect lifecycle. The application registers one singleton shared by dialogue
+and future features. Each domain owns its typed documents, snapshots and applied cursors;
+there is no global topic registry. See the module README for the adapter contract.
 
 Application consumers use module public exports. Dialogue-engine tests live in
 `__tests__/`: engine, projection, transport, storage integration and support.

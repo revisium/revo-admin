@@ -12,8 +12,8 @@ pnpm run verify
 
 1. `format:check` — `prettier --check` over ts/tsx/js/json/md/yml/yaml/css/html.
 2. `gql:codegen:check` — verify the typed GraphQL SDK matches the checked-in
-   schema snapshot and fail on drift in the application SDK and the dialogue
-   engine SDK under `transport/graphql/__generated__/`.
+   schema snapshot and fail on drift in the application SDK/typed documents and the dialogue
+   engine SDK/typed documents under `transport/graphql/__generated__/`.
 3. `ts:check` — `tsc --noEmit` (strict).
 4. `lint:ci` — `eslint "{src,tests}/**/*.{ts,tsx}" --max-warnings 0`
    (zero warnings allowed).
@@ -81,7 +81,7 @@ Expected local coverage by surface:
   unit tests proving dependencies can be replaced at constructor/composition
   boundaries.
 - User-visible workflow change: run the aggregate `pnpm run verify`; add local
-  backend/browser smoke when GraphQL, routing, websocket, or SSR behavior is
+  backend/browser smoke when GraphQL, routing, SSE, or SSR behavior is
   involved.
 
 Quality blockers:

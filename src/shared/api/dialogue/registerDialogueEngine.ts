@@ -1,11 +1,12 @@
 import { DialogueEngine, GraphqlDialogueBackend, PersistentCommandStorage } from 'src/modules/dialogue-engine'
 import { container } from 'src/shared/lib'
-import { resolveGraphqlHttpUrl } from '../graphql'
+import { GraphqlSubscriptions, resolveGraphqlHttpUrl } from '../graphql'
 
 container.register(
   DialogueEngine,
   () => {
-    const backend = new GraphqlDialogueBackend({ endpoint: resolveGraphqlHttpUrl() })
+    const subscriptions = container.get(GraphqlSubscriptions)
+    const backend = new GraphqlDialogueBackend({ endpoint: resolveGraphqlHttpUrl() }, subscriptions)
     const commands = new PersistentCommandStorage(() =>
       typeof window === 'undefined' ? undefined : window.sessionStorage,
     )

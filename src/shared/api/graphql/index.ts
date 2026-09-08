@@ -1,3 +1,4 @@
 export { GraphqlService } from './GraphqlService'
-export { GraphqlSubscriptionService } from './GraphqlSubscriptionService'
-export { GRAPHQL_PATH, resolveGraphqlHttpUrl, resolveGraphqlWsUrl } from './endpoints'
+import './registerSubscriptions'
+export { GraphqlSubscriptions } from 'src/modules/graphql-subscriptions'
+export { GRAPHQL_PATH, resolveGraphqlHttpUrl, resolveGraphqlSseUrl } from './endpoints'
