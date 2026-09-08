@@ -3,6 +3,8 @@ import { defineConfig } from 'steiger'
 
 export default defineConfig([
   ...fsd.configs.recommended,
+  // Independent modules have their own import gate; FSD governs the application layers.
+  { ignores: ['./src/modules/**'] },
   {
     files: ['./src/pages/**', './src/widgets/**', './src/features/**', './src/entities/**'],
     rules: { 'fsd/insignificant-slice': 'off' },

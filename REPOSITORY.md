@@ -74,3 +74,51 @@ Use GraphQL over same-origin `/graphql`.
 3. `REVIEW.md` — review policy.
 4. This file — structure and conventions.
 5. Workspace `../agent-playbook` — canonical roles, pipelines, method.
+
+## Independent modules
+
+`src/modules/<module>/index.ts` is the public entry for a standalone TypeScript
+module. FSD organizes the application; module internals use responsibility-based
+directories instead of FSD layers. Modules may import external non-UI packages
+and other modules' public entries, but never application layers, application-generated SDKs,
+React, routing, or the application DI container. Module-owned generated clients
+are allowed inside their transport adapter. Constructor injection supplies
+IO dependencies.
+
+`dialogue-engine` owns engine lifecycle, commands, normalized state, event
+projection, synchronization, agent configuration and backend/storage contracts.
+GraphQL documents, its generated client, HTTP/SSE transport and command-storage
+implementation live inside the engine. `shared/api/dialogue` only configures
+endpoint/storage and registers the engine in application DI. The root schema
+snapshot is shared code-generation input, not a runtime dependency. `observable-request` owns the reusable MobX request
+primitive; the existing shared exports remain compatibility entry points.
+
+Application consumers use module public exports. Dialogue-engine tests live in
+`__tests__/`: engine, projection, integration and support. Only
+`__tests__/integration/*.spec.ts` may import application adapters and view models.
+Production imports of test code are forbidden; there is no public test entry.
+Vitest discovers the specs, and Sonar classifies helpers as test sources.
+
+Dialogue-engine internal dependency direction: contracts
+and errors are foundational; state depends on contracts; projection uses state;
+commands use state and ports; synchronization applies events and snapshots;
+lifecycle owns feeds and loading; resources expose state and actions; engine
+composes them. Transport and storage adapters depend on contracts, never on
+resources or engine composition.
+
+## Dialogue presentation
+
+The engine owns IO and dialogue state. View models expose presentation values
+and actions, never engine records or transport handles. List models own stable
+item models and dispose their pending requests with the list lifecycle.
+
+- `entities/dialogue`: shared draft and scroll state per dialogue.
+- `pages/assistant`: opening, read acknowledgement and page actions.
+- `features/DiscussionComposer/model/agent`: agent selection and configuration fields.
+- `features/DialogueInteractions/model/list` and `item`: pending requests and question forms.
+- `widgets/DialogueTimeline/model/list`, `item` and `scroll`: grouping, message/activity presentation and scroll intent.
+- `widgets/Layout/model/dialogue`: chat list and sidebar items.
+
+React adapts DOM/router/viewport events and renders these models. Navigation
+after creation and scroll-follow decisions belong to models. Integration tests
+live in `modules/dialogue-engine/__tests__/integration`.

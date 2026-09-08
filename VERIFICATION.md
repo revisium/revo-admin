@@ -12,7 +12,8 @@ pnpm run verify
 
 1. `format:check` — `prettier --check` over ts/tsx/js/json/md/yml/yaml/css/html.
 2. `gql:codegen:check` — verify the typed GraphQL SDK matches the checked-in
-   schema snapshot and fail on drift in `src/__generated__/graphql-request.ts`.
+   schema snapshot and fail on drift in the application SDK and the dialogue
+   engine SDK under `transport/graphql/__generated__/`.
 3. `ts:check` — `tsc --noEmit` (strict).
 4. `lint:ci` — `eslint "{src,tests}/**/*.{ts,tsx}" --max-warnings 0`
    (zero warnings allowed).

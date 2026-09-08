@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql'
 import { ClientError } from 'graphql-request'
 import { describe, expect, it } from 'vitest'
-import { errorMessageOf } from 'src/shared/lib/error-formatting'
+import { errorMessageOf } from '../index'
 
 const sensitiveRequest = {
   query: 'query Secret($token: String!) { secret(token: $token) }',

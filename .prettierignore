@@ -7,3 +7,4 @@ src/__generated__
 .scannerwork
 .revo
 .superpowers
+src/modules/dialogue-engine/transport/graphql/__generated__

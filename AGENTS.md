@@ -60,7 +60,8 @@ Use these references from `../agent-playbook` for this repository:
 - `stacks/js-ts/references/idiomatic-js-ts.md`
 - `stacks/js-ts/references/react-mobx-mvvm.md`
 - `stacks/js-ts/references/react-ui-boundary.md`
-- `stacks/js-ts/references/mvvm-frontend.md`
+- `stacks/js-ts/references/mvvm-frontend.md` — canonical presentation contract
+  and public view-model boundary rules (`Hard Rules`).
 - `stacks/js-ts/references/mobx-reactivity.md`
 - `stacks/js-ts/references/frontend-di-composition.md`
 - `stacks/js-ts/references/frontend-fsd.md`
@@ -80,7 +81,7 @@ Use these references from `../agent-playbook` for this repository:
 
 - Use same-origin `/graphql` for backend access. Local development proxies that
   path to `revo serve`; production embedding mounts GraphQL on the same host.
-- Keep GraphQL transport in `src/shared/api/graphql`. Feature/page code must go
+- Keep general-purpose GraphQL transport in `src/shared/api/graphql`. Feature/page code must go
   through service/view-model classes registered in `src/shared/lib/DIContainer`;
   do not call generated SDK methods from React components.
 - React components render state and wire events only. Components may derive
@@ -114,12 +115,30 @@ Use these references from `../agent-playbook` for this repository:
   in the same directory. Avoid one file per type and a shared `types` dump.
   Private one-off types and component props may stay colocated with their owner.
   Keep runtime functions, constants, and enums out of type-only files.
+- Independent engines live in `src/modules/<module>` outside FSD. Follow the
+  module boundary contract in `REPOSITORY.md`. Keep dialogue-engine tests and helpers under its `__tests__/` directory;
+  see the module README for the layout.
+- Keep scenario tests focused on observable behavior. Put request scheduling and
+  fixture construction in test support; keep actions and assertions explicit.
+  Protocol-level tests retain the wire details and timing they verify.
+- Order class members as fields, constructor (when needed), public getters and
+  methods, then protected/private methods. Apply the same order to test helpers.
+- Separate class methods and meaningful execution phases with blank lines,
+  including before guards and after their early-return blocks.
+- Keep each method at one level of abstraction. Orchestration methods name
+  the steps of a use case; cursor handling, state mutation, pagination,
+  request bookkeeping and protocol details belong in focused methods or
+  collaborators. Do not inline those implementations into orchestration.
+  Extract meaningful operations, not wrappers that merely rename a statement.
 - Preserve Feature-Sliced Design import direction. Shared API/client code stays
   in `shared`, domain read models/services in `entities`, user actions in
   `features`, composed blocks in `widgets`, and routes/screens in `pages`.
 - Check in `src/__generated__/schema.graphql` and
   `src/__generated__/graphql-request.ts`. Treat generated drift as a failing
   quality gate, not as an optional local artifact.
+- Dialogue GraphQL operations, generated client, HTTP/SSE transport and command
+  persistence belong in `src/modules/dialogue-engine`. Shared owns only its
+  application composition: endpoint, storage provider and DI registration.
 - Do not import `@revisium/client` or read Revisium/DBOS state directly from the
   admin app.
 - xyflow and other DOM-measuring widgets live only in `*.client.tsx` modules and
