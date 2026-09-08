@@ -20,6 +20,10 @@ export type {
   PendingMessage,
 } from './contracts/dialogue.types'
 export type { DialogueQuestion, DialogueOption } from './contracts/interaction.types'
+export { GraphqlDialogueBackend } from './transport/graphql/GraphqlDialogueBackend'
+export type { GraphqlDialogueOptions } from './transport/graphql/transport.types'
+export { PersistentCommandStorage } from './storage/PersistentCommandStorage'
+export type { KeyValueStorage } from './storage/storage.types'
 export { DialogueError } from './errors/DialogueError'
 export type { Recovery } from './errors/DialogueError'
 export type { Page, SnapshotPage } from './contracts/page.types'

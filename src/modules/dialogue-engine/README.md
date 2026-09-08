@@ -5,7 +5,8 @@ MobX state, command delivery and SSE recovery. No React, application DI or appli
 ## API
 
 ```ts
-// Supply implementations of DialogueBackend and DialogueCommandStorage.
+const backend = new GraphqlDialogueBackend({ endpoint: '/graphql' })
+const commandStorage = new PersistentCommandStorage(() => sessionStorage)
 const engine = new DialogueEngine(backend, commandStorage)
 engine.start() // Shared sidebar feed
 
@@ -33,7 +34,7 @@ engine.dispose() // Close all feeds
 
 Actions reject on failure. List/history also retain their request error. Consumers handle action promises; the engine reconnects feeds automatically without retrying agent work. `open()` ownership must be released on unmount. `get()` alone retains no subscription.
 
-The next stack layer supplies the module-owned `GraphqlDialogueBackend` and `PersistentCommandStorage`. Transport accepts endpoint, fetch, headers and credentials; storage accepts a key-value provider and defaults to memory. Application endpoint/storage configuration and DI registration live in `src/shared/api/dialogue`. View models project display values and actions. Draft text, scroll position, follow-output intent and visual labels belong to the application.
+Inject `DialogueBackend` and `DialogueCommandStorage`, or use the module-owned `GraphqlDialogueBackend` and `PersistentCommandStorage`. Transport accepts endpoint, fetch, headers and credentials; storage accepts a key-value provider and defaults to memory. Application endpoint/storage configuration and DI registration live in `src/shared/api/dialogue`. View models project display values and actions. Draft text, scroll position, follow-output intent and visual labels belong to the application.
 
 ## Layout
 

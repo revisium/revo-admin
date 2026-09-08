@@ -1,6 +1,7 @@
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 input AdrAlternativeInput {
@@ -55,6 +56,119 @@ enum AdrStatus {
   proposed
   rejected
   superseded
+}
+
+type AgentCapabilitiesModel {
+  cancellation: Boolean!
+  session: AgentSessionCapabilitiesModel!
+  structuredResult: Boolean!
+  usage: Boolean!
+}
+
+type AgentConfigurationBooleanModel {
+  category: String
+  currentValue: Boolean!
+  description: String
+  id: String!
+  name: String!
+  type: String!
+}
+
+type AgentConfigurationCatalogModel {
+  agent: AgentRefModel!
+  catalogRevision: String!
+  definitionDigest: String!
+  launch: AgentLaunchEvidenceModel!
+  model: AgentConfigurationModelView
+  options: [AgentConfigurationOption!]!
+  schemaVersion: String!
+}
+
+type AgentConfigurationGroupModel {
+  id: String!
+  name: String!
+}
+
+type AgentConfigurationModelView {
+  currentModel: String!
+  currentProvider: AgentConfigurationGroupModel
+  optionId: String!
+  providers: [AgentConfigurationProviderModel!]!
+  sessionAvailable: [AgentConfigurationValueModel!]!
+}
+
+union AgentConfigurationOption = AgentConfigurationBooleanModel | AgentConfigurationSelectModel
+
+type AgentConfigurationProviderModel {
+  id: String!
+  models: [AgentConfigurationValueModel!]!
+  name: String!
+}
+
+type AgentConfigurationSelectModel {
+  category: String
+  currentValue: String!
+  description: String
+  id: String!
+  name: String!
+  type: String!
+  values: [AgentConfigurationValueModel!]!
+}
+
+type AgentConfigurationValueModel {
+  description: String
+  group: AgentConfigurationGroupModel
+  name: String!
+  value: String!
+}
+
+type AgentDefinitionConnectionModel {
+  edges: [AgentDescriptorEdge!]!
+  pageInfo: PageInfoModel!
+  totalCount: Int!
+}
+
+type AgentDescriptorEdge {
+  cursor: String!
+  node: AgentDescriptorModel!
+}
+
+type AgentDescriptorModel {
+  agent: AgentRefModel!
+  capabilities: AgentCapabilitiesModel!
+  definitionDigest: String!
+  description: String
+  displayName: String!
+}
+
+type AgentInteractionCapabilitiesModel {
+  input: Boolean!
+  permission: Boolean!
+}
+
+type AgentLaunchEvidenceModel {
+  executable: String!
+  reportedVersion: String!
+}
+
+type AgentRefModel {
+  id: String!
+  version: String!
+}
+
+type AgentSessionCapabilitiesModel {
+  interactions: AgentInteractionCapabilitiesModel!
+  multiTurn: Boolean!
+  resume: String!
+  updates: AgentUpdateCapabilitiesModel!
+}
+
+type AgentUpdateCapabilitiesModel {
+  message: Boolean!
+  plan: Boolean!
+  progress: Boolean!
+  tool: Boolean!
+  usage: Boolean!
 }
 
 type CatalogChangeEntryConnection {
@@ -146,6 +260,157 @@ enum CatalogTable {
   stacks
 }
 
+input CreateDialogueInput {
+  agentConfiguration: JSON
+  agentId: String!
+  agentVersion: String!
+  metadata: JSON
+  systemContext: String
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DialogueChangeModel {
+  baseItemVersion: String
+  cursor: String!
+  dialogueId: ID!
+  item: DialogueHistoryItemModel
+  itemId: ID
+  itemKind: String
+  itemSequence: String
+  itemSource: String
+  itemVersion: String
+  kind: String!
+  summary: DialogueSummaryModel
+  textDelta: String
+  turnId: ID
+}
+
+type DialogueHistoryItemConnectionModel {
+  edges: [DialogueHistoryItemEdge!]!
+  observedSignificantSequence: String
+  pageInfo: PageInfoModel!
+  snapshotCursor: String!
+  totalCount: Int!
+}
+
+type DialogueHistoryItemEdge {
+  cursor: String!
+  node: DialogueHistoryItemModel!
+}
+
+type DialogueHistoryItemModel {
+  createdAt: DateTime!
+  dialogueId: ID!
+  historical: Boolean!
+  id: ID!
+  kind: String!
+  payload: JSON
+  sequence: String!
+  source: String!
+  status: String!
+  text: String!
+  turnId: ID
+  version: String!
+}
+
+type DialogueInteractionConnectionModel {
+  edges: [DialogueInteractionEdge!]!
+  pageInfo: PageInfoModel!
+  snapshotCursor: String!
+  totalCount: Int!
+}
+
+type DialogueInteractionEdge {
+  cursor: String!
+  node: DialogueInteractionModel!
+}
+
+type DialogueInteractionModel {
+  dialogueId: ID!
+  id: ID!
+  request: JSON!
+  response: JSON
+  responseCommandId: String
+  status: String!
+  turnId: ID
+}
+
+type DialogueSummaryConnectionModel {
+  edges: [DialogueSummaryEdge!]!
+  pageInfo: PageInfoModel!
+  snapshotCursor: String!
+  totalCount: Int!
+}
+
+type DialogueSummaryEdge {
+  cursor: String!
+  node: DialogueSummaryModel!
+}
+
+type DialogueSummaryModel {
+  activeTurnId: ID
+  agentConfiguration: JSON!
+  agentId: String!
+  agentVersion: String!
+  contextMode: String!
+  createdAt: DateTime!
+  id: ID!
+  lastOutcome: String
+  metadata: JSON
+  originDialogueId: ID
+  originItemSequence: String
+  originTurnId: ID
+  pendingCount: Int!
+  progress: String!
+  readSignificantSequence: String!
+  runtimeSessionId: ID
+  significantSequence: String!
+  status: String!
+  systemContext: String!
+  title: String!
+  unreadCount: Int!
+  updatedAt: DateTime!
+  version: String!
+}
+
+type DialogueTurnConnectionModel {
+  edges: [DialogueTurnEdge!]!
+  pageInfo: PageInfoModel!
+  snapshotCursor: String!
+  totalCount: Int!
+}
+
+type DialogueTurnEdge {
+  cursor: String!
+  node: DialogueTurnModel!
+}
+
+type DialogueTurnModel {
+  cancelRequested: Boolean!
+  commandId: String!
+  completedAt: DateTime
+  createdAt: DateTime!
+  dialogueId: ID!
+  dispatchState: String!
+  endItemSequence: String
+  id: ID!
+  outcome: JSON
+  runtimeSessionId: ID
+  status: String!
+  userItemId: ID!
+}
+
+input ForkDialogueInput {
+  dialogueId: ID!
+  title: String!
+  turnId: ID!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -219,8 +484,10 @@ type MethodDocumentModel {
 
 type Mutation {
   archiveProject(data: ProjectInput!): Boolean!
+  cancelDialogueTurn(dialogueId: ID!, turnId: ID!): DialogueTurnModel!
   commitCatalog(message: String!): CatalogCommitResultModel!
   createAdr(data: AdrInput!): AdrModel!
+  createDialogue(input: CreateDialogueInput!): DialogueSummaryModel!
   createLaunchProfile(data: LaunchProfileInput!): LaunchProfileModel!
   createMethodDocument(data: MethodDocumentInput!): MethodDocumentModel!
   createPipeline(data: PipelineInput!): PipelineModel!
@@ -250,8 +517,13 @@ type Mutation {
   deleteWorkItem(data: RecordDeleteInput!): Boolean!
   deleteWorkPlan(data: RecordDeleteInput!): Boolean!
   discardCatalog: CatalogMutationResultModel!
+  forkDialogue(input: ForkDialogueInput!): DialogueSummaryModel!
   importCatalog(data: JSON!): CatalogImportResultModel!
+  markDialogueRead(dialogueId: ID!, through: String!): DialogueSummaryModel!
+  reopenDialogue(dialogueId: ID!): DialogueSummaryModel!
+  respondDialogue(input: RespondDialogueInput!): DialogueInteractionModel!
   restoreProject(data: ProjectInput!): Boolean!
+  sendDialogueMessage(input: SendDialogueInput!): DialogueTurnModel!
   startRun(data: StartRunInput!): StartRunResultModel!
   updateAdr(data: AdrInput!): AdrModel!
   updateLaunchProfile(data: LaunchProfileInput!): LaunchProfileModel!
@@ -417,9 +689,18 @@ input ProjectUpdateInput {
 }
 
 type Query {
+  agentDefinition(agentId: String!, agentVersion: String!): AgentDescriptorModel
+  agentDefinitions(after: String, first: Int): AgentDefinitionConnectionModel!
   catalogChangeSet(after: String, first: Int!): CatalogChangeEntryConnection!
   catalogSnapshot(revisionId: ID!): CatalogSnapshotModel!
   catalogStatus: CatalogStatusModel!
+  dialogue(dialogueId: ID!): DialogueSummaryModel!
+  dialogueHistory(after: String, dialogueId: ID!, first: Int): DialogueHistoryItemConnectionModel!
+  dialogueHistoryItem(dialogueId: ID!, itemId: ID!): DialogueHistoryItemModel!
+  dialogueInteractions(after: String, dialogueId: ID!, first: Int): DialogueInteractionConnectionModel!
+  dialogueTurns(after: String, dialogueId: ID!, first: Int): DialogueTurnConnectionModel!
+  dialogues(after: String, first: Int): DialogueSummaryConnectionModel!
+  inspectAgentConfiguration(agentId: String!, agentVersion: String!): AgentConfigurationCatalogModel!
   launchProfile(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileModel!
   launchProfiles(after: String, first: Int!, pipelineId: ID, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileConnection!
   methodDocument(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): MethodDocumentModel!
@@ -493,6 +774,13 @@ enum RequirementStatus {
   rejected
 }
 
+input RespondDialogueInput {
+  commandId: String!
+  dialogueId: ID!
+  interactionId: ID!
+  response: JSON!
+}
+
 type RoleConnection {
   edges: [RoleEdge!]!
   pageInfo: PageInfoModel!
@@ -550,6 +838,12 @@ type RunModel {
   status: String!
   terminal: JSON
   updatedAt: String!
+}
+
+input SendDialogueInput {
+  commandId: String!
+  dialogueId: ID!
+  prompt: String!
 }
 
 type SharedReferenceConnection {
@@ -637,6 +931,11 @@ input StartRunInput {
 
 type StartRunResultModel {
   runId: ID!
+}
+
+type Subscription {
+  dialogueChanges(after: String, dialogueIds: [ID!]): DialogueChangeModel!
+  dialogueSummaryChanges(after: String, dialogueIds: [ID!]): DialogueChangeModel!
 }
 
 type SystemInfoModel {
