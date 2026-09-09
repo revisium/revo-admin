@@ -1,5 +1,5 @@
 const GRAPHQL_PATH = '/graphql'
-const DEFAULT_GRAPHQL_ORIGIN = 'http://127.0.0.1:19323'
+const DEFAULT_GRAPHQL_ORIGIN = 'http://127.0.0.1:19222'
 
 const processEnv = (key: string): string | undefined => {
   if (typeof process === 'undefined') {

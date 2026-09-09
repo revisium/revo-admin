@@ -34,13 +34,12 @@ pnpm run test:unit -- tests/graphql-system.spec.ts
 Schema snapshot refresh against a running local GraphQL host:
 
 ```bash
-pnpm run backend:start
-pnpm run backend:serve
+# Start revo-core separately using its README.
 pnpm run gql:codegen:download
 pnpm run gql:codegen
 ```
 
-The default download endpoint is `http://127.0.0.1:19323/graphql`. Override with
+The default download endpoint is `http://127.0.0.1:19222/graphql`. Override with
 `REVO_ADMIN_GRAPHQL_ENDPOINT` or `.env/.env.development.local` when testing
 another host.
 
@@ -53,11 +52,10 @@ and GraphQL codegen:
 - `.env/.env.development.local.example` is tracked.
 - `.env/.env.development.local` and other `*.local` env overrides are ignored.
 
-For source-development against the adjacent `agent-orchestrator` checkout,
-`REVO_CLI` must point to `../agent-orchestrator/bin/revo.js`. Do not run the
-global `revo` binary from the admin repository root: this repository contains an
-`.env/` directory, and standalone package startup can treat `.env` as a file and
-fail with `EISDIR`.
+The standard development backend is `revo-core` on port `19222`; start it using
+its README. `pnpm run dev` proxies GraphQL and configures SSR from these env
+files. Process environment values take precedence. The legacy `backend:*` and
+`dev:full` helpers target an adjacent `agent-orchestrator` checkout instead.
 
 ## Frontend MVVM checks
 

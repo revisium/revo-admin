@@ -32,7 +32,7 @@ const config = {
   revoCli: resolve(repoRoot, env.REVO_CLI ?? '../agent-orchestrator/bin/revo.js'),
   dataDir: resolve(repoRoot, env.REVO_DEV_DATA_DIR ?? '.revo/dev'),
   controlPort: env.REVO_DEV_PORT ?? '19322',
-  graphqlPort: env.REVO_DEV_GRAPHQL_PORT ?? '19323',
+  graphqlPort: env.REVO_DEV_GRAPHQL_PORT ?? '19222',
   pgPort: env.REVO_DEV_PG_PORT ?? '15540',
   adminPort: env.REVO_ADMIN_PORT ?? '5173',
 }
