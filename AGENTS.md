@@ -136,9 +136,12 @@ Use these references from `../agent-playbook` for this repository:
 - Check in `src/__generated__/schema.graphql` and
   `src/__generated__/graphql-request.ts`. Treat generated drift as a failing
   quality gate, not as an optional local artifact.
-- Dialogue GraphQL operations, generated client, HTTP/SSE transport and command
+- Dialogue GraphQL operations, generated client, HTTP/domain subscription adapter and command
   persistence belong in `src/modules/dialogue-engine`. Shared owns only its
   application composition: endpoint, storage provider and DI registration.
+- The independent `graphql-subscriptions` module owns common SSE transport and reconnect lifecycle.
+  Every feature receives the same DI singleton. Domain adapters own snapshots, cursors and projections;
+  they do not create clients or independent network retry loops.
 - Do not import `@revisium/client` or read Revisium/DBOS state directly from the
   admin app.
 - xyflow and other DOM-measuring widgets live only in `*.client.tsx` modules and

@@ -4,23 +4,6 @@ import type { WatchChanges } from '../contracts/backend.types'
 import type { DialogueChange } from '../contracts/dialogue.types'
 import { errorMessageOf } from 'src/modules/observable-request'
 
-const RETRY_DELAY_MS = 1500
-
-const pause = (signal: AbortSignal): Promise<void> =>
-  new Promise((resolve) => {
-    const finish = (): void => {
-      clearTimeout(timer)
-      signal.removeEventListener('abort', finish)
-      resolve()
-    }
-    const timer = setTimeout(finish, RETRY_DELAY_MS)
-    signal.addEventListener('abort', finish, { once: true })
-
-    if (signal.aborted) {
-      finish()
-    }
-  })
-
 export class ChangeFeed {
   public status = 'Connecting'
   public error = ''
@@ -55,96 +38,70 @@ export class ChangeFeed {
 
   public async start(
     scope: string | undefined,
-    snapshot: () => Promise<string>,
-    apply: (data: DialogueChange) => Promise<string>,
+    snapshot: (signal: AbortSignal) => Promise<string>,
+    apply: (data: DialogueChange, signal: AbortSignal) => Promise<string>,
   ): Promise<void> {
-    while (!this.signal.aborted) {
-      try {
-        await this.subscribe(scope, snapshot, apply)
-      } catch (error) {
-        await this.reconnect(error)
-      }
+    try {
+      await this.watch(scope, {
+        signal: this.signal,
+        prepare: (signal) => this.resumeCursor(snapshot, signal),
+        receive: (change, signal) => this.applyChange(change, apply, signal),
+        changed: this.connectionChanged,
+        recover: this.recover,
+      })
+      this.stop()
+    } catch (error) {
+      if (!this.signal.aborted) this.fail(error)
     }
   }
 
-  private async subscribe(
-    scope: string | undefined,
-    snapshot: () => Promise<string>,
-    apply: (data: DialogueChange) => Promise<string>,
-  ): Promise<void> {
-    const cursor = await this.resumeCursor(snapshot)
-
-    if (this.signal.aborted) {
-      return
-    }
-
-    await this.watch(scope, cursor, this.signal, (change) => this.applyChange(change, apply), this.markConnected)
-    this.checkUnexpectedDisconnect()
-  }
-
-  private async resumeCursor(snapshot: () => Promise<string>): Promise<string> {
-    const cursor = this.cursor ?? (await snapshot())
+  private async resumeCursor(snapshot: (signal: AbortSignal) => Promise<string>, signal: AbortSignal): Promise<string> {
+    const cursor = this.cursor ?? (await snapshot(signal))
+    signal.throwIfAborted()
     this.advanceCursor(cursor)
     this.markSnapshotReady()
 
     return cursor
   }
 
-  private async applyChange(change: DialogueChange, apply: (data: DialogueChange) => Promise<string>): Promise<void> {
-    const cursor = await apply(change)
+  private async applyChange(
+    change: DialogueChange,
+    apply: (data: DialogueChange, signal: AbortSignal) => Promise<string>,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const cursor = await apply(change, signal)
+    signal.throwIfAborted()
     this.advanceCursor(cursor)
   }
 
   private advanceCursor(cursor: string): void {
-    if (this.signal.aborted) {
-      return
-    }
-
-    this.cursor = cursor
+    if (!this.signal.aborted) this.cursor = cursor
   }
 
   private markSnapshotReady(): void {
     if (!this.signal.aborted) this.snapshotReady = true
   }
 
-  private markConnected(): void {
-    this.status = 'Live'
-    this.error = ''
+  private connectionChanged(state: { status: string; error: string }): void {
+    if (this.signal.aborted) return
+    this.status = state.status
+    this.error = state.error
   }
 
-  private checkUnexpectedDisconnect(): void {
-    if (!this.signal.aborted) {
-      throw new Error('Event stream ended. Reconnecting.')
-    }
-  }
-
-  private async reconnect(error: unknown): Promise<void> {
-    if (this.signal.aborted) {
-      return
-    }
-
-    if (error instanceof DialogueError && error.recovery === 'stop') {
-      this.fail(error)
-
-      return
-    }
-
-    this.markDisconnected(error)
-    await pause(this.signal)
-  }
-
-  private fail(error: Error): void {
-    this.failure = error
-    this.error = error.message
-    this.stop()
-  }
-
-  private markDisconnected(error: unknown): void {
-    this.status = 'Reconnecting'
-    this.error = errorMessageOf(error) ?? 'Connection interrupted.'
+  private recover(error: unknown, signal: AbortSignal): boolean {
+    if (signal.aborted || this.signal.aborted) return false
 
     if (error instanceof DialogueError && error.recovery === 'refresh') {
       this.cursor = undefined
+      return true
     }
+
+    return error instanceof DialogueError && error.recovery === 'retry'
+  }
+
+  private fail(error: unknown): void {
+    this.failure = error instanceof Error ? error : new Error('Dialogue subscription failed.')
+    this.error = errorMessageOf(error) ?? this.failure.message
+    this.stop()
   }
 }

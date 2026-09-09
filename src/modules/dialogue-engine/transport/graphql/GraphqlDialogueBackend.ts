@@ -1,66 +1,49 @@
 import { pageOf, snapshotOf } from './page-mapping'
-import { transportError } from './graphql-error'
+import { executionError, transportError } from './graphql-error'
 import type { AgentOption } from '../../contracts/agent.types'
 import {
   getSdk,
   type CreateDialogueInput,
   type RespondDialogueInput,
   type SendDialogueInput,
-  DialogueEventsDocument,
-  DialogueSummariesDocument,
-  type DialogueEventsSubscription,
-  type DialogueSummariesSubscription,
 } from './__generated__/graphql-request'
+import { DialogueEventsDocument, DialogueSummariesDocument } from './__generated__/typed-document-nodes'
 import type { DialogueBackend, WatchChanges } from '../../contracts/backend.types'
 import { GraphQLClient } from 'graphql-request'
 import type { GraphqlDialogueOptions } from './transport.types'
-import { GraphqlSseService } from './GraphqlSseService'
+import { SubscriptionExecutionError, type SubscriptionTransport } from 'src/modules/graphql-subscriptions'
 
 export const DIALOGUE_PAGE_SIZE = 50
 
 export class GraphqlDialogueBackend implements DialogueBackend {
-  private readonly sse: GraphqlSseService
+  public constructor(
+    private readonly options: GraphqlDialogueOptions,
+    private readonly subscriptions: SubscriptionTransport,
+  ) {}
 
-  public constructor(private readonly options: GraphqlDialogueOptions) {
-    this.sse = new GraphqlSseService(options)
-  }
-
-  private client(signal?: AbortSignal) {
-    return getSdk(
-      new GraphQLClient(this.options.endpoint, {
-        credentials: this.options.credentials ?? 'include',
-        headers: this.options.headers,
-        fetch: (input, init) =>
-          (this.options.fetch ?? globalThis.fetch)(input, { ...init, signal: signal ?? init?.signal }),
-      }),
-    )
-  }
-
-  private async request<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      return await operation()
-    } catch (error) {
-      throw transportError(error)
+  public watch: WatchChanges = async (scope, options) => {
+    const callbacks = {
+      signal: options.signal,
+      changed: options.changed,
+      recover: (error: unknown, signal: AbortSignal) =>
+        options.recover(
+          error instanceof SubscriptionExecutionError ? executionError(error.errors) : transportError(error),
+          signal,
+        ),
     }
-  }
+    const lease = scope
+      ? this.subscriptions.subscribe(DialogueEventsDocument, {
+          ...callbacks,
+          prepare: async (signal) => ({ ids: [scope], after: await options.prepare(signal) }),
+          next: (data, signal) => options.receive(data.dialogueChanges, signal),
+        })
+      : this.subscriptions.subscribe(DialogueSummariesDocument, {
+          ...callbacks,
+          prepare: async (signal) => ({ after: await options.prepare(signal) }),
+          next: (data, signal) => options.receive(data.dialogueSummaryChanges, signal),
+        })
 
-  public watch: WatchChanges = async (scope, after, signal, receive, connected) => {
-    if (scope)
-      await this.sse.consume<DialogueEventsSubscription>(
-        DialogueEventsDocument,
-        { ids: [scope], after },
-        signal,
-        (data) => receive(data.dialogueChanges),
-        connected,
-      )
-    else
-      await this.sse.consume<DialogueSummariesSubscription>(
-        DialogueSummariesDocument,
-        { after },
-        signal,
-        (data) => receive(data.dialogueSummaryChanges),
-        connected,
-      )
+    await this.request(() => lease.done)
   }
 
   public list(after?: string, signal?: AbortSignal) {
@@ -160,5 +143,24 @@ export class GraphqlDialogueBackend implements DialogueBackend {
     return this.request(
       async () => (await this.client().ForkDialogue({ input: { dialogueId: id, turnId, title } })).forkDialogue,
     )
+  }
+
+  private client(signal?: AbortSignal) {
+    return getSdk(
+      new GraphQLClient(this.options.endpoint, {
+        credentials: this.options.credentials ?? 'include',
+        headers: this.options.headers,
+        fetch: (input, init) =>
+          (this.options.fetch ?? globalThis.fetch)(input, { ...init, signal: signal ?? init?.signal }),
+      }),
+    )
+  }
+
+  private async request<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation()
+    } catch (error) {
+      throw error instanceof SubscriptionExecutionError ? executionError(error.errors) : transportError(error)
+    }
   }
 }

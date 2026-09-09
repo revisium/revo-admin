@@ -9,6 +9,7 @@ import type { AgentConfiguration, AgentDefinition } from '../../contracts/agent.
 type ChangeReceiver = (change: DialogueChange) => Promise<void>
 
 const VERSION_INCREMENT = 1n
+const RECONNECT_DELAY_MS = 1000
 
 export class ControlledDialogueBackend implements DialogueBackend {
   private summaries = new Map<string, DialogueSummary>()
@@ -152,17 +153,37 @@ export class ControlledDialogueBackend implements DialogueBackend {
     throw new Error('No fork fixture')
   }
 
-  public watch: WatchChanges = async (scope, after, signal, receive, connected) => {
-    this.watchAttempts += 1
-    this.checkWatchAvailability()
-    await this.replay(scope, after, receive)
+  public watch: WatchChanges = async (scope, options) => {
+    const { signal, receive, changed } = options
 
-    if (signal.aborted) {
-      return
+    while (!signal.aborted) {
+      try {
+        const after = await options.prepare(signal)
+        await this.connectWatch(
+          scope,
+          after,
+          signal,
+          (event) => receive(event, signal),
+          () => changed({ status: 'Live', error: '' }),
+        )
+        return
+      } catch (error) {
+        if (signal.aborted) return
+        const recovered = options.recover(error, signal)
+
+        if (!recovered && error instanceof DialogueError && error.recovery === 'stop') throw error
+        changed({ status: 'Reconnecting', error: error instanceof Error ? error.message : 'Disconnected' })
+        await new Promise<void>((resolve) => {
+          const finish = () => {
+            clearTimeout(timer)
+            signal.removeEventListener('abort', finish)
+            resolve()
+          }
+          const timer = setTimeout(finish, RECONNECT_DELAY_MS)
+          signal.addEventListener('abort', finish, { once: true })
+        })
+      }
     }
-
-    connected()
-    await this.listen(scope, signal, receive)
   }
 
   public async create(input: Parameters<DialogueBackend['create']>[0]) {
@@ -197,6 +218,25 @@ export class ControlledDialogueBackend implements DialogueBackend {
     this.summaries.set(chat.id, summary)
     const event = { cursor: `event-${this.events.length + 1}`, dialogueId: chat.id, kind: 'SUMMARY_UPDATED', summary }
     await this.publish(event)
+  }
+
+  private async connectWatch(
+    scope: string | undefined,
+    after: string,
+    signal: AbortSignal,
+    receive: (change: DialogueChange) => Promise<void>,
+    connected: () => void,
+  ) {
+    this.watchAttempts += 1
+    this.checkWatchAvailability()
+    await this.replay(scope, after, receive)
+
+    if (signal.aborted) {
+      return
+    }
+
+    connected()
+    await this.listen(scope, signal, receive)
   }
 
   private page<T>(nodes: T[]) {

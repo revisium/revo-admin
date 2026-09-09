@@ -25,8 +25,8 @@ Development env files live in `.env/`, matching the other Revisium frontends:
 The admin uses same-origin GraphQL paths in development:
 
 - browser HTTP: `/graphql`;
-- browser websocket: `/graphql`;
-- Vite proxies both HTTP and WS to the local `revo serve` GraphQL host.
+- browser subscriptions: one multiplex SSE connection at `/graphql/stream`;
+- Vite proxies both paths to the configured GraphQL host.
 
 Default local ports:
 
@@ -47,7 +47,7 @@ Or run the backend pieces explicitly:
 
 ```sh
 pnpm run backend:start   # start Revisium daemon and bootstrap control-plane tables
-pnpm run backend:serve   # start GraphQL HTTP + graphql-ws on :19323
+pnpm run backend:serve   # start the GraphQL host on :19323
 pnpm run dev             # start React Router dev server with /graphql proxy
 pnpm run backend:stop    # stop the repo-local Revisium daemon
 ```
@@ -111,12 +111,15 @@ React components should not call the generated SDK directly. Use
 `src/shared/api/graphql` for transport, then expose data through services and
 MobX view models registered in `src/shared/lib/DIContainer`.
 
+All feature subscriptions share one DI-owned SSE connection. See the
+[subscription guide](src/modules/graphql-subscriptions/README.md) for registration and lifecycle ownership.
+
 ## Common scripts
 
 - `pnpm run dev` — start the React Router dev server.
 - `pnpm run dev:full` — start repo-local backend, GraphQL host, and admin dev server.
 - `pnpm run backend:start` — start and bootstrap the repo-local Revisium daemon.
-- `pnpm run backend:serve` — start GraphQL HTTP + websocket host.
+- `pnpm run backend:serve` — start the GraphQL host.
 - `pnpm run backend:stop` — stop the repo-local Revisium daemon.
 - `pnpm run gql:codegen` — regenerate GraphQL SDK from checked-in schema and operations.
 - `pnpm run gql:codegen:download` — refresh `src/__generated__/schema.graphql` from backend.
@@ -138,7 +141,8 @@ The orchestrator host should own the single HTTP server, mount GraphQL before th
 admin fallback, and serve the admin on the same origin:
 
 ```text
-/graphql  -> Yoga HTTP + graphql-ws
+/graphql         -> Yoga HTTP queries and mutations
+/graphql/stream  -> Yoga multiplex GraphQL SSE
 /assets   -> admin client assets
 /*        -> React Router SSR
 ```

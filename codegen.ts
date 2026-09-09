@@ -69,7 +69,22 @@ const config: CodegenConfig = {
           './src/modules/dialogue-engine/transport/graphql/__generated__/graphql-request.ts': {
             documents: ['src/modules/dialogue-engine/transport/graphql/*.graphql'],
             plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typescript-graphql-request'],
-            config: { rawRequest: false, skipTypename: true, scalars },
+            config: {
+              rawRequest: false,
+              skipTypename: true,
+              scalars,
+              documentMode: 'external',
+              importDocumentNodeExternallyFrom: './typed-document-nodes',
+            },
+          },
+          './src/modules/dialogue-engine/transport/graphql/__generated__/typed-document-nodes.ts': {
+            documents: ['src/modules/dialogue-engine/transport/graphql/*.graphql'],
+            plugins: [
+              disablePlugin,
+              { add: { content: "import type * as Types from './graphql-request';" } },
+              'typed-document-node',
+            ],
+            config: { importOperationTypesFrom: 'Types' },
           },
         }),
   },

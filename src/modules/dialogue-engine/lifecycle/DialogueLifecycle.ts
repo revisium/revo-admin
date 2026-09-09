@@ -33,8 +33,8 @@ export class DialogueLifecycle {
     this.summaryFeed = feed
     feed.start(
       undefined,
-      () => this.sync.list(undefined, feed.signal),
-      (change) => this.sync.applySummary(change, feed.signal),
+      (signal) => this.sync.list(undefined, signal),
+      (change, signal) => this.sync.applySummary(change, signal),
     )
   }
 
@@ -70,8 +70,8 @@ export class DialogueLifecycle {
     const owner = this.feeds.get(id)!
     feed.start(
       id,
-      () => this.sync.snapshot(id, feed.signal),
-      (change) => this.sync.apply(change, feed.signal),
+      (signal) => this.sync.snapshot(id, signal),
+      (change, signal) => this.sync.apply(change, signal),
     )
 
     return owner

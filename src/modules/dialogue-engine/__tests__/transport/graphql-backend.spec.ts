@@ -1,19 +1,22 @@
 import { describe, expect, it, vi } from 'vitest'
+import { GraphqlSubscriptions, type SubscriptionTransport } from 'src/modules/graphql-subscriptions'
 import { GraphqlDialogueBackend } from '../..'
-import { graphqlResponse, sseResponse } from './http-fixtures'
+import { graphqlResponse } from './http-fixtures'
 
 describe('Self-contained GraphQL adapter', () => {
   it('loads a dialogue using injected HTTP configuration and its own operation client', async () => {
     const fetch = vi
       .fn<typeof globalThis.fetch>()
       .mockResolvedValue(graphqlResponse({ dialogue: { id: 'chat', title: 'Planning' } }))
-    const backend = new GraphqlDialogueBackend({
-      endpoint: 'https://core.local/graphql',
-      fetch,
-      headers: { 'X-Workspace': 'test' },
-      credentials: 'omit',
-    })
-
+    const backend = new GraphqlDialogueBackend(
+      {
+        endpoint: 'https://core.local/graphql',
+        fetch,
+        headers: { 'X-Workspace': 'test' },
+        credentials: 'omit',
+      },
+      new GraphqlSubscriptions({ endpoint: 'https://core.local/graphql/stream' }),
+    )
     const result = await backend.details('chat')
 
     expect(result.title).toBe('Planning')
@@ -26,20 +29,28 @@ describe('Self-contained GraphQL adapter', () => {
     expect(body.variables).toEqual({ id: 'chat' })
   })
 
-  it('uses the same injected transport for SSE and forwards the resume cursor', async () => {
-    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(
-      sseResponse({
-        data: { dialogueChanges: { cursor: 'next', dialogueId: 'chat', kind: 'SUMMARY_UPDATED' } },
-      }),
-    )
-    const backend = new GraphqlDialogueBackend({ endpoint: 'https://core.local/graphql', fetch })
+  it('prepares subscription cursors afresh through the injected shared transport', async () => {
+    let cursor = 'snapshot'
     const receive = vi.fn(async () => {})
-    const controller = new AbortController()
+    const called = vi.fn()
+    const subscribe: SubscriptionTransport['subscribe'] = (_document, options) => {
+      called()
+      const done = Promise.resolve(options.prepare(options.signal)).then(async (variables) => {
+        expect(variables).toEqual({ ids: ['chat'], after: 'snapshot' })
+        cursor = 'applied'
+        expect(await options.prepare(options.signal)).toEqual({ ids: ['chat'], after: 'applied' })
+      })
 
-    await backend.watch('chat', 'snapshot', controller.signal, receive, vi.fn())
-
-    expect(receive).toHaveBeenCalledWith({ cursor: 'next', dialogueId: 'chat', kind: 'SUMMARY_UPDATED' })
-    const request = JSON.parse(String(fetch.mock.calls[0][1]?.body))
-    expect(request.variables).toEqual({ ids: ['chat'], after: 'snapshot' })
+      return { dispose: vi.fn(), done }
+    }
+    const backend = new GraphqlDialogueBackend({ endpoint: 'https://core.local/graphql' }, { subscribe })
+    await backend.watch('chat', {
+      signal: new AbortController().signal,
+      prepare: async () => cursor,
+      receive,
+      changed: vi.fn(),
+      recover: () => false,
+    })
+    expect(called).toHaveBeenCalledOnce()
   })
 })
