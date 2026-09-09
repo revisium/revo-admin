@@ -6,7 +6,7 @@ import { parseEnv } from 'node:util'
 const args = process.argv.slice(2)
 const isDownload = args.includes('--download')
 
-const DEFAULT_GRAPHQL_ENDPOINT = 'http://127.0.0.1:19323/graphql'
+const DEFAULT_GRAPHQL_ENDPOINT = 'http://127.0.0.1:19222/graphql'
 const ENV_DIR = '.env'
 const SCHEMA_SNAPSHOT = './src/__generated__/schema.graphql'
 
@@ -25,11 +25,18 @@ function loadLocalEnv(mode: string): Record<string, string> {
   )
 }
 
-const env = { ...loadLocalEnv(process.env.NODE_ENV ?? 'development'), ...process.env }
+function endpointFromEnv(env: Record<string, string | undefined>): string | undefined {
+  const endpoint = env.REVO_ADMIN_GRAPHQL_HTTP_URL ?? env.REVO_ADMIN_GRAPHQL_ENDPOINT
+  const target =
+    env.REVO_ADMIN_GRAPHQL_TARGET ??
+    (env.REVO_DEV_GRAPHQL_PORT ? `http://127.0.0.1:${env.REVO_DEV_GRAPHQL_PORT}` : undefined)
+  return endpoint ?? (target ? new URL('/graphql', target).toString() : undefined)
+}
 
 const graphqlEndpoint =
-  env.REVO_ADMIN_GRAPHQL_ENDPOINT ??
-  (env.REVO_ADMIN_GRAPHQL_TARGET ? `${env.REVO_ADMIN_GRAPHQL_TARGET}/graphql` : DEFAULT_GRAPHQL_ENDPOINT)
+  endpointFromEnv(process.env) ??
+  endpointFromEnv(loadLocalEnv(process.env.NODE_ENV ?? 'development')) ??
+  DEFAULT_GRAPHQL_ENDPOINT
 
 const scalars = {
   DateTime: 'string',

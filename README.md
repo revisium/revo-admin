@@ -1,151 +1,66 @@
 # revo-admin
 
-Admin UI for the Revisium agent orchestrator.
+The Revo admin UI, built with React Router, Chakra UI, and MobX.
 
-Built with React Router v7 (SSR), Chakra UI v3, MobX, and `@xyflow/react`,
-organized with Feature-Sliced Design.
+## Local development
 
-## Getting started
+Use Node 24 and Corepack. Run [revo-core](https://github.com/revisium/revo-core#local-development)
+separately on its default `http://127.0.0.1:19222`. Its README covers PostgreSQL,
+migrations, and agent authentication. Both repositories install their runtime dependencies
+from npm; no sibling package builds are needed.
+
+In this repository:
 
 ```sh
-nvm use            # Node 24.11.1 (see .nvmrc)
+nvm install 24
+nvm use 24
 corepack enable
-pnpm install       # peer-clean; do not use --legacy-peer-deps
-pnpm run dev       # start the React Router dev server
+pnpm install --frozen-lockfile
+pnpm run dev
 ```
 
-## Local development with backend
+Open `http://localhost:5173`. No environment prefixes are needed: Vite proxies `/graphql`
+and `/graphql/stream` to the backend on port **19222**, and SSR uses the same backend.
+Each browser tab shares one SSE connection across feature subscriptions.
 
-Development env files live in `.env/`, matching the other Revisium frontends:
-
-- `.env/.env.development` — checked-in defaults for adjacent repo development;
-- `.env/.env.development.local.example` — local override template;
-- `.env/.env.development.local` — ignored machine-local overrides.
-
-The admin uses same-origin GraphQL paths in development:
-
-- browser HTTP: `/graphql`;
-- browser subscriptions: one multiplex SSE connection at `/graphql/stream`;
-- Vite proxies both paths to the configured GraphQL host.
-
-Default local ports:
-
-| Process             | URL                              |
-| ------------------- | -------------------------------- |
-| Admin dev server    | `http://127.0.0.1:5173/`         |
-| GraphQL host        | `http://127.0.0.1:19323/graphql` |
-| Revisium daemon     | `http://127.0.0.1:19322/`        |
-| Embedded PostgreSQL | `127.0.0.1:15540`                |
-
-Start everything for UI development:
+To open the UI from another device on your local network:
 
 ```sh
-pnpm run dev:full
+pnpm run dev --host 0.0.0.0
 ```
 
-Or run the backend pieces explicitly:
+Visit `http://<computer-ip>:5173`. The backend can stay on `127.0.0.1`; the dev server
+forwards browser requests.
 
-```sh
-pnpm run backend:start   # start Revisium daemon and bootstrap control-plane tables
-pnpm run backend:serve   # start the GraphQL host on :19323
-pnpm run dev             # start React Router dev server with /graphql proxy
-pnpm run backend:stop    # stop the repo-local Revisium daemon
-```
+## Local configuration
 
-Do not run the global `revo` binary from this repository:
-
-```sh
-# Wrong: can make standalone try to read the .env/ directory as a file.
-revo revisium start
-```
-
-For source-development against the adjacent orchestrator checkout, use the admin
-scripts above or run Revo from the orchestrator repository:
-
-```sh
-cd ../agent-orchestrator
-./bin/revo.js revisium start
-./bin/revo.js serve --port 19223
-```
-
-The local backend helper refuses global `REVO_CLI` values by default. Use
-`REVO_CLI=../agent-orchestrator/bin/revo.js` in `.env/.env.development.local`.
-Set `REVO_ALLOW_GLOBAL_REVO=1` only when intentionally testing a globally
-installed package from an isolated working directory.
-
-The backend data lives under `.revo/dev` by default. This keeps local UI
-development separate from the dogfooding daemon under `~/.revisium-orchestrator`.
-
-Useful overrides:
+Defaults live in `.env/.env.development`. Override them in the ignored
+`.env/.env.development.local`; restart the dev server after changes.
 
 ```sh
 cp .env/.env.development.local.example .env/.env.development.local
-pnpm run dev:full
-REVO_DEV_KEEP_BACKEND=1 pnpm run dev:full
 ```
 
-## GraphQL client development
+- `REVO_DEV_GRAPHQL_PORT`: local backend port, default `19222`.
+- `REVO_ADMIN_GRAPHQL_TARGET`: backend origin when a different host is needed.
+- `REVO_ADMIN_GRAPHQL_ENDPOINT` or `REVO_ADMIN_GRAPHQL_HTTP_URL`: explicit GraphQL URL ending in `/graphql`.
+- `REVO_ADMIN_PORT`: frontend port, default `5173`.
 
-GraphQL schema and operation types are checked in:
+Process environment overrides local files. Backend settings apply to the development proxy,
+SSR, and schema downloads; they are not exposed as browser environment variables.
+The older `dev:full` and `backend:*` helpers are for an `agent-orchestrator` checkout,
+not the two-repository setup above.
 
-- `src/__generated__/schema.graphql` — schema snapshot from `orchestrator`;
-- `src/shared/api/**/*.graphql` — hand-written operations;
-- `src/__generated__/graphql-request.ts` — generated typed SDK.
+## Development contracts
 
-Update the generated SDK after editing operations:
+Run `pnpm run verify` before handoff. See [VERIFICATION.md](VERIFICATION.md) for gates,
+[REPOSITORY.md](REPOSITORY.md) for boundaries, and the
+[subscription guide](src/modules/graphql-subscriptions/README.md) for adding a subscription.
+React components use registered services and view models rather than calling GraphQL directly.
 
-```sh
-pnpm run gql:codegen
-```
+GraphQL schemas and SDKs are checked in. Run `pnpm run gql:codegen` after editing operations.
+With Core running, `pnpm run gql:codegen:download` refreshes the schema from port 19222.
 
-Refresh the schema snapshot from a running local backend:
-
-```sh
-pnpm run backend:start
-pnpm run backend:serve
-pnpm run gql:codegen:download
-pnpm run gql:codegen
-```
-
-React components should not call the generated SDK directly. Use
-`src/shared/api/graphql` for transport, then expose data through services and
-MobX view models registered in `src/shared/lib/DIContainer`.
-
-All feature subscriptions share one DI-owned SSE connection. See the
-[subscription guide](src/modules/graphql-subscriptions/README.md) for registration and lifecycle ownership.
-
-## Common scripts
-
-- `pnpm run dev` — start the React Router dev server.
-- `pnpm run dev:full` — start repo-local backend, GraphQL host, and admin dev server.
-- `pnpm run backend:start` — start and bootstrap the repo-local Revisium daemon.
-- `pnpm run backend:serve` — start the GraphQL host.
-- `pnpm run backend:stop` — stop the repo-local Revisium daemon.
-- `pnpm run gql:codegen` — regenerate GraphQL SDK from checked-in schema and operations.
-- `pnpm run gql:codegen:download` — refresh `src/__generated__/schema.graphql` from backend.
-- `pnpm run build` — production SSR build (`build/server` + `build/client`).
-- `pnpm run start` — serve the production build.
-- `pnpm run verify` — full local gate (format, types, lint, FSD, tests, build).
-
-## Embedded SSR package contract
-
-The published package is `@revisium/revo-admin`. Its production build is
-prepared for embedding into `@revisium/orchestrator`:
-
-```text
-build/server/index.js   # React Router SSR server bundle
-build/client/**         # browser assets
-```
-
-The orchestrator host should own the single HTTP server, mount GraphQL before the
-admin fallback, and serve the admin on the same origin:
-
-```text
-/graphql         -> Yoga HTTP queries and mutations
-/graphql/stream  -> Yoga multiplex GraphQL SSE
-/assets   -> admin client assets
-/*        -> React Router SSR
-```
-
-See `VERIFICATION.md` for gate details, `REPOSITORY.md` for structure, and
-`docs/adr/` for architecture decisions.
+`pnpm run build` produces `build/server/index.js` and `build/client/`. An embedding host
+mounts `/graphql` and `/graphql/stream` before the admin SSR fallback and serves the client
+assets on the same origin. The frontend build does not start a backend.
