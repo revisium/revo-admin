@@ -1,7 +1,7 @@
 /* eslint-disable */
 /* prettier-ignore */
 import { GraphQLClient, RequestOptions } from 'graphql-request';
-import * as Operations from './typed-document-nodes';
+import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -1635,11 +1635,65 @@ export type SystemInfoQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type SystemInfoQuery = { systemInfo: { name: string, status: string } };
 
-
-
-
-
-
+export const PageInfoFieldsFragmentDoc = gql`
+    fragment PageInfoFields on PageInfoModel {
+  endCursor
+  hasNextPage
+  hasPreviousPage
+  startCursor
+}
+    `;
+export const ProjectNodeFragmentDoc = gql`
+    fragment ProjectNode on ProjectModel {
+  id
+  name
+  description
+  status
+  createdAt
+  updatedAt
+}
+    `;
+export const ProjectsDocument = gql`
+    query Projects($query: String, $includeArchived: Boolean, $after: String, $first: Int) {
+  projects(
+    data: {query: $query, includeArchived: $includeArchived, after: $after, first: $first}
+  ) {
+    edges {
+      cursor
+      node {
+        ...ProjectNode
+      }
+    }
+    pageInfo {
+      ...PageInfoFields
+    }
+    totalCount
+  }
+}
+    ${ProjectNodeFragmentDoc}
+${PageInfoFieldsFragmentDoc}`;
+export const CreateProjectDocument = gql`
+    mutation CreateProject($data: ProjectCreateInput!) {
+  createProject(data: $data) {
+    projectId
+  }
+}
+    `;
+export const ProjectDocument = gql`
+    query Project($id: ID!) {
+  project(data: {id: $id}) {
+    ...ProjectNode
+  }
+}
+    ${ProjectNodeFragmentDoc}`;
+export const SystemInfoDocument = gql`
+    query SystemInfo {
+  systemInfo {
+    name
+    status
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -1649,16 +1703,16 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
     Projects(variables?: ProjectsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ProjectsQuery>(Operations.ProjectsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Projects', 'query', variables);
+      return withWrapper((wrappedRequestHeaders) => client.request<ProjectsQuery>(ProjectsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Projects', 'query', variables);
     },
     CreateProject(variables: CreateProjectMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateProjectMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateProjectMutation>(Operations.CreateProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateProject', 'mutation', variables);
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateProjectMutation>(CreateProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateProject', 'mutation', variables);
     },
     Project(variables: ProjectQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ProjectQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ProjectQuery>(Operations.ProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Project', 'query', variables);
+      return withWrapper((wrappedRequestHeaders) => client.request<ProjectQuery>(ProjectDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Project', 'query', variables);
     },
     SystemInfo(variables?: SystemInfoQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SystemInfoQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(Operations.SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);
+      return withWrapper((wrappedRequestHeaders) => client.request<SystemInfoQuery>(SystemInfoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SystemInfo', 'query', variables);
     }
   };
 }

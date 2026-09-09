@@ -1,4 +1,3 @@
-import { makeAutoObservable } from 'mobx'
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import { SubscriptionOperation } from './SubscriptionOperation'
 import { SseConnection } from './SseConnection'
@@ -30,8 +29,8 @@ interface ActiveOperation {
 }
 
 export class GraphqlSubscriptions implements SubscriptionTransport {
-  public status: SubscriptionState['status'] = 'Stopped'
-  public error = ''
+  private status: SubscriptionState['status'] = 'Stopped'
+  private error = ''
   private readonly operations = new Set<ActiveOperation>()
   private connection?: SseConnection
   private epoch = 0
@@ -42,13 +41,7 @@ export class GraphqlSubscriptions implements SubscriptionTransport {
   private listening = false
   private stopped = false
 
-  public constructor(private readonly options: GraphqlSubscriptionsOptions) {
-    makeAutoObservable<this, 'operations' | 'connection'>(
-      this,
-      { operations: false, connection: false },
-      { autoBind: true },
-    )
-  }
+  public constructor(private readonly options: GraphqlSubscriptionsOptions) {}
 
   public subscribe<Data, Variables extends Record<string, unknown>>(
     document: TypedDocumentNode<Data, Variables>,
@@ -57,7 +50,7 @@ export class GraphqlSubscriptions implements SubscriptionTransport {
     const operation = new SubscriptionOperation(document, options, this.options.queueLimit ?? QUEUE_LIMIT, () =>
       this.release(operation),
     )
-    // A caller may observe errors through callbacks instead of awaiting the lease.
+    // Keep rejection observed until the owner awaits the lease's completion.
     operation.done.catch(() => {})
 
     if (options.signal.aborted || this.stopped || !(this.options.enabled?.() ?? typeof window !== 'undefined')) {
@@ -172,7 +165,7 @@ export class GraphqlSubscriptions implements SubscriptionTransport {
     this.retryTimer = undefined
     this.unlisten()
     clearTimeout(this.idleTimer)
-    this.idleTimer = setTimeout(this.close, this.options.idleGraceMs ?? IDLE_GRACE_MS)
+    this.idleTimer = setTimeout(() => this.close(), this.options.idleGraceMs ?? IDLE_GRACE_MS)
   }
 
   private close(): void {
@@ -206,14 +199,14 @@ export class GraphqlSubscriptions implements SubscriptionTransport {
     window.removeEventListener('online', this.online)
   }
 
-  private offline(): void {
+  private readonly offline = (): void => {
     this.disconnect()
     clearTimeout(this.retryTimer)
     this.retryTimer = undefined
     this.change('Offline', 'Browser is offline.')
   }
 
-  private online(): void {
+  private readonly online = (): void => {
     if (!this.connection && !this.retryTimer) this.connect()
   }
 }

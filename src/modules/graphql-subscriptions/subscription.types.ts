@@ -13,8 +13,6 @@ export interface SubscriptionOptions<Data, Variables extends Record<string, unkn
   readonly next: (data: Data, signal: AbortSignal) => void | Promise<void>
   readonly changed?: (state: SubscriptionState) => void
   readonly recover?: (error: unknown, signal: AbortSignal) => boolean | Promise<boolean>
-  readonly error?: (error: unknown) => void
-  readonly complete?: () => void
 }
 
 export interface SubscriptionLease {

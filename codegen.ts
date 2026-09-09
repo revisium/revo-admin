@@ -61,8 +61,6 @@ const config: CodegenConfig = {
             documents: ['src/shared/**/*.graphql'],
             plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typescript-graphql-request'],
             config: {
-              documentMode: 'external',
-              importDocumentNodeExternallyFrom: './typed-document-nodes',
               rawRequest: false,
               skipTypename: true,
               scalars,
@@ -79,15 +77,14 @@ const config: CodegenConfig = {
               importDocumentNodeExternallyFrom: './typed-document-nodes',
             },
           },
-          './src/__generated__/typed-document-nodes.ts': {
-            documents: ['src/shared/**/*.graphql'],
-            plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typed-document-node'],
-            config: { skipTypename: true, scalars },
-          },
           './src/modules/dialogue-engine/transport/graphql/__generated__/typed-document-nodes.ts': {
             documents: ['src/modules/dialogue-engine/transport/graphql/*.graphql'],
-            plugins: [disablePlugin, 'typescript', 'typescript-operations', 'typed-document-node'],
-            config: { skipTypename: true, scalars },
+            plugins: [
+              disablePlugin,
+              { add: { content: "import type * as Types from './graphql-request';" } },
+              'typed-document-node',
+            ],
+            config: { importOperationTypesFrom: 'Types' },
           },
         }),
   },

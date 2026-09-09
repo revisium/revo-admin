@@ -111,10 +111,8 @@ React components should not call the generated SDK directly. Use
 `src/shared/api/graphql` for transport, then expose data through services and
 MobX view models registered in `src/shared/lib/DIContainer`.
 
-All feature subscriptions share the DI-owned `GraphqlSubscriptions` service from
-`src/modules/graphql-subscriptions`. Domain adapters own typed documents, snapshots and
-applied cursors; the common service owns the connection, leases and recovery. See its README
-for adding a subscription.
+All feature subscriptions share one DI-owned SSE connection. See the
+[subscription guide](src/modules/graphql-subscriptions/README.md) for registration and lifecycle ownership.
 
 ## Common scripts
 

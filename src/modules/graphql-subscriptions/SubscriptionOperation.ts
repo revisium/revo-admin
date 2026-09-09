@@ -124,10 +124,7 @@ export class SubscriptionOperation<Data, Variables extends Record<string, unknow
           if (result?.data) await this.options.next(result.data, this.controller.signal)
         }
 
-        if (this.active(epoch) && this.completed) {
-          this.options.complete?.()
-          this.finish()
-        }
+        if (this.active(epoch) && this.completed) this.finish()
       })
       .catch((error: unknown) => {
         if (this.active(epoch)) this.fail(error)
@@ -175,11 +172,6 @@ export class SubscriptionOperation<Data, Variables extends Record<string, unknow
       this.resolve()
     } else {
       this.reject(error)
-      try {
-        this.options.error?.(error)
-      } catch {
-        // Observer failures cannot interrupt the shared connection's other leases.
-      }
     }
   }
 }

@@ -12,8 +12,8 @@ pnpm run verify
 
 1. `format:check` — `prettier --check` over ts/tsx/js/json/md/yml/yaml/css/html.
 2. `gql:codegen:check` — verify the typed GraphQL SDK matches the checked-in
-   schema snapshot and fail on drift in the application SDK/typed documents and the dialogue
-   engine SDK/typed documents under `transport/graphql/__generated__/`.
+   schema snapshot and fail on drift in the application SDK and the dialogue engine
+   SDK/typed documents under `transport/graphql/__generated__/`.
 3. `ts:check` — `tsc --noEmit` (strict).
 4. `lint:ci` — `eslint "{src,tests}/**/*.{ts,tsx}" --max-warnings 0`
    (zero warnings allowed).
@@ -93,6 +93,21 @@ Quality blockers:
   delegating to services.
 - Services importing React or Chakra UI.
 - Generated artifacts changed without `gql:codegen:check`.
+
+## Test design
+
+- Each test verifies one externally meaningful behavior. Several assertions may
+  establish that behavior; split unrelated failure and lifecycle scenarios.
+- Keep actions and assertions at one abstraction level. Domain tests use domain
+  fixtures; transport tests may inspect HTTP/SSE when the wire behavior matters.
+  Put server setup, request scheduling, and cleanup in fixture helpers.
+- Reuse existing fixtures. Keep helpers for one suite together; extract another
+  file only for reuse or a substantial separate responsibility. Keep expected
+  values explicit in tests instead of hiding them behind assertion wrappers.
+- Test our public contracts, adapters, and regressions with a meaningful failure
+  signal. Do not duplicate library conformance or the same happy path at several
+  layers without a distinct integration risk.
+- Views and presentation view models remain covered by browser/manual checks.
 
 ## CI gates (`.github/workflows/ci.yml`)
 
