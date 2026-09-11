@@ -49,8 +49,6 @@ export interface DialogueHistoryView {
 export interface DialogueView {
   readonly id: string
   readonly title: string
-  readonly updatedAt: string
-  readonly revision: string
   readonly agentId: string
   readonly status: string
   readonly contextMode: string
@@ -81,6 +79,7 @@ export interface DialogueView {
   fork(turnId: string): Promise<string>
   refresh(): Promise<void>
   markRead(): Promise<void>
+  setAutoRead(enabled: boolean): void
   displayReceipt(): DisplayReceipt | undefined
   canAcknowledge(receipt: DisplayReceipt): boolean
   acknowledge(receipt: DisplayReceipt): Promise<void>

@@ -6,6 +6,7 @@ import type { DialogueStore } from '../state/DialogueStore'
 import type { DialogueLifecycle } from '../lifecycle/DialogueLifecycle'
 import type { DialogueCommands } from '../commands/DialogueCommands'
 import type { DialogueReadReceipts } from '../commands/DialogueReadReceipts'
+import type { DialogueAutoReadCoordinator } from '../lifecycle/DialogueAutoReadCoordinator'
 import { DialogueEntry } from './DialogueEntry'
 import { DialogueInteractionSession } from './DialogueInteractionSession'
 import { readonlyValue } from './readonly-value'
@@ -22,12 +23,13 @@ export class DialogueResource implements DialogueView {
     private readonly lifecycle: DialogueLifecycle,
     private readonly commands: DialogueCommands,
     private readonly receipts: DialogueReadReceipts,
+    private readonly autoRead: DialogueAutoReadCoordinator,
   ) {
     this.historyView = new DialogueHistory(store, lifecycle, id, () => this.historyItems)
     this.refreshRequest = ObservableRequest.of(() => lifecycle.refresh(id))
     makeAutoObservable<
       this,
-      'store' | 'lifecycle' | 'commands' | 'receipts' | 'entries' | 'interactionModels' | 'historyView'
+      'store' | 'lifecycle' | 'commands' | 'receipts' | 'autoRead' | 'entries' | 'interactionModels' | 'historyView'
     >(
       this,
       {
@@ -35,6 +37,7 @@ export class DialogueResource implements DialogueView {
         lifecycle: false,
         commands: false,
         receipts: false,
+        autoRead: false,
         entries: false,
         interactionModels: false,
         historyView: false,
@@ -49,14 +52,6 @@ export class DialogueResource implements DialogueView {
 
   public get title() {
     return this.model?.summary.title ?? ''
-  }
-
-  public get updatedAt() {
-    return this.model?.summary.updatedAt ?? ''
-  }
-
-  public get revision() {
-    return this.model?.summary.version ?? ''
   }
 
   public get agentId() {
@@ -207,6 +202,10 @@ export class DialogueResource implements DialogueView {
 
   public markRead(): Promise<void> {
     return this.receipts.markRead(this.id)
+  }
+
+  public setAutoRead(enabled: boolean): void {
+    this.autoRead.set(this.id, enabled)
   }
 
   public displayReceipt(): DisplayReceipt | undefined {
