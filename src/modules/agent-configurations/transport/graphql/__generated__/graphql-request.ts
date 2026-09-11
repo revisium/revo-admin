@@ -1,5 +1,3 @@
-/* eslint-disable */
-/* prettier-ignore */
 import { GraphQLClient, RequestOptions } from 'graphql-request';
 import * as Operations from './typed-document-nodes';
 export type Maybe<T> = T | null;

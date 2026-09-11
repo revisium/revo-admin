@@ -1,5 +1,3 @@
-/* eslint-disable */
-/* prettier-ignore */
 import type * as Types from './graphql-request';
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 
