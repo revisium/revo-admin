@@ -1,0 +1,96 @@
+query AgentConfigurationDefinitions($first: Int!, $after: String) {
+  agentDefinitions(first: $first, after: $after) {
+    edges {
+      cursor
+      node {
+        displayName
+        description
+        agent {
+          id
+          version
+        }
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}
+
+subscription AgentConfigurations {
+  agentConfigurations {
+    status
+    catalogs {
+      agent {
+        id
+        version
+      }
+      catalogRevision
+      definitionDigest
+      launch {
+        executable
+        reportedVersion
+      }
+      model {
+        currentModel
+        currentProvider {
+          id
+          name
+        }
+        optionId
+        providers {
+          id
+          name
+          models {
+            description
+            group {
+              id
+              name
+            }
+            name
+            value
+          }
+        }
+        sessionAvailable {
+          description
+          group {
+            id
+            name
+          }
+          name
+          value
+        }
+      }
+      options {
+        __typename
+        ... on AgentConfigurationBooleanModel {
+          category
+          booleanValue: currentValue
+          description
+          id
+          name
+          type
+        }
+        ... on AgentConfigurationSelectModel {
+          category
+          selectValue: currentValue
+          description
+          id
+          name
+          type
+          values {
+            description
+            group {
+              id
+              name
+            }
+            name
+            value
+          }
+        }
+      }
+      schemaVersion
+    }
+  }
+}

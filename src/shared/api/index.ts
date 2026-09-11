@@ -1,4 +1,5 @@
 import './dialogue/registerDialogueEngine'
+import './agent-configurations/registerAgentConfigurations'
 export {
   GraphqlService,
   GraphqlSubscriptions,

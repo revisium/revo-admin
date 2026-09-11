@@ -1615,143 +1615,18 @@ export enum WorkPlanStatus {
   Ready = 'ready'
 }
 
-export type DialogueSummaryFieldsFragment = { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null };
-
-export type DialogueItemFieldsFragment = { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean };
-
-export type DialogueTurnFieldsFragment = { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null };
-
-export type DialogueChangeFieldsFragment = { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null };
-
-export type DialogueListQueryVariables = Exact<{
+export type AgentConfigurationDefinitionsQueryVariables = Exact<{
   first: Scalars['Int']['input'];
   after?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type DialogueListQuery = { dialogues: { snapshotCursor: string, totalCount: number, edges: Array<{ cursor: string, node: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+export type AgentConfigurationDefinitionsQuery = { agentDefinitions: { edges: Array<{ cursor: string, node: { displayName: string, description?: string | null, agent: { id: string, version: string } } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
 
-export type DialogueDetailsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
+export type AgentConfigurationsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DialogueDetailsQuery = { dialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
-
-export type DialogueHistoryQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type DialogueHistoryQuery = { dialogueHistory: { snapshotCursor: string, totalCount: number, observedSignificantSequence?: string | null, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
-
-export type DialogueItemQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  itemId: Scalars['ID']['input'];
-}>;
-
-
-export type DialogueItemQuery = { dialogueHistoryItem: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } };
-
-export type DialogueTurnsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type DialogueTurnsQuery = { dialogueTurns: { snapshotCursor: string, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
-
-export type DialogueInteractionsQueryVariables = Exact<{
-  id: Scalars['ID']['input'];
-  first: Scalars['Int']['input'];
-  after?: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-export type DialogueInteractionsQuery = { dialogueInteractions: { snapshotCursor: string, edges: Array<{ cursor: string, node: { id: string, dialogueId: string, turnId?: string | null, status: string, request: unknown, response?: unknown | null, responseCommandId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
-
-export type CreateDialogueMutationVariables = Exact<{
-  input: CreateDialogueInput;
-}>;
-
-
-export type CreateDialogueMutation = { createDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
-
-export type SendDialogueMutationVariables = Exact<{
-  input: SendDialogueInput;
-}>;
-
-
-export type SendDialogueMutation = { sendDialogueMessage: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } };
-
-export type RespondToDialogueMutationVariables = Exact<{
-  input: RespondDialogueInput;
-}>;
-
-
-export type RespondToDialogueMutation = { respondDialogue: { id: string, dialogueId: string, turnId?: string | null, status: string, request: unknown, response?: unknown | null, responseCommandId?: string | null } };
-
-export type CancelDialogueMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  turnId: Scalars['ID']['input'];
-}>;
-
-
-export type CancelDialogueMutation = { cancelDialogueTurn: { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null } };
-
-export type ReadDialogueMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  through: Scalars['String']['input'];
-}>;
-
-
-export type ReadDialogueMutation = { markDialogueRead: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
-
-export type ReopenDialogueMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-}>;
-
-
-export type ReopenDialogueMutation = { reopenDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
-
-export type ForkDialogueMutationVariables = Exact<{
-  input: ForkDialogueInput;
-}>;
-
-
-export type ForkDialogueMutation = { forkDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
-
-export type DialogueEventsSubscriptionVariables = Exact<{
-  after?: InputMaybe<Scalars['String']['input']>;
-  ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
-}>;
-
-
-export type DialogueEventsSubscription = { dialogueChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
-
-export type DialogueSummariesSubscriptionVariables = Exact<{
-  after?: InputMaybe<Scalars['String']['input']>;
-  ids?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
-}>;
-
-
-export type DialogueSummariesSubscription = { dialogueSummaryChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
-
-
-
-
-
-
-
-
-
-
-
-
-
+export type AgentConfigurationsSubscription = { agentConfigurations: { status: AgentConfigurationsStatus, catalogs: Array<{ catalogRevision: string, definitionDigest: string, schemaVersion: string, agent: { id: string, version: string }, launch: { executable: string, reportedVersion: string }, model?: { currentModel: string, optionId: string, currentProvider?: { id: string, name: string } | null, providers: Array<{ id: string, name: string, models: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }>, sessionAvailable: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> } | null, options: Array<{ __typename: 'AgentConfigurationBooleanModel', category?: string | null, description?: string | null, id: string, name: string, type: string, booleanValue: boolean } | { __typename: 'AgentConfigurationSelectModel', category?: string | null, description?: string | null, id: string, name: string, type: string, selectValue: string, values: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }> }> } };
 
 
 
@@ -1764,50 +1639,11 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    DialogueList(variables: DialogueListQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueListQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueListQuery>(Operations.DialogueListDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueList', 'query', variables);
+    AgentConfigurationDefinitions(variables: AgentConfigurationDefinitionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AgentConfigurationDefinitionsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AgentConfigurationDefinitionsQuery>(Operations.AgentConfigurationDefinitionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AgentConfigurationDefinitions', 'query', variables);
     },
-    DialogueDetails(variables: DialogueDetailsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueDetailsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueDetailsQuery>(Operations.DialogueDetailsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueDetails', 'query', variables);
-    },
-    DialogueHistory(variables: DialogueHistoryQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueHistoryQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueHistoryQuery>(Operations.DialogueHistoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueHistory', 'query', variables);
-    },
-    DialogueItem(variables: DialogueItemQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueItemQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueItemQuery>(Operations.DialogueItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueItem', 'query', variables);
-    },
-    DialogueTurns(variables: DialogueTurnsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueTurnsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueTurnsQuery>(Operations.DialogueTurnsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueTurns', 'query', variables);
-    },
-    DialogueInteractions(variables: DialogueInteractionsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueInteractionsQuery> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueInteractionsQuery>(Operations.DialogueInteractionsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueInteractions', 'query', variables);
-    },
-    CreateDialogue(variables: CreateDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CreateDialogueMutation>(Operations.CreateDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateDialogue', 'mutation', variables);
-    },
-    SendDialogue(variables: SendDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SendDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<SendDialogueMutation>(Operations.SendDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SendDialogue', 'mutation', variables);
-    },
-    RespondToDialogue(variables: RespondToDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RespondToDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<RespondToDialogueMutation>(Operations.RespondToDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RespondToDialogue', 'mutation', variables);
-    },
-    CancelDialogue(variables: CancelDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CancelDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<CancelDialogueMutation>(Operations.CancelDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CancelDialogue', 'mutation', variables);
-    },
-    ReadDialogue(variables: ReadDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReadDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReadDialogueMutation>(Operations.ReadDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ReadDialogue', 'mutation', variables);
-    },
-    ReopenDialogue(variables: ReopenDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ReopenDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ReopenDialogueMutation>(Operations.ReopenDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ReopenDialogue', 'mutation', variables);
-    },
-    ForkDialogue(variables: ForkDialogueMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ForkDialogueMutation> {
-      return withWrapper((wrappedRequestHeaders) => client.request<ForkDialogueMutation>(Operations.ForkDialogueDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ForkDialogue', 'mutation', variables);
-    },
-    DialogueEvents(variables?: DialogueEventsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueEventsSubscription> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueEventsSubscription>(Operations.DialogueEventsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueEvents', 'subscription', variables);
-    },
-    DialogueSummaries(variables?: DialogueSummariesSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DialogueSummariesSubscription> {
-      return withWrapper((wrappedRequestHeaders) => client.request<DialogueSummariesSubscription>(Operations.DialogueSummariesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DialogueSummaries', 'subscription', variables);
+    AgentConfigurations(variables?: AgentConfigurationsSubscriptionVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AgentConfigurationsSubscription> {
+      return withWrapper((wrappedRequestHeaders) => client.request<AgentConfigurationsSubscription>(Operations.AgentConfigurationsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AgentConfigurations', 'subscription', variables);
     }
   };
 }

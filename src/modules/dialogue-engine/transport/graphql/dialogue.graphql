@@ -143,46 +143,6 @@ query DialogueInteractions($id: ID!, $first: Int!, $after: String) {
     snapshotCursor
   }
 }
-query DialogueAgents($first: Int!, $after: String) {
-  agentDefinitions(first: $first, after: $after) {
-    edges {
-      node {
-        displayName
-        description
-        agent {
-          id
-          version
-        }
-      }
-    }
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-  }
-}
-query DialogueAgentConfiguration($id: String!, $version: String!) {
-  inspectAgentConfiguration(agentId: $id, agentVersion: $version) {
-    catalogRevision
-    options {
-      __typename
-      ... on AgentConfigurationSelectModel {
-        id
-        name
-        selected: currentValue
-        values {
-          value
-          name
-        }
-      }
-      ... on AgentConfigurationBooleanModel {
-        id
-        name
-        enabled: currentValue
-      }
-    }
-  }
-}
 mutation CreateDialogue($input: CreateDialogueInput!) {
   createDialogue(input: $input) {
     ...DialogueSummaryFields

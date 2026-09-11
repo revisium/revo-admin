@@ -1,6 +1,7 @@
 import { AgentSelectionViewModel } from './agent/AgentSelectionViewModel'
 import { makeAutoObservable, runInAction } from 'mobx'
-import { DialogueEngine, type AgentSelectionModel } from 'src/modules/dialogue-engine'
+import { AgentSelectionModel, AgentConfigurationsService } from 'src/modules/agent-configurations'
+import { DialogueEngine } from 'src/modules/dialogue-engine'
 import { routes } from 'src/shared/config'
 import { container, ObservableRequest } from 'src/shared/lib'
 import { DialoguePresentationStore } from 'src/entities/dialogue'
@@ -22,8 +23,9 @@ export class DiscussionComposerViewModel {
   public constructor(
     private readonly engine: DialogueEngine,
     private readonly presentation: DialoguePresentationStore,
+    private readonly configurations: AgentConfigurationsService,
   ) {
-    this.agentSelection = this.engine.createAgentSelection()
+    this.agentSelection = new AgentSelectionModel(configurations)
     this.sessionDraft = this.engine.createDraft()
     this.submitRequest = ObservableRequest.of(() => this.deliver())
     this.agent = new AgentSelectionViewModel(this.agentSelection, () => this.sending)
@@ -39,8 +41,7 @@ export class DiscussionComposerViewModel {
   public mount(chatId?: string, suggestionsVisible = false, navigate: (destination: string) => void = () => {}): void {
     this.setup(chatId, suggestionsVisible, navigate)
     this.generation += 1
-
-    if (!chatId) this.agentSelection.load()
+    this.agentSelection.start()
   }
 
   public unmount(): void {
@@ -189,8 +190,9 @@ container.register(
   () => {
     const engine = container.get(DialogueEngine)
     const presentation = container.get(DialoguePresentationStore)
+    const configurations = container.get(AgentConfigurationsService)
 
-    return new DiscussionComposerViewModel(engine, presentation)
+    return new DiscussionComposerViewModel(engine, presentation, configurations)
   },
   { scope: 'transient' },
 )

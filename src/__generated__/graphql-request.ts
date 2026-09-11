@@ -141,6 +141,17 @@ export type AgentConfigurationValueModel = {
   value: Scalars['String']['output'];
 };
 
+export type AgentConfigurationsModel = {
+  catalogs: Array<AgentConfigurationCatalogModel>;
+  status: AgentConfigurationsStatus;
+};
+
+export enum AgentConfigurationsStatus {
+  Loading = 'LOADING',
+  NotInitialized = 'NOT_INITIALIZED',
+  Ready = 'READY'
+}
+
 export type AgentDefinitionConnectionModel = {
   edges: Array<AgentDescriptorEdge>;
   pageInfo: PageInfoModel;
@@ -1015,6 +1026,7 @@ export type ProjectUpdateInput = {
 };
 
 export type Query = {
+  agentConfigurations: AgentConfigurationsModel;
   agentDefinition?: Maybe<AgentDescriptorModel>;
   agentDefinitions: AgentDefinitionConnectionModel;
   catalogChangeSet: CatalogChangeEntryConnection;
@@ -1501,6 +1513,7 @@ export type StartRunResultModel = {
 };
 
 export type Subscription = {
+  agentConfigurations: AgentConfigurationsModel;
   dialogueChanges: DialogueChangeModel;
   dialogueSummaryChanges: DialogueChangeModel;
 };

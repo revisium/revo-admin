@@ -44,7 +44,7 @@
     "fsd:check": "CHOKIDAR_USEPOLLING=1 steiger src",
     "gql:codegen": "graphql-codegen",
     "gql:codegen:download": "graphql-codegen --download",
-    "gql:codegen:check": "pnpm run gql:codegen && git diff --exit-code -- src/__generated__ src/modules/dialogue-engine/transport/graphql/__generated__",
+    "gql:codegen:check": "pnpm run gql:codegen && git diff --exit-code -- src/__generated__ src/modules/dialogue-engine/transport/graphql/__generated__ src/modules/agent-configurations/transport/graphql/__generated__",
     "ts:check": "tsc --noEmit",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml,css,html}\"",
     "check:all": "pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check",

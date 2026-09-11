@@ -105,6 +105,7 @@ export default [
       '.scannerwork/**',
       'src/__generated__/**',
       'src/modules/dialogue-engine/transport/graphql/__generated__/**',
+      'src/modules/agent-configurations/transport/graphql/__generated__/**',
       'eslint.config.js',
     ],
   },

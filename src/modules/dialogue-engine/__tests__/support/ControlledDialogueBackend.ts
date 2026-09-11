@@ -4,7 +4,6 @@ import type { DialogueSummary, DialogueItem, DialogueChange, DialogueInteraction
 
 import { dialogueSummary } from './dialogue-fixtures'
 import { ControlledRequest } from './ControlledRequest'
-import type { AgentConfiguration, AgentDefinition } from '../../contracts/agent.types'
 
 type ChangeReceiver = (change: DialogueChange) => Promise<void>
 
@@ -38,23 +37,12 @@ export class ControlledDialogueBackend implements DialogueBackend {
   public readThrough?: string
   public deliveredCommandIds: string[] = []
   private accepted = new Set<string>()
-  private readonly definitions: AgentDefinition[] = []
-  private readonly configurations = new Map<string, AgentConfiguration>()
   public readonly requests = {
     details: new ControlledRequest((id: string) => this.summaries.get(id)!),
     history: new ControlledRequest((id: string) => this.historySnapshot(id)),
     interactions: new ControlledRequest((id: string) =>
       this.page([...this.questions.values()].filter((q) => q.dialogueId === id)),
     ),
-    configuration: new ControlledRequest((id: string) => {
-      const configuration = this.configurations.get(id)
-
-      if (!configuration) {
-        throw new Error('No configuration fixture')
-      }
-
-      return configuration
-    }),
     create: new ControlledRequest((input: Parameters<DialogueBackend['create']>[0]) => this.acceptCreate(input)),
     send: new ControlledRequest((input: Parameters<DialogueBackend['send']>[0]) => this.acceptSend(input)),
     read: new ControlledRequest((id: string, through: string) => {
@@ -63,11 +51,6 @@ export class ControlledDialogueBackend implements DialogueBackend {
       return this.summaries.get(id)!
     }),
     item: new ControlledRequest((_id: string, itemId: string) => this.items.get(itemId)!),
-  }
-
-  public agent(id: string, configuration: AgentConfiguration = { revision: '1', options: [] }): void {
-    this.definitions.push({ id, version: '1', name: id, description: '' })
-    this.configurations.set(id, configuration)
   }
 
   public dialogue(title: string, overrides: Partial<DialogueSummary> = {}): DialogueSummary {
@@ -101,14 +84,6 @@ export class ControlledDialogueBackend implements DialogueBackend {
 
   public async interactions(id: string): ReturnType<DialogueBackend['interactions']> {
     return this.requests.interactions.execute(id)
-  }
-
-  public async agents(): ReturnType<DialogueBackend['agents']> {
-    return this.page(this.definitions)
-  }
-
-  public async configuration(_id: string): ReturnType<DialogueBackend['configuration']> {
-    return this.requests.configuration.execute(_id)
   }
 
   public async read(id: string, through: string) {

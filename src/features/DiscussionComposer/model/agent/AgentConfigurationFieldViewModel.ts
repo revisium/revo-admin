@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx'
-import type { AgentSelectionModel } from 'src/modules/dialogue-engine'
+import type { AgentSelectionModel } from 'src/modules/agent-configurations'
 
 export class AgentConfigurationFieldViewModel {
   public constructor(
@@ -19,11 +19,11 @@ export class AgentConfigurationFieldViewModel {
   }
 
   public get value(): string {
-    return String(this.field?.value ?? '')
+    return String(this.field?.currentValue ?? '')
   }
 
   public get disabled(): boolean {
-    return this.locked() || this.selection.loadingConfiguration
+    return this.locked() || this.selection.loading
   }
 
   public get options(): readonly { value: string; name: string }[] {
@@ -34,7 +34,9 @@ export class AgentConfigurationFieldViewModel {
       ]
     }
 
-    return this.field?.choices.map((choice) => ({ value: choice.value, name: choice.name })) ?? []
+    return this.field?.kind === 'select'
+      ? this.field.values.map((choice) => ({ value: choice.value, name: choice.name }))
+      : []
   }
 
   public select(value: string): void {

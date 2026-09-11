@@ -30,7 +30,6 @@ engine.dispose() // Close all feeds
 - `chat.cancel/reopen/fork/refresh`, `canCancel/canReopen/completedTurns`: dialogue actions. Fork returns the new dialogue ID.
 - `chat.markRead()`: mark the loaded snapshot read on opening, including paginated history. Later unseen summary updates are not acknowledged. Call after `lease.ready`.
 - `chat.displayReceipt/canAcknowledge/acknowledge`: opaque read receipt. Capture when history is shown; acknowledge that receipt, never a newer unseen summary. Receipt is unavailable until the complete history is loaded.
-- `createAgentSelection()`: agent catalog and configuration.
 - `createDraft().send(input, text)`: create and send once. Draft `state` distinguishes `ready`, `creating`, `sending`, `retryable`, `creationUncertain`; `retry()` only retries message delivery.
 
 Actions reject on failure. List/history also retain their request error. Consumers handle action promises; the shared subscription module reconnects feeds automatically without retrying agent work. `open()` ownership must be released on unmount. `get()` alone retains no subscription.
