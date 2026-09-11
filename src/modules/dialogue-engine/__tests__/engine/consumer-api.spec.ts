@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { autorun } from 'mobx'
 import { dialogueScenario, type DialogueScenario } from '../support/DialogueScenario'
 
@@ -7,6 +7,205 @@ let scenario: DialogueScenario | undefined
 afterEach(() => scenario?.dispose())
 
 describe('Consumer API', () => {
+  it('enables auto-read for an initially unread dialogue', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning', { significantSequence: '1', unreadCount: 1 })
+    const { dialogue } = await scenario.user.open(chat)
+
+    dialogue.setAutoRead(true)
+
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 1)
+
+    expect(scenario.backend.readThrough).toBe('1')
+    expect(dialogue.unread).toBe(false)
+  })
+
+  it('auto-reads a later unread revision without a timestamp change', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    const { dialogue } = await scenario.user.open(chat)
+
+    dialogue.setAutoRead(true)
+    await scenario.backend.updateSummary(chat, {
+      significantSequence: '1',
+      version: '1',
+      unreadCount: 1,
+      updatedAt: chat.updatedAt,
+    })
+
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 1)
+
+    expect(scenario.backend.readThrough).toBe('1')
+    expect(dialogue.unread).toBe(false)
+  })
+
+  it('does not auto-read while disabled', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    const { dialogue } = await scenario.user.open(chat)
+
+    dialogue.setAutoRead(false)
+    await scenario.backend.updateSummary(chat, { significantSequence: '1', version: '1', unreadCount: 1 })
+    await scenario.waitFor(() => dialogue.unread)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(0)
+  })
+
+  it('coalesces unread revisions during an in-flight read', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning', { significantSequence: '1', unreadCount: 1 })
+    const { dialogue } = await scenario.user.open(chat)
+    const read = scenario.backend.requests.read.holdNext()
+
+    dialogue.setAutoRead(true)
+    await read.received()
+    await scenario.backend.updateSummary(chat, {
+      significantSequence: '2',
+      version: '2',
+      unreadCount: 1,
+      updatedAt: chat.updatedAt,
+    })
+    await scenario.backend.updateSummary(chat, {
+      significantSequence: '3',
+      version: '3',
+      unreadCount: 1,
+      updatedAt: chat.updatedAt,
+    })
+    await read.resume()
+
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 2)
+
+    expect(scenario.backend.requests.read.calls.map((args) => args[1])).toEqual(['1', '3'])
+  })
+
+  it('suppresses a failed revision until a newer revision arrives', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning', { significantSequence: '1', unreadCount: 1 })
+    const { dialogue } = await scenario.user.open(chat)
+    scenario.backend.requests.read.failNext(new Error('Read failed'))
+
+    dialogue.setAutoRead(true)
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 1)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(1)
+
+    await scenario.backend.updateSummary(chat, {
+      significantSequence: '2',
+      version: '2',
+      unreadCount: 1,
+      updatedAt: chat.updatedAt,
+    })
+
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 2)
+
+    expect(scenario.backend.readThrough).toBe('2')
+  })
+
+  it('does not continue stale work after disable', async () => {
+    scenario = dialogueScenario()
+    const first = scenario.backend.dialogue('First', { significantSequence: '1', unreadCount: 1 })
+    const firstLease = await scenario.user.open(first)
+    const refresh = scenario.backend.requests.history.holdNext()
+
+    firstLease.dialogue.setAutoRead(true)
+    await refresh.received()
+    firstLease.dialogue.setAutoRead(false)
+
+    await refresh.resume()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(0)
+  })
+
+  it('switches auto-read to a new dialogue after stale old work completes', async () => {
+    scenario = dialogueScenario()
+    const first = scenario.backend.dialogue('First', { significantSequence: '1', unreadCount: 1 })
+    const firstLease = await scenario.user.open(first)
+    const refresh = scenario.backend.requests.history.holdNext()
+
+    firstLease.dialogue.setAutoRead(true)
+    await refresh.received()
+    firstLease.dialogue.setAutoRead(false)
+
+    const second = scenario.backend.dialogue('Second', { significantSequence: '1', unreadCount: 1 })
+    const secondLease = await scenario.user.open(second)
+    const secondRead = scenario.backend.requests.read.holdNext()
+    secondLease.dialogue.setAutoRead(true)
+    await secondRead.received()
+
+    await refresh.resume()
+    await secondRead.resume()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(1)
+    expect(scenario.backend.requests.read.calls[0]?.[0]).toBe(second.id)
+  })
+
+  it('does not start a read after engine disposal cancels stale refresh work', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning', { significantSequence: '1', unreadCount: 1 })
+    const { dialogue } = await scenario.user.open(chat)
+    const refresh = scenario.backend.requests.history.holdNext()
+
+    dialogue.setAutoRead(true)
+    await refresh.received()
+    scenario.engine.dispose()
+    await refresh.resume()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(0)
+  })
+
+  it('makes repeated enable and disable calls idempotent', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning', { significantSequence: '1', unreadCount: 1 })
+    const { dialogue } = await scenario.user.open(chat)
+
+    dialogue.setAutoRead(true)
+    dialogue.setAutoRead(true)
+    await scenario.waitFor(() => scenario!.backend.requests.read.calls.length === 1)
+    dialogue.setAutoRead(false)
+    dialogue.setAutoRead(false)
+    await scenario.backend.updateSummary(chat, { significantSequence: '2', version: '2', unreadCount: 1 })
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(scenario.backend.requests.read.calls).toHaveLength(1)
+  })
+
+  it('orders loaded dialogues by recency and reactively moves accepted summaries', async () => {
+    const currentScenario = dialogueScenario()
+    scenario = currentScenario
+    const first = currentScenario.backend.dialogue('First', { updatedAt: '2026-09-01' })
+    const second = currentScenario.backend.dialogue('Second', { updatedAt: '2026-09-03' })
+    const tiedFirst = currentScenario.backend.dialogue('Tied first', { updatedAt: '2026-09-02' })
+    const tiedSecond = currentScenario.backend.dialogue('Tied second', { updatedAt: '2026-09-02' })
+    currentScenario.engine.start()
+    const orders: string[][] = []
+    currentScenario.own(
+      autorun(() => orders.push(currentScenario.engine.list.items.map((dialogue) => dialogue.id))),
+      (dispose) => dispose(),
+    )
+
+    await currentScenario.waitFor(() => currentScenario.engine.list.items.length === 4)
+
+    expect(currentScenario.engine.list.items.map((dialogue) => dialogue.id)).toEqual([
+      second.id,
+      tiedFirst.id,
+      tiedSecond.id,
+      first.id,
+    ])
+
+    await currentScenario.backend.updateSummary(first, { updatedAt: '2026-09-04', version: '1' })
+    await currentScenario.waitFor(() => currentScenario.engine.list.items[0]?.id === first.id)
+
+    expect(orders.some((order) => order[0] === first.id)).toBe(true)
+
+    await currentScenario.backend.updateSummary(first, { updatedAt: '2026-08-01', version: '0' })
+
+    expect(currentScenario.engine.list.items[0]?.id).toBe(first.id)
+  })
+
   it('exposes usable history independently of a live connection', async () => {
     scenario = dialogueScenario()
     const chat = scenario.backend.dialogue('Planning')
@@ -54,6 +253,19 @@ describe('Consumer API', () => {
 
     expect(dialogue.history.items[0]).toBe(entry)
     expect(entry.text).toBe('AB')
+  })
+
+  it('does not treat an ordinary history sequence as a displayed read watermark', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    await scenario.user.open(chat)
+    await scenario.backend.stream(chat, 'Ordinary reply')
+
+    const dialogue = scenario.engine.get(chat.id)
+    const receipt = dialogue.displayReceipt()
+
+    expect(receipt).toBeDefined()
+    expect(dialogue.canAcknowledge(receipt!)).toBe(false)
   })
 
   it('does not expose mutable records or replay cursors through consumer resources', async () => {

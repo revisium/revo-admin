@@ -30,8 +30,6 @@ export const DialogueSidebar = observer(({ pathname, onNavigate }: DialogueSideb
             to={dialogue.to}
             active={dialogue.active}
             level="nested"
-            meta={dialogue.meta}
-            reserveMetaSpace
             onNavigate={onNavigate}
             badge={
               dialogue.hasIndicator && (

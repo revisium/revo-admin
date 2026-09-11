@@ -23,6 +23,7 @@ engine.dispose() // Close all feeds
 - `list.items`, `loading`, `error`, `hasMore`, `loadMore()`: sidebar pagination.
 - `get(id)`: the same resource used by the list and open screens; does not open a feed.
 - `chat.title/status/progress/pendingCount/unread`: shared dialogue state.
+- `chat.setAutoRead(enabled)`: enable or disable the global per-dialogue active-route read policy. Repeated calls with the same value are idempotent; this setting is not tied to lease reference counts. The policy refreshes before each read, suppresses a failed revision until a newer one arrives, and stops future work when disabled or disposed.
 - `chat.ready/loading/error`: data loading; `chat.connection` and `list.connection`: separate SSE state.
 - `chat.history.items/hasMore/loading/error/loadMore()`: history without cursors or mutable protocol records. Entry identity survives streaming updates.
 - `chat.send(text)`, `retrySend()`, `canSend/canRetry/sending/pendingText`: explicit delivery and retry. Retry retains the original command and text.

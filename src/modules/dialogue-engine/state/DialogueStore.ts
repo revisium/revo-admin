@@ -20,7 +20,7 @@ export class DialogueStore {
 
         return model ? [model] : []
       })
-      .sort((a, b) => a.summary.createdAt.localeCompare(b.summary.createdAt) || a.id.localeCompare(b.id))
+      .sort((a, b) => b.summary.updatedAt.localeCompare(a.summary.updatedAt) || a.id.localeCompare(b.id))
   }
 
   public upsert(summary: DialogueSummary): DialogueModel {

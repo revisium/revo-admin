@@ -9,6 +9,7 @@ import { DialogueReadReceipts } from '../commands/DialogueReadReceipts'
 import { DialogueDraft } from '../commands/DialogueDraft'
 import { DialogueSynchronization } from '../synchronization/DialogueSynchronization'
 import { DialogueLifecycle } from '../lifecycle/DialogueLifecycle'
+import { DialogueAutoReadCoordinator } from '../lifecycle/DialogueAutoReadCoordinator'
 
 export class DialogueEngine {
   private readonly resources = new Map<string, DialogueResource>()
@@ -16,6 +17,7 @@ export class DialogueEngine {
   private readonly lifecycle: DialogueLifecycle
   private readonly commands: DialogueCommands
   private readonly receipts: DialogueReadReceipts
+  private readonly autoRead: DialogueAutoReadCoordinator
   public readonly list: DialogueListView
 
   public constructor(
@@ -27,6 +29,7 @@ export class DialogueEngine {
     this.lifecycle = new DialogueLifecycle(backend, this.store, synchronization)
     this.commands = new DialogueCommands(backend, this.store, storage, (id) => this.lifecycle.loadRelated(id))
     this.receipts = new DialogueReadReceipts(backend, this.store)
+    this.autoRead = new DialogueAutoReadCoordinator(this.store, this.lifecycle, this.receipts)
     this.list = new DialogueList(this.store, this.lifecycle, (id) => this.get(id))
   }
 
@@ -35,6 +38,7 @@ export class DialogueEngine {
   }
 
   public dispose(): void {
+    this.autoRead.dispose()
     this.lifecycle.dispose()
   }
 
@@ -42,7 +46,7 @@ export class DialogueEngine {
     let resource = this.resources.get(id)
 
     if (!resource) {
-      resource = new DialogueResource(id, this.store, this.lifecycle, this.commands, this.receipts)
+      resource = new DialogueResource(id, this.store, this.lifecycle, this.commands, this.receipts, this.autoRead)
       this.resources.set(id, resource)
     }
 

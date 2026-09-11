@@ -79,6 +79,7 @@ export interface DialogueView {
   fork(turnId: string): Promise<string>
   refresh(): Promise<void>
   markRead(): Promise<void>
+  setAutoRead(enabled: boolean): void
   displayReceipt(): DisplayReceipt | undefined
   canAcknowledge(receipt: DisplayReceipt): boolean
   acknowledge(receipt: DisplayReceipt): Promise<void>
