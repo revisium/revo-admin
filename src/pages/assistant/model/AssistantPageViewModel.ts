@@ -142,7 +142,7 @@ export class AssistantPageViewModel {
   }
 
   private sameTrigger(left?: AutoReadTrigger, right?: AutoReadTrigger): boolean {
-    return Boolean(left && right && left.unread === right.unread && left.revision === right.revision)
+    return left?.unread === true && right?.unread === true && left?.revision === right?.revision
   }
 
   private get chat() {
