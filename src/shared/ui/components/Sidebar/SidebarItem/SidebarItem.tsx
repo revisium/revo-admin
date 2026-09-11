@@ -7,6 +7,7 @@ type SidebarItemVariantProps = RecipeVariantProps<typeof sidebarItemRecipe>
 
 interface SidebarItemProps {
   readonly active?: boolean
+  readonly ariaLabel?: string
   readonly badge?: ReactNode
   readonly collapsed?: boolean
   readonly disabled?: boolean
@@ -29,6 +30,7 @@ const resolveLevel = (
 
 export const SidebarItem = ({
   active = false,
+  ariaLabel,
   badge,
   collapsed = false,
   disabled = false,
@@ -90,7 +92,7 @@ export const SidebarItem = ({
 
   if (disabled) {
     return (
-      <Box css={styles} title={label} aria-disabled="true">
+      <Box css={styles} title={label} aria-disabled="true" aria-label={ariaLabel}>
         {content}
       </Box>
     )
@@ -103,6 +105,7 @@ export const SidebarItem = ({
         title={collapsed ? label : undefined}
         onClick={onNavigate}
         aria-current={active ? 'page' : undefined}
+        aria-label={ariaLabel}
       >
         {content}
       </Link>

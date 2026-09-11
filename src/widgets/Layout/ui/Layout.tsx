@@ -29,6 +29,7 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
+import { observer } from 'mobx-react-lite'
 import { LayoutLifecycleViewModel } from '../model/LayoutLifecycleViewModel'
 import { useViewModel } from 'src/shared/lib'
 import { Link, Outlet, useLocation } from 'react-router'
@@ -62,18 +63,24 @@ interface SearchFieldProps {
 interface NavRailProps {
   readonly pathname: string
   readonly collapsed: boolean
+  readonly assistantUnreadCount: number
+  readonly assistantNavigationLabel: string
   readonly onNavigate?: () => void
 }
 
 interface SidebarProps {
   readonly pathname: string
   readonly collapsed: boolean
+  readonly assistantUnreadCount: number
+  readonly assistantNavigationLabel: string
   readonly onToggle: () => void
 }
 
 interface MobileNavDrawerProps {
   readonly pathname: string
   readonly open: boolean
+  readonly assistantUnreadCount: number
+  readonly assistantNavigationLabel: string
   readonly onClose: () => void
 }
 
@@ -239,16 +246,18 @@ const SearchField = (props: SearchFieldProps) => (
   </HStack>
 )
 
-const NavRail = ({ pathname, collapsed, onNavigate }: NavRailProps) => (
+const NavRail = ({ pathname, collapsed, assistantUnreadCount, assistantNavigationLabel, onNavigate }: NavRailProps) => (
   <Stack as="nav" aria-label="Main navigation" flexShrink="0" gap="1" px={collapsed ? '2.5' : '4'} py="2">
     {NAV_ITEMS.map((item) => {
       const ItemIcon = item.icon
+      const assistant = item.to === routes.assistant()
 
       return (
         <SidebarItem
           key={item.to}
           active={isActive(pathname, item.match)}
-          badge={item.badge}
+          ariaLabel={assistant ? assistantNavigationLabel : undefined}
+          badge={assistant ? assistantUnreadCount : item.badge}
           collapsed={collapsed}
           disabled={item.disabled}
           icon={<ItemIcon size={18} />}
@@ -262,7 +271,7 @@ const NavRail = ({ pathname, collapsed, onNavigate }: NavRailProps) => (
 )
 
 // Persistent sidebar — desktop only (lg+); on smaller screens it lives in the drawer.
-const Sidebar = ({ pathname, collapsed, onToggle }: SidebarProps) => {
+const Sidebar = ({ pathname, collapsed, assistantUnreadCount, assistantNavigationLabel, onToggle }: SidebarProps) => {
   const ToggleIcon = collapsed ? ChevronRight : ChevronLeft
   const toggleLabel = collapsed ? 'Expand sidebar' : 'Collapse sidebar'
   const toggle = (
@@ -302,14 +311,25 @@ const Sidebar = ({ pathname, collapsed, onToggle }: SidebarProps) => {
           {toggle}
         </HStack>
       )}
-      <NavRail pathname={pathname} collapsed={collapsed} />
+      <NavRail
+        pathname={pathname}
+        collapsed={collapsed}
+        assistantUnreadCount={assistantUnreadCount}
+        assistantNavigationLabel={assistantNavigationLabel}
+      />
       {!collapsed && <ContextList pathname={pathname} />}
     </Flex>
   )
 }
 
 // Mobile navigation — the same nav inside an off-canvas drawer (<lg).
-const MobileNavDrawer = ({ pathname, open, onClose }: MobileNavDrawerProps) => (
+const MobileNavDrawer = ({
+  pathname,
+  open,
+  assistantUnreadCount,
+  assistantNavigationLabel,
+  onClose,
+}: MobileNavDrawerProps) => (
   <Drawer.Root
     open={open}
     onOpenChange={(e) => {
@@ -335,7 +355,13 @@ const MobileNavDrawer = ({ pathname, open, onClose }: MobileNavDrawerProps) => (
             <Box pb="1">
               <SearchField full />
             </Box>
-            <NavRail pathname={pathname} collapsed={false} onNavigate={onClose} />
+            <NavRail
+              pathname={pathname}
+              collapsed={false}
+              assistantUnreadCount={assistantUnreadCount}
+              assistantNavigationLabel={assistantNavigationLabel}
+              onNavigate={onClose}
+            />
             <ContextList pathname={pathname} onNavigate={onClose} />
             <Box mt="auto" mb="1" px="4" flexShrink="0">
               <SidebarItem icon={<UserAvatar />} label="ka" meta="Account" onNavigate={onClose} to={routes.home()} />
@@ -492,8 +518,8 @@ const TopBar = ({ pathname, onMenuOpen }: TopBarProps) => {
   )
 }
 
-export const Layout = () => {
-  useViewModel(LayoutLifecycleViewModel)
+export const Layout = observer(() => {
+  const model = useViewModel(LayoutLifecycleViewModel)
   const { pathname } = useLocation()
   const isProjectsIndex = pathname === routes.projects()
   const isAssistant = pathname.startsWith(routes.assistant())
@@ -502,8 +528,20 @@ export const Layout = () => {
 
   return (
     <Flex h="100dvh" overflow="hidden" bg="bg.canvas">
-      <Sidebar pathname={pathname} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
-      <MobileNavDrawer pathname={pathname} open={open} onClose={onClose} />
+      <Sidebar
+        pathname={pathname}
+        collapsed={collapsed}
+        assistantUnreadCount={model.assistantUnreadCount}
+        assistantNavigationLabel={model.assistantNavigationLabel}
+        onToggle={() => setCollapsed((v) => !v)}
+      />
+      <MobileNavDrawer
+        pathname={pathname}
+        open={open}
+        assistantUnreadCount={model.assistantUnreadCount}
+        assistantNavigationLabel={model.assistantNavigationLabel}
+        onClose={onClose}
+      />
       <Flex direction="column" flex="1" minW="0" minH="0">
         <TopBar pathname={pathname} onMenuOpen={onOpen} />
         <Box
@@ -527,4 +565,4 @@ export const Layout = () => {
       </Flex>
     </Flex>
   )
-}
+})
