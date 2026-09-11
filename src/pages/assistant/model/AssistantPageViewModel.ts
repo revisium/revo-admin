@@ -1,6 +1,11 @@
-import { makeAutoObservable, observable } from 'mobx'
+import { makeAutoObservable, observable, reaction, type IReactionDisposer } from 'mobx'
 import { DialogueEngine } from 'src/modules/dialogue-engine'
 import { container, ObservableRequest } from 'src/shared/lib'
+
+type AutoReadTrigger = {
+  readonly unread: boolean
+  readonly revision: string
+}
 
 export class AssistantPageViewModel {
   private chatId?: string
@@ -9,6 +14,12 @@ export class AssistantPageViewModel {
   private readonly pageRequest
 
   private lease?: ReturnType<DialogueEngine['open']>
+  private autoReadDisposer?: IReactionDisposer
+  private autoReadInFlight?: Promise<void>
+  private autoReadPending?: AutoReadTrigger
+  private autoReadEnabled = false
+  private failedAutoRead?: AutoReadTrigger
+  private activeGeneration = 0
 
   public constructor(private readonly engine: DialogueEngine) {
     this.openRequest = ObservableRequest.of((id: string) => this.openDialogue(id))
@@ -16,7 +27,11 @@ export class AssistantPageViewModel {
     this.pageRequest = ObservableRequest.of(async () => {
       if (this.chat) await this.chat.history.loadMore()
     })
-    makeAutoObservable<this, 'lease'>(this, { lease: observable.ref }, { autoBind: true })
+    makeAutoObservable<this, 'lease' | 'autoReadDisposer' | 'autoReadInFlight'>(
+      this,
+      { lease: observable.ref, autoReadDisposer: false, autoReadInFlight: false },
+      { autoBind: true },
+    )
   }
 
   public setup(id?: string): void {
@@ -25,11 +40,34 @@ export class AssistantPageViewModel {
 
   public mount(id?: string): void {
     this.chatId = id
+    this.activeGeneration += 1
+    this.autoReadEnabled = false
+    this.autoReadPending = undefined
+    this.failedAutoRead = undefined
+    this.autoReadDisposer?.()
+    this.autoReadDisposer = reaction(
+      () => {
+        const chat = this.chat
+
+        return chat ? { unread: chat.unread, revision: chat.revision } : undefined
+      },
+      (trigger) => {
+        if (trigger?.unread) this.requestAutoRead(trigger)
+      },
+      {
+        equals: (left, right) => left?.unread === right?.unread && left?.revision === right?.revision,
+      },
+    )
 
     if (id) this.openRequest.fetch(id)
   }
 
   public unmount(): void {
+    this.activeGeneration += 1
+    this.autoReadEnabled = false
+    this.autoReadPending = undefined
+    this.autoReadDisposer?.()
+    this.autoReadDisposer = undefined
     this.lease?.release()
     this.lease = undefined
     this.openRequest.abort()
@@ -38,16 +76,73 @@ export class AssistantPageViewModel {
   }
 
   private async openDialogue(id: string): Promise<void> {
+    const generation = this.activeGeneration
     this.lease?.release()
     const lease = this.engine.open(id)
     this.lease = lease
     await lease.ready
 
-    if (this.lease !== lease) {
-      return
-    }
+    if (!this.isCurrentLease(lease, generation, id)) return
 
     await lease.dialogue.markRead()
+
+    if (!this.isCurrentLease(lease, generation, id)) return
+
+    this.autoReadEnabled = true
+    if (lease.dialogue.unread) {
+      this.requestAutoRead({ unread: true, revision: lease.dialogue.revision })
+    }
+  }
+
+  private isCurrentLease(lease: ReturnType<DialogueEngine['open']>, generation: number, id: string): boolean {
+    return this.activeGeneration === generation && this.lease === lease && this.chatId === id
+  }
+
+  private requestAutoRead(trigger: AutoReadTrigger): void {
+    if (!this.autoReadEnabled || this.sameTrigger(trigger, this.failedAutoRead)) return
+
+    this.autoReadPending = trigger
+    this.startAutoRead()
+  }
+
+  private startAutoRead(): void {
+    if (this.autoReadInFlight) return
+
+    this.autoReadInFlight = this.drainAutoRead().finally(() => {
+      this.autoReadInFlight = undefined
+      if (this.autoReadPending) this.startAutoRead()
+    })
+  }
+
+  private async drainAutoRead(): Promise<void> {
+    while (this.autoReadPending) {
+      const trigger = this.autoReadPending
+      this.autoReadPending = undefined
+      const lease = this.lease
+      const generation = this.activeGeneration
+      const id = this.chatId
+
+      if (this.sameTrigger(trigger, this.failedAutoRead) || !lease || !id || !this.autoReadEnabled) return
+
+      try {
+        await lease.dialogue.refresh()
+
+        if (!this.isCurrentLease(lease, generation, id) || !lease.dialogue.unread) continue
+
+        await lease.dialogue.markRead()
+      } catch {
+        if (!this.isCurrentLease(lease, generation, id)) return
+
+        this.failedAutoRead = trigger
+        continue
+      }
+
+      if (!this.isCurrentLease(lease, generation, id)) return
+    }
+  }
+
+  private sameTrigger(left?: AutoReadTrigger, right?: AutoReadTrigger): boolean {
+    return Boolean(left && right && left.unread === right.unread && left.revision === right.revision)
   }
 
   private get chat() {

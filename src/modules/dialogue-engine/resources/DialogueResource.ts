@@ -51,6 +51,14 @@ export class DialogueResource implements DialogueView {
     return this.model?.summary.title ?? ''
   }
 
+  public get updatedAt() {
+    return this.model?.summary.updatedAt ?? ''
+  }
+
+  public get revision() {
+    return this.model?.summary.version ?? ''
+  }
+
   public get agentId() {
     return this.model?.summary.agentId ?? ''
   }

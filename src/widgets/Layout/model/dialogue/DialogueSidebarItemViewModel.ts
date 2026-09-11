@@ -37,16 +37,4 @@ export class DialogueSidebarItemViewModel {
   public get hasIndicator(): boolean {
     return this.busy || this.unread
   }
-
-  public get meta(): string {
-    if (this.dialogue.pendingCount) return 'Needs your input'
-
-    if (this.dialogue.busy) return this.dialogue.progress || 'Working…'
-
-    if (this.dialogue.status === 'UNCERTAIN') return 'Needs review'
-
-    if (this.dialogue.lastOutcome === 'FAILED') return 'Could not complete'
-
-    return ''
-  }
 }

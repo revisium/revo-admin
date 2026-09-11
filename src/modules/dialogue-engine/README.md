@@ -23,6 +23,7 @@ engine.dispose() // Close all feeds
 - `list.items`, `loading`, `error`, `hasMore`, `loadMore()`: sidebar pagination.
 - `get(id)`: the same resource used by the list and open screens; does not open a feed.
 - `chat.title/status/progress/pendingCount/unread`: shared dialogue state.
+- `chat.updatedAt`: the domain timestamp used for recency ordering. `chat.revision` is an opaque accepted-summary revision for equality checks only; do not order it or use it as a protocol cursor.
 - `chat.ready/loading/error`: data loading; `chat.connection` and `list.connection`: separate SSE state.
 - `chat.history.items/hasMore/loading/error/loadMore()`: history without cursors or mutable protocol records. Entry identity survives streaming updates.
 - `chat.send(text)`, `retrySend()`, `canSend/canRetry/sending/pendingText`: explicit delivery and retry. Retry retains the original command and text.

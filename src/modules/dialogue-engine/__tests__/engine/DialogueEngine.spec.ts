@@ -86,6 +86,26 @@ describe('Dialogue engine scenarios', () => {
     expect(scenario.backend.readThrough).toBe('0')
   })
 
+  it('preserves a newer unread summary while an older displayed receipt is completing', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    await scenario.user.open(chat)
+    await scenario.backend.stream(chat, 'Displayed reply', { significantSequence: '1', version: '1', unreadCount: 1 })
+    const dialogue = scenario.engine.get(chat.id)
+    await dialogue.refresh()
+    const receipt = dialogue.displayReceipt()
+    const read = scenario.backend.requests.read.holdNext()
+
+    const acknowledgement = dialogue.acknowledge(receipt!)
+    await read.received()
+    await scenario.backend.updateSummary(chat, { significantSequence: '2', version: '2', unreadCount: 1 })
+    await read.resume()
+    await acknowledgement
+
+    expect(scenario.backend.readThrough).toBe('1')
+    expect(dialogue.unread).toBe(true)
+  })
+
   it('refreshes a rejected replay cursor without retrying agent work', async () => {
     scenario = dialogueScenario()
     const chat = scenario.backend.dialogue('Planning')

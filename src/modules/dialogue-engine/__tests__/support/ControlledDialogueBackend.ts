@@ -47,8 +47,21 @@ export class ControlledDialogueBackend implements DialogueBackend {
     send: new ControlledRequest((input: Parameters<DialogueBackend['send']>[0]) => this.acceptSend(input)),
     read: new ControlledRequest((id: string, through: string) => {
       this.readThrough = through
+      const current = this.summaries.get(id)!
+      const advancesRead = BigInt(through) > BigInt(current.readSignificantSequence)
+      const readSignificantSequence = advancesRead ? through : current.readSignificantSequence
+      const unreadCount = BigInt(readSignificantSequence) >= BigInt(current.significantSequence) ? 0 : 1
+      const summary = advancesRead
+        ? {
+            ...current,
+            version: String(BigInt(current.version) + VERSION_INCREMENT),
+            readSignificantSequence,
+            unreadCount,
+          }
+        : current
+      this.summaries.set(id, summary)
 
-      return this.summaries.get(id)!
+      return summary
     }),
     item: new ControlledRequest((_id: string, itemId: string) => this.items.get(itemId)!),
   }
@@ -181,7 +194,9 @@ export class ControlledDialogueBackend implements DialogueBackend {
       }
   }
 
-  public async stream(chat: DialogueSummary, text: string): Promise<void> {
+  public async stream(chat: DialogueSummary, text: string, summaryPatch: Partial<DialogueSummary> = {}): Promise<void> {
+    const summary = { ...this.summaries.get(chat.id)!, ...summaryPatch }
+    this.summaries.set(chat.id, summary)
     const event = this.appendText(chat, text)
     this.events.push(event)
 
@@ -330,6 +345,7 @@ export class ControlledDialogueBackend implements DialogueBackend {
       kind: current ? 'HISTORY_TEXT_APPENDED' : 'HISTORY_ITEM_UPSERTED',
       itemId: id,
       itemVersion: item.version,
+      itemSequence: item.sequence,
       baseItemVersion: current?.version,
       textDelta: text,
       item: current ? undefined : item,

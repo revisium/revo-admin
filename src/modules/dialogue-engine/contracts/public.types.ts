@@ -49,6 +49,8 @@ export interface DialogueHistoryView {
 export interface DialogueView {
   readonly id: string
   readonly title: string
+  readonly updatedAt: string
+  readonly revision: string
   readonly agentId: string
   readonly status: string
   readonly contextMode: string

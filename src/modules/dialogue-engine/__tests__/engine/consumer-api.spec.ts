@@ -7,6 +7,39 @@ let scenario: DialogueScenario | undefined
 afterEach(() => scenario?.dispose())
 
 describe('Consumer API', () => {
+  it('orders loaded dialogues by recency and reactively moves accepted summaries', async () => {
+    const currentScenario = dialogueScenario()
+    scenario = currentScenario
+    const first = currentScenario.backend.dialogue('First', { updatedAt: '2026-09-01' })
+    const second = currentScenario.backend.dialogue('Second', { updatedAt: '2026-09-03' })
+    const tiedFirst = currentScenario.backend.dialogue('Tied first', { updatedAt: '2026-09-02' })
+    const tiedSecond = currentScenario.backend.dialogue('Tied second', { updatedAt: '2026-09-02' })
+    currentScenario.engine.start()
+    const orders: string[][] = []
+    currentScenario.own(
+      autorun(() => orders.push(currentScenario.engine.list.items.map((dialogue) => dialogue.id))),
+      (dispose) => dispose(),
+    )
+
+    await currentScenario.waitFor(() => currentScenario.engine.list.items.length === 4)
+
+    expect(currentScenario.engine.list.items.map((dialogue) => dialogue.id)).toEqual([
+      second.id,
+      tiedFirst.id,
+      tiedSecond.id,
+      first.id,
+    ])
+
+    await currentScenario.backend.updateSummary(first, { updatedAt: '2026-09-04', version: '1' })
+    await currentScenario.waitFor(() => currentScenario.engine.list.items[0]?.id === first.id)
+
+    expect(orders.some((order) => order[0] === first.id)).toBe(true)
+
+    await currentScenario.backend.updateSummary(first, { updatedAt: '2026-08-01', version: '0' })
+
+    expect(currentScenario.engine.list.items[0]?.id).toBe(first.id)
+  })
+
   it('exposes usable history independently of a live connection', async () => {
     scenario = dialogueScenario()
     const chat = scenario.backend.dialogue('Planning')
@@ -43,6 +76,25 @@ describe('Consumer API', () => {
     expect(scenario.engine.list.items[0]).toBe(dialogue)
   })
 
+  it('exposes accepted summary revisions independently of recency timestamps', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    const { dialogue } = await scenario.user.open(chat)
+    const initialRevision = dialogue.revision
+
+    await scenario.backend.updateSummary(chat, { version: '1', title: 'Updated title', updatedAt: chat.updatedAt })
+
+    await scenario.waitFor(() => dialogue.revision === '1')
+
+    expect(dialogue.revision).not.toBe(initialRevision)
+    expect(dialogue.updatedAt).toBe(chat.updatedAt)
+
+    await scenario.backend.updateSummary(chat, { version: '0', title: 'Older title', updatedAt: chat.updatedAt })
+
+    expect(dialogue.revision).toBe('1')
+    expect(dialogue.title).toBe('Updated title')
+  })
+
   it('keeps the same history entry while streaming more text', async () => {
     scenario = dialogueScenario()
     const chat = scenario.backend.dialogue('Planning')
@@ -54,6 +106,19 @@ describe('Consumer API', () => {
 
     expect(dialogue.history.items[0]).toBe(entry)
     expect(entry.text).toBe('AB')
+  })
+
+  it('does not treat an ordinary history sequence as a displayed read watermark', async () => {
+    scenario = dialogueScenario()
+    const chat = scenario.backend.dialogue('Planning')
+    await scenario.user.open(chat)
+    await scenario.backend.stream(chat, 'Ordinary reply')
+
+    const dialogue = scenario.engine.get(chat.id)
+    const receipt = dialogue.displayReceipt()
+
+    expect(receipt).toBeDefined()
+    expect(dialogue.canAcknowledge(receipt!)).toBe(false)
   })
 
   it('does not expose mutable records or replay cursors through consumer resources', async () => {
