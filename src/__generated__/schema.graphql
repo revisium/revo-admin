@@ -1,9 +1,3 @@
-schema {
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
-
 input AdrAlternativeInput {
   summary: String!
   title: String!
@@ -120,6 +114,17 @@ type AgentConfigurationValueModel {
   group: AgentConfigurationGroupModel
   name: String!
   value: String!
+}
+
+type AgentConfigurationsModel {
+  catalogs: [AgentConfigurationCatalogModel!]!
+  status: AgentConfigurationsStatus!
+}
+
+enum AgentConfigurationsStatus {
+  LOADING
+  NOT_INITIALIZED
+  READY
 }
 
 type AgentDefinitionConnectionModel {
@@ -689,6 +694,7 @@ input ProjectUpdateInput {
 }
 
 type Query {
+  agentConfigurations: AgentConfigurationsModel!
   agentDefinition(agentId: String!, agentVersion: String!): AgentDescriptorModel
   agentDefinitions(after: String, first: Int): AgentDefinitionConnectionModel!
   catalogChangeSet(after: String, first: Int!): CatalogChangeEntryConnection!
@@ -934,6 +940,7 @@ type StartRunResultModel {
 }
 
 type Subscription {
+  agentConfigurations: AgentConfigurationsModel!
   dialogueChanges(after: String, dialogueIds: [ID!]): DialogueChangeModel!
   dialogueSummaryChanges(after: String, dialogueIds: [ID!]): DialogueChangeModel!
 }

@@ -1,6 +1,5 @@
 import { pageOf, snapshotOf } from './page-mapping'
 import { executionError, transportError } from './graphql-error'
-import type { AgentOption } from '../../contracts/agent.types'
 import {
   getSdk,
   type CreateDialogueInput,
@@ -80,39 +79,6 @@ export class GraphqlDialogueBackend implements DialogueBackend {
         (await this.client(signal).DialogueInteractions({ id, first: DIALOGUE_PAGE_SIZE, after })).dialogueInteractions,
       ),
     )
-  }
-
-  public agents(after?: string, signal?: AbortSignal) {
-    return this.request(async () => {
-      const page = pageOf(
-        (await this.client(signal).DialogueAgents({ first: DIALOGUE_PAGE_SIZE, after })).agentDefinitions,
-      )
-
-      return {
-        ...page,
-        items: page.items.map((agent) => ({
-          id: agent.agent.id,
-          version: agent.agent.version,
-          name: agent.displayName,
-          description: agent.description ?? '',
-        })),
-      }
-    })
-  }
-
-  public configuration(id: string, version: string, signal?: AbortSignal) {
-    return this.request(async () => {
-      const { inspectAgentConfiguration } = await this.client(signal).DialogueAgentConfiguration({ id, version })
-      const options: AgentOption[] = inspectAgentConfiguration.options.map((option) => {
-        if (option.__typename === 'AgentConfigurationBooleanModel') {
-          return { kind: 'boolean', id: option.id, name: option.name, value: option.enabled }
-        }
-
-        return { kind: 'select', id: option.id, name: option.name, value: option.selected, choices: option.values }
-      })
-
-      return { revision: inspectAgentConfiguration.catalogRevision, options }
-    })
   }
 
   public create(input: CreateDialogueInput) {

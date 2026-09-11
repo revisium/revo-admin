@@ -93,6 +93,22 @@ const config: CodegenConfig = {
             ],
             config: { importOperationTypesFrom: 'Types' },
           },
+          './src/modules/agent-configurations/transport/graphql/__generated__/graphql-request.ts': {
+            documents: ['src/modules/agent-configurations/transport/graphql/*.graphql'],
+            plugins: ['typescript', 'typescript-operations', 'typescript-graphql-request'],
+            config: {
+              rawRequest: false,
+              skipTypename: true,
+              scalars,
+              documentMode: 'external',
+              importDocumentNodeExternallyFrom: './typed-document-nodes',
+            },
+          },
+          './src/modules/agent-configurations/transport/graphql/__generated__/typed-document-nodes.ts': {
+            documents: ['src/modules/agent-configurations/transport/graphql/*.graphql'],
+            plugins: [{ add: { content: "import type * as Types from './graphql-request';" } }, 'typed-document-node'],
+            config: { importOperationTypesFrom: 'Types' },
+          },
         }),
   },
 }

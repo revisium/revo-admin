@@ -34,6 +34,7 @@ export const AgentSelection = observer(({ model }: AgentSelectionProps) => (
       ))}
     </HStack>
     {model.loading && <Text textStyle="caption">Loading agent configuration…</Text>}
+    {model.empty && <Text textStyle="caption">No agents are currently available.</Text>}
     {model.error && <Text role="alert">{model.error}</Text>}
   </Box>
 ))

@@ -7,7 +7,6 @@ import { DialogueStore } from '../state/DialogueStore'
 import { DialogueCommands } from '../commands/DialogueCommands'
 import { DialogueReadReceipts } from '../commands/DialogueReadReceipts'
 import { DialogueDraft } from '../commands/DialogueDraft'
-import { AgentSelectionModel } from '../configuration/AgentSelectionModel'
 import { DialogueSynchronization } from '../synchronization/DialogueSynchronization'
 import { DialogueLifecycle } from '../lifecycle/DialogueLifecycle'
 
@@ -52,10 +51,6 @@ export class DialogueEngine {
 
   public open(id: string): DialogueLease {
     return Object.freeze({ dialogue: this.get(id), ...this.lifecycle.open(id) })
-  }
-
-  public createAgentSelection() {
-    return new AgentSelectionModel(this.backend)
   }
 
   public createDraft() {
