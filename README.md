@@ -20,7 +20,8 @@ pnpm run dev
 ```
 
 Open `http://localhost:5173`. No environment prefixes are needed: Vite proxies `/graphql`
-and `/graphql/stream` to the backend on port **19222**, and SSR uses the same backend.
+and `/graphql/stream` to the backend on port **19222**. The browser uses the same-origin
+backend boundary in development and production.
 Each browser tab shares one SSE connection across feature subscriptions.
 
 To open the UI from another device on your local network:
@@ -46,8 +47,8 @@ cp .env/.env.development.local.example .env/.env.development.local
 - `REVO_ADMIN_GRAPHQL_ENDPOINT` or `REVO_ADMIN_GRAPHQL_HTTP_URL`: explicit GraphQL URL ending in `/graphql`.
 - `REVO_ADMIN_PORT`: frontend port, default `5173`.
 
-Process environment overrides local files. Backend settings apply to the development proxy,
-SSR, and schema downloads; they are not exposed as browser environment variables.
+Process environment overrides local files. Backend settings apply to the development proxy
+and schema downloads; they are not exposed as browser environment variables.
 The older `dev:full` and `backend:*` helpers are for an `agent-orchestrator` checkout,
 not the two-repository setup above.
 
@@ -61,6 +62,7 @@ React components use registered services and view models rather than calling Gra
 GraphQL schemas and SDKs are checked in. Run `pnpm run gql:codegen` after editing operations.
 With Core running, `pnpm run gql:codegen:download` refreshes the schema from port 19222.
 
-`pnpm run build` produces `build/server/index.js` and `build/client/`. An embedding host
-mounts `/graphql` and `/graphql/stream` before the admin SSR fallback and serves the client
-assets on the same origin. The frontend build does not start a backend.
+`pnpm run build` produces `build/client/index.html` and hashed client assets. An embedding
+host serves those static assets and returns `index.html` for admin deep links, after
+letting `/graphql`, `/graphql/stream`, `/api`, `/mcp`, and `/health` reach backend handlers.
+The frontend build does not start a backend or require an admin runtime server.

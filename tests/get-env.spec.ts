@@ -10,14 +10,14 @@ afterEach(() => {
 })
 
 describe('getEnv', () => {
-  it('prefers the server environment over browser-injected values during SSR', () => {
+  it('prefers the build environment over browser-injected values in a build-time server context', () => {
     process.env[variableName] = 'server-value'
     globalThis.__env__ = { [variableName]: 'browser-value' }
 
     expect(getEnv(variableName)).toBe('server-value')
   })
 
-  it('uses the build-time value during SSR when the server environment is absent', () => {
+  it('uses the build-time value when the server environment is absent', () => {
     vi.stubEnv(variableName, 'build-value')
     const importMetaEnv = process.env
     let variableReads = 0

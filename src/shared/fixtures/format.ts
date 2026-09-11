@@ -1,6 +1,6 @@
 // Presentational formatters for the static prototype. They live in the fixtures
-// layer because they encode mock-data conventions: a FIXED "now" (so SSR and the
-// client agree — no hydration drift, no real clock) and the mock currency
+// layer because they encode mock-data conventions: a FIXED "now" (so the initial
+// document and client agree — no render drift, no real clock) and the mock currency
 // rendering. Kept here also lets the time/money unit literals stay out of the
 // magic-number-strict app code.
 const NOW = new Date('2026-06-13T12:30:00Z').getTime()

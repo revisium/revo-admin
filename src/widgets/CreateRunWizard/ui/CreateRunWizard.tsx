@@ -63,7 +63,7 @@ const RepoValidationResult = () => (
         <FieldRow label="Package manager">npm (peer-clean)</FieldRow>
         <FieldRow label="CI">GitHub Actions · verify + SonarCloud</FieldRow>
         <FieldRow label="Context summary">
-          React Router v7 SSR admin UI. FSD layout. Verify gate: format, ts:check, lint, steiger, vitest, build.
+          React Router v7 static SPA admin UI. FSD layout. Verify gate: format, ts:check, lint, steiger, vitest, build.
         </FieldRow>
       </Stack>
     </Stack>

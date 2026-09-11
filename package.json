@@ -1,7 +1,7 @@
 {
   "name": "@revisium/revo-admin",
   "version": "0.0.0",
-  "description": "SSR admin UI for the Revisium agent orchestrator",
+  "description": "Static SPA admin UI for the Revisium agent orchestrator",
   "private": false,
   "license": "MIT",
   "author": "Anton Kashirov",
@@ -21,8 +21,6 @@
     "LICENSE"
   ],
   "exports": {
-    ".": "./build/server/index.js",
-    "./server": "./build/server/index.js",
     "./client/*": "./build/client/*"
   },
   "publishConfig": {
@@ -38,7 +36,7 @@
     "backend:logs": "node scripts/revo-dev.mjs logs",
     "build": "react-router build",
     "prepublishOnly": "pnpm run build",
-    "start": "cross-env PORT=8080 react-router-serve ./build/server/index.js",
+    "smoke:static": "node scripts/static-smoke.mjs",
     "lint:ci": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0 --fix",
     "fsd:check": "CHOKIDAR_USEPOLLING=1 steiger src",
@@ -52,7 +50,7 @@
     "sonar:local": "bash scripts/sonar-local.sh",
     "sonar:issues:local": "bash scripts/sonar-issues-local.sh",
     "ci:local:sonar": "bash scripts/ci-local-sonar.sh",
-    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build",
+    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build && pnpm run smoke:static",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:patch": "npm version patch --no-git-tag-version"
   },
@@ -60,17 +58,12 @@
     "@chakra-ui/react": "^3.34.0",
     "@emotion/react": "^11.14.0",
     "@graphql-typed-document-node/core": "^3.2.0",
-    "@react-router/express": "^7.13.2",
-    "@react-router/node": "^7.13.2",
-    "@react-router/serve": "^7.13.2",
     "@revisium/forms-core": "0.1.0-alpha.1",
     "@xyflow/react": "^12.11.0",
-    "cross-env": "^10.1.0",
     "graphql": "^16.14.2",
     "graphql-request": "6.1.0",
     "graphql-sse": "^2.6.1",
     "graphql-tag": "2.12.6",
-    "isbot": "^5.1.36",
     "lucide-react": "^1.18.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
@@ -93,6 +86,7 @@
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.2.0",
     "@react-router/dev": "^7.13.2",
+    "@react-router/node": "^7.13.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

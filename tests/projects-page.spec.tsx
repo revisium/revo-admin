@@ -76,7 +76,7 @@ const registerReadyProjectListViewModel = (overrides: Partial<ProjectListViewMod
 describe('ProjectsPage', () => {
   afterEach(restoreProjectListViewModel)
 
-  it('renders an initial loading state instead of a false empty result during SSR', () => {
+  it('renders an initial loading state instead of a false empty result', () => {
     const markup = renderPage()
 
     expect(markup).toContain('Loading projects')

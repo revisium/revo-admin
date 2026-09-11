@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react'
 const emptySubscribe = () => () => {}
 
 /**
- * Returns false during SSR and the first client render, then true after hydration.
+ * Returns false during the initial render, then true after hydration.
  * Lets a component defer client-only widgets (for example DOM-measuring graphs)
  * to a post-hydration render without a setState-in-effect.
  */

@@ -1,6 +1,6 @@
 # ADR 0001: SSR engine and client-only graph widgets
 
-- Status: Accepted
+- Status: Superseded by [ADR 0002](0002-static-spa.md)
 - Date: 2026-06-13
 
 ## Context

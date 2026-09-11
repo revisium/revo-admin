@@ -145,6 +145,7 @@ Use these references from `../agent-playbook` for this repository:
 - Do not import `@revisium/client` or read Revisium/DBOS state directly from the
   admin app.
 - xyflow and other DOM-measuring widgets live only in `*.client.tsx` modules and
-  are never imported server-side (see `docs/adr/0001`).
+  are never imported during the build-time initial render (see
+  `docs/adr/0002-static-spa.md`).
 - Theme via Chakra props and `system` tokens / `textStyles`; forced light, no
   color-mode toggle.

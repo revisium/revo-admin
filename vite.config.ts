@@ -24,7 +24,7 @@ function graphqlBackend(env: Record<string, string | undefined>) {
     target = `http://127.0.0.1:${parsePort(env.REVO_DEV_GRAPHQL_PORT, DEFAULT_GRAPHQL_PORT)}`
   }
 
-  return target ? { target, endpoint: endpoint ?? new URL('/graphql', target).toString() } : undefined
+  return target ? { target } : undefined
 }
 
 export default defineConfig(({ mode }) => {
@@ -40,13 +40,6 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      {
-        name: 'graphql-development-env',
-        configureServer() {
-          // SSR reads process.env; these backend URLs are not exposed to browser modules.
-          process.env.REVO_ADMIN_GRAPHQL_ENDPOINT ??= backend.endpoint
-        },
-      },
       reactRouter(),
       checker({
         typescript: true,

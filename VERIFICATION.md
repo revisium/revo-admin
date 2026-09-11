@@ -19,7 +19,10 @@ pnpm run verify
    (zero warnings allowed).
 5. `fsd:check` — `steiger src` (Feature-Sliced Design boundary checks).
 6. `test:unit` — `vitest run`.
-7. `build` — `react-router build`; must produce `build/server` and `build/client`.
+7. `build` — `react-router build`; must produce `build/client/index.html` and hashed
+   client assets, and must not leave a required `build/server` runtime entrypoint.
+8. `smoke:static` — Node built-ins serve `build/client` and verify index, hashed assets,
+   admin deep-link fallback, protected backend namespaces, and missing assets.
 
 ## GraphQL checks
 
@@ -53,7 +56,7 @@ and GraphQL codegen:
 - `.env/.env.development.local` and other `*.local` env overrides are ignored.
 
 The standard development backend is `revo-core` on port `19222`; start it using
-its README. `pnpm run dev` proxies GraphQL and configures SSR from these env
+its README. `pnpm run dev` proxies GraphQL from these env
 files. Process environment values take precedence. The legacy `backend:*` and
 `dev:full` helpers target an adjacent `agent-orchestrator` checkout instead.
 
@@ -68,7 +71,7 @@ Expected local coverage by surface:
   `AGENTS.md`.
 - React-only presentational change: `pnpm run ts:check`, `pnpm run lint:ci`,
   `pnpm run fsd:check`, and `pnpm run build`; add browser/manual smoke when
-  layout, interaction, or SSR visibility changes.
+  layout, interaction, or initial-render visibility changes.
 - Views and presentation view models: use browser/manual verification for
   loading, errors, actions, navigation, and responsive behavior. Do not add
   automated presentation tests for now; automated tests cover domain models,
@@ -79,7 +82,7 @@ Expected local coverage by surface:
   unit tests proving dependencies can be replaced at constructor/composition
   boundaries.
 - User-visible workflow change: run the aggregate `pnpm run verify`; add local
-  backend/browser smoke when GraphQL, routing, SSE, or SSR behavior is
+  backend/browser smoke when GraphQL, routing, SSE, or SPA embedding behavior is
   involved.
 
 Quality blockers:
@@ -122,3 +125,16 @@ Quality blockers:
 - Install must be peer-clean; do not use `--legacy-peer-deps`.
 - Local SonarCloud runs: copy `.env.sonar.example` to `.env.sonar`, then
   `pnpm run sonar:local` / `pnpm run sonar:issues:local` (requires Docker).
+
+## Static smoke and manual browser checks
+
+Run `pnpm run smoke:static` after a clean build. It starts a temporary Node built-ins
+server and checks `/`, `/projects`, `/runs`, `/runs/manual-smoke`, hashed JS/CSS assets,
+and that `/graphql`, `/graphql/stream`, `/api`, `/mcp`, and `/health` do not receive the
+HTML fallback. It also checks that `/assets/does-not-exist.js` is a non-HTML 404.
+
+With the backend running, open the embedded dashboard in a browser and check `/`,
+`/projects`, `/runs`, and `/runs/manual-smoke`; navigate between them and reload each
+deep link. Confirm GraphQL requests use same-origin `/graphql`, SSE uses
+`/graphql/stream`, and DOM-dependent graphs appear after hydration. Verify backend
+health/API/MCP endpoints still return their own responses rather than `index.html`.
