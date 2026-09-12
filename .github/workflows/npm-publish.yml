@@ -3,17 +3,24 @@ name: Publish Package to npmjs
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+      - 'v[0-9]*.[0-9]*.[0-9]*-*'
+      - '!v0.1.0-alpha.0'
+
+concurrency:
+  group: ${{ github.repository }}-npm-publish-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish:
     permissions:
       contents: read
       id-token: write
-    uses: revisium/revisium-actions/.github/workflows/npm-publish.yml@70181e04f5a944cde53f3f455813b6e6d4e8d9fd # v0.4.0
+    uses: revisium/revisium-actions/.github/workflows/npm-publish.yml@6f243e6b395abc914c4427d204ffad7822a8e9e3 # v0.5.0
     with:
       node_version: 24.11.1
       install_command: corepack enable && pnpm install --frozen-lockfile
+      pre_publish_commands: pnpm verify
       npm_access: public
       publish_auth: token
       create_github_release: false

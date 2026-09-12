@@ -24,7 +24,7 @@ on:
       dry_run:
         description: Validate and show the computed release without pushing.
         required: false
-        default: false
+        default: true
         type: boolean
 
 concurrency:
@@ -38,14 +38,14 @@ permissions:
 jobs:
   release-train:
     name: Release train
-    uses: revisium/revisium-actions/.github/workflows/release-train.yml@70181e04f5a944cde53f3f455813b6e6d4e8d9fd # v0.4.0
+    uses: revisium/revisium-actions/.github/workflows/release-train.yml@6f243e6b395abc914c4427d204ffad7822a8e9e3 # v0.5.0
     with:
       action: ${{ inputs.action }}
       dry_run: ${{ inputs.dry_run }}
       base_branch: master
       node_version: 24.11.1
       package_manager: pnpm
-      install_command: corepack enable && pnpm install --frozen-lockfile
-      validate_command: pnpm run verify
+      install_command: pnpm install --frozen-lockfile
+      validate_command: pnpm verify
     secrets:
       RELEASE_BOT_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}

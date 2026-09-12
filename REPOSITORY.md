@@ -15,7 +15,7 @@ MobX, `@xyflow/react`, organized with Feature-Sliced Design (FSD).
 - `@xyflow/react` for run-progress graphs, isolated to `*.client.tsx` modules.
 - Vite 7 via the React Router Framework plugin; Vitest for unit tests; ESLint +
   Prettier + Steiger (FSD) gates.
-- Package manager is pnpm 11.5.2. Do not reintroduce `package-lock.json`.
+- Package manager is pnpm 11.13.0. Do not reintroduce `package-lock.json`.
 
 ## Layout (FSD)
 

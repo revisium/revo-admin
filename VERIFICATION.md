@@ -125,6 +125,24 @@ Quality blockers:
 - Install must be peer-clean; do not use `--legacy-peer-deps`.
 - Local SonarCloud runs: copy `.env.sonar.example` to `.env.sonar`, then
   `pnpm run sonar:local` / `pnpm run sonar:issues:local` (requires Docker).
+- Run `actionlint` when it is available after workflow changes.
+- The first public line is `0.1.0-alpha.N`. Publish prereleases with the
+  `alpha` dist-tag; never promote an alpha by publishing it as `latest`.
+
+## Release validation
+
+Before a release handoff, run:
+
+```bash
+pnpm run verify
+npm publish --dry-run --tag alpha --access public
+git diff --check
+```
+
+The release train must be dispatched with `dry_run=true`; write mode, `npm
+publish`, tag creation, and stable promotion are separate human actions.
+The initial `v0.1.0-alpha.0` publish and tag are a manual bootstrap; later tags
+use the reusable npm publication workflow.
 
 ## Build and manual browser checks
 

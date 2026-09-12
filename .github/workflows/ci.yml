@@ -1,10 +1,15 @@
 name: CI
 
 on:
-  workflow_dispatch:
   push:
     branches: [master, 'release/**']
   pull_request:
+    branches: [master, 'release/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -12,32 +17,40 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.2.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version-file: .nvmrc
-          cache: ${{ github.event_name == 'pull_request' && '' || 'pnpm' }}
-          cache-dependency-path: ./pnpm-lock.yaml
+          cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm install --frozen-lockfile
 
       - name: Verify
-        run: pnpm run verify
+        run: pnpm verify
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
+      - name: SonarQube branch scan
+        if: ${{ env.SONAR_TOKEN != '' && github.event_name != 'pull_request' }}
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+        env:
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+
+      - name: SonarQube PR Quality Gate
+        if: ${{ env.SONAR_TOKEN != '' && github.event_name == 'pull_request' }}
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
         with:
           args: >-
             -Dsonar.qualitygate.wait=true
@@ -45,6 +58,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
 
-      - name: Sonar Issue Inspection
-        if: ${{ github.event_name == 'pull_request' }}
-        run: pnpm run sonar:issues:local
+      - name: Inspect Sonar open issues
+        if: ${{ always() && !cancelled() && env.SONAR_TOKEN != '' && github.event_name == 'pull_request' }}
+        run: pnpm sonar:issues:local
