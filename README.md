@@ -39,15 +39,50 @@ cp .env/.env.development.local.example .env/.env.development.local
 Backend proxy variables are used by the dev-server configuration only. The
 public variable is the only GraphQL setting exposed to browser code.
 
+## Package contract
+
+Install the current prerelease line through the `alpha` dist-tag:
+
+```sh
+npm install @revisium/revo-admin@alpha
+```
+
+An embedding Node.js host resolves the installed static build through the
+public runtime export:
+
+```js
+import { getRevoAdminClientDirectory } from '@revisium/revo-admin/runtime'
+
+const clientDirectory = getRevoAdminClientDirectory()
+```
+
+`getRevoAdminClientDirectory()` returns the absolute `build/client` directory
+inside the installed package. Consumers do not need to inspect `node_modules`,
+assume a package-manager layout, or import source files. The published package
+contains only:
+
+```text
+build/client/index.html
+build/client/assets/*
+runtime/index.js
+runtime/index.d.ts
+README.md
+LICENSE
+```
+
+The embedding host serves files from that directory and returns `index.html`
+for application deep links after reserving `/graphql`, `/graphql/stream`,
+`/api`, `/mcp`, and `/health`.
+
 ## Verification and packaging
 
 Run `pnpm run verify` before handoff. See [VERIFICATION.md](VERIFICATION.md)
 for the gates and [REPOSITORY.md](REPOSITORY.md) for architecture and
 boundaries.
 
-`pnpm run build` creates a self-contained static `build/client/` directory
-containing `index.html` and hashed assets. The embedding backend serves those
-files and owns SPA fallback after reserving `/graphql`, `/graphql/stream`,
-`/api`, `/mcp`, and `/health`. Published package consumers can address those
-assets via the `@revisium/revo-admin/client/*` export. `ssr` is disabled in
-`react-router.config.ts`; this package has no runtime SSR or admin server.
+`pnpm run build` creates the self-contained static client. `pnpm run
+verify:package` performs a lifecycle `npm pack`, checks the exact tarball
+allowlist and reproducibility, installs the tgz into an empty npm consumer, and
+tests `/`, a deep link, and a referenced asset through a minimal HTTP host.
+`ssr` is disabled in `react-router.config.ts`; this package has no runtime SSR
+or admin server.

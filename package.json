@@ -1,30 +1,40 @@
 {
   "name": "@revisium/revo-admin",
-  "version": "0.0.0",
-  "description": "Static SPA admin UI for the Revisium agent orchestrator",
+  "version": "0.1.0-alpha.0",
+  "description": "Static admin SPA assets for Revo.",
   "private": false,
   "license": "MIT",
   "author": "Anton Kashirov",
   "repository": {
     "type": "git",
-    "url": "https://github.com/revisium/revo-admin.git"
+    "url": "git+https://github.com/revisium/revo-admin.git"
   },
   "homepage": "https://github.com/revisium/revo-admin#readme",
+  "bugs": {
+    "url": "https://github.com/revisium/revo-admin/issues"
+  },
   "type": "module",
-  "packageManager": "pnpm@11.5.2",
+  "sideEffects": false,
+  "packageManager": "pnpm@11.13.0",
   "engines": {
     "node": ">=24.11.1 <25"
   },
   "files": [
-    "build/",
+    "build/client",
+    "runtime",
     "README.md",
     "LICENSE"
   ],
   "exports": {
-    "./client/*": "./build/client/*"
+    "./runtime": {
+      "types": "./runtime/index.d.ts",
+      "import": "./runtime/index.js"
+    }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true,
+    "tag": "alpha"
   },
   "scripts": {
     "dev": "react-router dev",
@@ -35,7 +45,7 @@
     "backend:status": "node scripts/revo-dev.mjs status",
     "backend:logs": "node scripts/revo-dev.mjs logs",
     "build": "react-router build",
-    "prepublishOnly": "pnpm run build",
+    "prepack": "pnpm run build",
     "lint:ci": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0 --fix",
     "fsd:check": "CHOKIDAR_USEPOLLING=1 steiger src",
@@ -49,36 +59,18 @@
     "sonar:local": "bash scripts/sonar-local.sh",
     "sonar:issues:local": "bash scripts/sonar-issues-local.sh",
     "ci:local:sonar": "bash scripts/ci-local-sonar.sh",
-    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build",
+    "verify:package": "node scripts/verify-package.mjs",
+    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run verify:package",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:patch": "npm version patch --no-git-tag-version"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.34.0",
-    "@emotion/react": "^11.14.0",
-    "@graphql-typed-document-node/core": "^3.2.0",
-    "@revisium/forms-core": "0.1.0-alpha.1",
-    "@xyflow/react": "^12.11.0",
-    "graphql": "^16.14.2",
-    "graphql-request": "6.1.0",
-    "graphql-sse": "^2.6.1",
-    "graphql-tag": "2.12.6",
-    "lucide-react": "^1.18.0",
-    "mobx": "^6.15.0",
-    "mobx-react-lite": "^4.1.1",
-    "nanoid": "^3.3.7",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "react-markdown": "^10.1.0",
-    "react-router": "8.3.1",
-    "react-virtuoso": "^4.18.13",
-    "remark-gfm": "^4.0.1",
     "isbot": "^5"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^3.0.0",
-    "@eslint/js": "^10.0.1",
-    "@feature-sliced/steiger-plugin": "^0.5.7",
+    "@chakra-ui/react": "^3.34.0",
+    "@emotion/react": "^11.14.0",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@graphql-codegen/add": "5.0.3",
     "@graphql-codegen/cli": "5.0.2",
     "@graphql-codegen/typed-document-node": "^7.1.0",
@@ -87,16 +79,35 @@
     "@graphql-codegen/typescript-operations": "4.2.0",
     "@react-router/dev": "8.3.1",
     "@react-router/node": "8.3.1",
+    "@revisium/forms-core": "0.1.0-alpha.1",
     "@types/node": "^25.5.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@xyflow/react": "^12.11.0",
+    "@eslint-react/eslint-plugin": "^3.0.0",
+    "@eslint/js": "^10.0.1",
+    "@feature-sliced/steiger-plugin": "^0.5.7",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-sonarjs": "^4.0.2",
     "globals": "^17.4.0",
+    "graphql": "^16.14.2",
+    "graphql-request": "6.1.0",
+    "graphql-sse": "^2.6.1",
+    "graphql-tag": "2.12.6",
     "jsdom": "26.1.0",
+    "lucide-react": "^1.18.0",
+    "mobx": "^6.15.0",
+    "mobx-react-lite": "^4.1.1",
+    "nanoid": "^3.3.7",
     "prettier": "^3.8.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-markdown": "^10.1.0",
+    "react-router": "8.3.1",
+    "react-virtuoso": "^4.18.13",
+    "remark-gfm": "^4.0.1",
     "steiger": "^0.5.11",
     "ts-api-utils": "^2.5.0",
     "typescript": "^5.9.3",
