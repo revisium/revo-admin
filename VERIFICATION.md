@@ -141,6 +141,8 @@ git diff --check
 
 The release train must be dispatched with `dry_run=true`; write mode, `npm
 publish`, tag creation, and stable promotion are separate human actions.
+The initial `v0.1.0-alpha.0` publish and tag are a manual bootstrap; later tags
+use the reusable npm publication workflow.
 
 ## Build and manual browser checks
 
