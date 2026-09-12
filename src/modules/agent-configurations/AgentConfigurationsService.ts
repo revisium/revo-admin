@@ -36,7 +36,7 @@ export class AgentConfigurationsService {
   }
 
   public get availableAgents(): readonly AgentDefinition[] {
-    return this.definitions.filter((agent) => this.catalogFor(agent.id, agent.version))
+    return this.definitions.filter((agent) => this.catalogFor(agent.id, agent.version, agent.installationId))
   }
 
   public get availableModels(): readonly { readonly provider: string; readonly model: string }[] {
@@ -52,20 +52,26 @@ export class AgentConfigurationsService {
     return this.errorMessage
   }
 
-  public catalogFor(agentId: string, version: string): AgentConfigurationCatalog | undefined {
-    return this.catalogs.find((catalog) => catalog.agent.id === agentId && catalog.agent.version === version)
+  public catalogFor(agentId: string, version: string, installationId: string): AgentConfigurationCatalog | undefined {
+    return this.catalogs.find(
+      (catalog) =>
+        catalog.agent.id === agentId &&
+        catalog.agent.version === version &&
+        catalog.agent.installationId === installationId,
+    )
   }
 
-  public optionsFor(agentId: string, version: string): readonly AgentConfigurationOption[] {
-    return this.catalogFor(agentId, version)?.options ?? []
+  public optionsFor(agentId: string, version: string, installationId: string): readonly AgentConfigurationOption[] {
+    return this.catalogFor(agentId, version, installationId)?.options ?? []
   }
 
   public validateLaunchConfiguration(
     agentId: string,
     version: string,
+    installationId: string,
     selections: Readonly<Record<string, string | boolean>>,
   ): AgentLaunchConfiguration {
-    const catalog = this.catalogFor(agentId, version)
+    const catalog = this.catalogFor(agentId, version, installationId)
 
     if (this.status !== 'READY' || !catalog) throw new Error('Agent configuration is not ready.')
 

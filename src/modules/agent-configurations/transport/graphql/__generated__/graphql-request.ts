@@ -181,6 +181,7 @@ export type AgentLaunchEvidenceModel = {
 
 export type AgentRefModel = {
   id: Scalars['String']['output'];
+  installationId: Scalars['String']['output'];
   version: Scalars['String']['output'];
 };
 
@@ -291,6 +292,7 @@ export enum CatalogTable {
 export type CreateDialogueInput = {
   agentConfiguration?: InputMaybe<Scalars['JSON']['input']>;
   agentId: Scalars['String']['input'];
+  agentInstallationId: Scalars['String']['input'];
   agentVersion: Scalars['String']['input'];
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   systemContext?: InputMaybe<Scalars['String']['input']>;
@@ -379,6 +381,7 @@ export type DialogueSummaryModel = {
   activeTurnId?: Maybe<Scalars['ID']['output']>;
   agentConfiguration: Scalars['JSON']['output'];
   agentId: Scalars['String']['output'];
+  agentInstallationId: Scalars['String']['output'];
   agentVersion: Scalars['String']['output'];
   contextMode: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -1036,7 +1039,6 @@ export type Query = {
   dialogueInteractions: DialogueInteractionConnectionModel;
   dialogueTurns: DialogueTurnConnectionModel;
   dialogues: DialogueSummaryConnectionModel;
-  inspectAgentConfiguration: AgentConfigurationCatalogModel;
   launchProfile: LaunchProfileModel;
   launchProfiles: LaunchProfileConnection;
   methodDocument: MethodDocumentModel;
@@ -1067,6 +1069,7 @@ export type Query = {
 export type QueryAgentDefinitionArgs = {
   agentId: Scalars['String']['input'];
   agentVersion: Scalars['String']['input'];
+  installationId: Scalars['String']['input'];
 };
 
 
@@ -1122,12 +1125,6 @@ export type QueryDialogueTurnsArgs = {
 export type QueryDialoguesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryInspectAgentConfigurationArgs = {
-  agentId: Scalars['String']['input'];
-  agentVersion: Scalars['String']['input'];
 };
 
 
@@ -1619,12 +1616,12 @@ export type AgentConfigurationDefinitionsQueryVariables = Exact<{
 }>;
 
 
-export type AgentConfigurationDefinitionsQuery = { agentDefinitions: { edges: Array<{ cursor: string, node: { displayName: string, description?: string | null, agent: { id: string, version: string } } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+export type AgentConfigurationDefinitionsQuery = { agentDefinitions: { edges: Array<{ cursor: string, node: { displayName: string, description?: string | null, agent: { id: string, version: string, installationId: string } } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
 
 export type AgentConfigurationsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AgentConfigurationsSubscription = { agentConfigurations: { status: AgentConfigurationsStatus, catalogs: Array<{ catalogRevision: string, definitionDigest: string, schemaVersion: string, agent: { id: string, version: string }, launch: { executable: string, reportedVersion: string }, model?: { currentModel: string, optionId: string, currentProvider?: { id: string, name: string } | null, providers: Array<{ id: string, name: string, models: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }>, sessionAvailable: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> } | null, options: Array<{ __typename: 'AgentConfigurationBooleanModel', category?: string | null, description?: string | null, id: string, name: string, type: string, booleanValue: boolean } | { __typename: 'AgentConfigurationSelectModel', category?: string | null, description?: string | null, id: string, name: string, type: string, selectValue: string, values: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }> }> } };
+export type AgentConfigurationsSubscription = { agentConfigurations: { status: AgentConfigurationsStatus, catalogs: Array<{ catalogRevision: string, definitionDigest: string, schemaVersion: string, agent: { id: string, version: string, installationId: string }, launch: { executable: string, reportedVersion: string }, model?: { currentModel: string, optionId: string, currentProvider?: { id: string, name: string } | null, providers: Array<{ id: string, name: string, models: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }>, sessionAvailable: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> } | null, options: Array<{ __typename: 'AgentConfigurationBooleanModel', category?: string | null, description?: string | null, id: string, name: string, type: string, booleanValue: boolean } | { __typename: 'AgentConfigurationSelectModel', category?: string | null, description?: string | null, id: string, name: string, type: string, selectValue: string, values: Array<{ description?: string | null, name: string, value: string, group?: { id: string, name: string } | null }> }> }> } };
 
 
 

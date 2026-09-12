@@ -180,6 +180,7 @@ export class DiscussionComposerViewModel {
       title: this.draft.slice(0, TITLE_LENGTH),
       agentId: agent.id,
       agentVersion: agent.version,
+      agentInstallationId: agent.installationId,
       agentConfiguration: this.agentSelection.configuration,
     }
   }

@@ -29,11 +29,19 @@ export class AgentSelectionModel {
   public get agents(): readonly {
     readonly id: string
     readonly version: string
+    readonly installationId: string
     readonly name: string
     readonly description: string
     readonly key: string
   }[] {
-    return this.service.availableAgents.map((agent) => ({ ...agent, key: `${agent.id}@${agent.version}` }))
+    return this.service.availableAgents.map((agent) => {
+      const catalog = this.service.catalogFor(agent.id, agent.version, agent.installationId)
+      return {
+        ...agent,
+        key: `${agent.id}@${agent.version}@${agent.installationId}`,
+        name: `${agent.name} — ${catalog?.launch.reportedVersion ?? 'unknown'} — ${agent.installationId}`,
+      }
+    })
   }
 
   public get selectedAgent() {
@@ -42,13 +50,20 @@ export class AgentSelectionModel {
 
   public get options(): readonly AgentConfigurationOption[] {
     const agent = this.selectedAgent
-    return agent ? this.service.optionsFor(agent.id, agent.version).map((option) => this.withSelection(option)) : []
+    return agent
+      ? this.service
+          .optionsFor(agent.id, agent.version, agent.installationId)
+          .map((option) => this.withSelection(option))
+      : []
   }
 
   public get ready(): boolean {
     return (
       this.service.readiness === 'READY' &&
-      Boolean(this.selectedAgent && this.service.catalogFor(this.selectedAgent.id, this.selectedAgent.version))
+      Boolean(
+        this.selectedAgent &&
+        this.service.catalogFor(this.selectedAgent.id, this.selectedAgent.version, this.selectedAgent.installationId),
+      )
     )
   }
 
@@ -66,14 +81,17 @@ export class AgentSelectionModel {
 
     const selections = Object.fromEntries(this.options.map((option) => [option.id, option.currentValue]))
 
-    return this.service.validateLaunchConfiguration(agent.id, agent.version, { ...selections, ...this.selections })
+    return this.service.validateLaunchConfiguration(agent.id, agent.version, agent.installationId, {
+      ...selections,
+      ...this.selections,
+    })
   }
 
   public selectAgent(key: string): void {
     const agent = this.agents.find((candidate) => candidate.key === key)
     if (!agent) return
 
-    const catalog = this.service.catalogFor(agent.id, agent.version)
+    const catalog = this.service.catalogFor(agent.id, agent.version, agent.installationId)
     const nextRevision = catalog?.catalogRevision ?? ''
     this.key = key
 
@@ -113,7 +131,7 @@ export class AgentSelectionModel {
       this.selections = {}
     }
 
-    const catalog = this.service.catalogFor(availableAgent.id, availableAgent.version)
+    const catalog = this.service.catalogFor(availableAgent.id, availableAgent.version, availableAgent.installationId)
     const revision = nextRevision ?? catalog?.catalogRevision ?? ''
     if (this.revision === revision) return
 

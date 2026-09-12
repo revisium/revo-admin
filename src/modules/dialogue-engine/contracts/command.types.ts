@@ -2,6 +2,7 @@ export interface CreateDialogueInput {
   agentConfiguration?: unknown
   agentId: string
   agentVersion: string
+  agentInstallationId: string
   metadata?: unknown
   systemContext?: string | null
   title: string

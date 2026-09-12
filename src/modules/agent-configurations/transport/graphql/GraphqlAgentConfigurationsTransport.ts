@@ -37,6 +37,7 @@ export class GraphqlAgentConfigurationsTransport implements AgentConfigurationsT
       items: page.edges.map(({ node }) => ({
         id: node.agent.id,
         version: node.agent.version,
+        installationId: node.agent.installationId,
         name: node.displayName,
         description: node.description ?? '',
       })),

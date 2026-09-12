@@ -55,7 +55,7 @@ describe('Dialogue engine scenarios', () => {
     scenario = dialogueScenario()
     scenario.backend.loseNextSendAcknowledgement = true
     const draft = scenario.engine.createDraft()
-    const input = { title: 'Planning', agentId: 'test', agentVersion: '1' }
+    const input = { title: 'Planning', agentId: 'test', agentVersion: '1', agentInstallationId: 'installation-test' }
 
     await expect(draft.send(input, 'Prepare')).rejects.toThrow('Acknowledgement lost')
 
@@ -158,7 +158,7 @@ describe('Dialogue delivery and projection boundaries', () => {
     scenario = dialogueScenario()
     scenario.backend.loseNextCreateAcknowledgement = true
     const draft = scenario.engine.createDraft()
-    const input = { title: 'Planning', agentId: 'test', agentVersion: '1' }
+    const input = { title: 'Planning', agentId: 'test', agentVersion: '1', agentInstallationId: 'installation-test' }
 
     await expect(draft.send(input, 'Prepare')).rejects.toThrow('Creation acknowledgement lost')
     await expect(draft.send(input, 'Prepare')).rejects.toThrow('could not be confirmed')
