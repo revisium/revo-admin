@@ -9,7 +9,6 @@ export class AssistantPageViewModel {
   private readonly pageRequest
 
   private lease?: ReturnType<DialogueEngine['open']>
-  private activeGeneration = 0
 
   public constructor(private readonly engine: DialogueEngine) {
     this.openRequest = ObservableRequest.of((id: string) => this.openDialogue(id))
@@ -30,14 +29,12 @@ export class AssistantPageViewModel {
     this.lease = undefined
     this.openRequest.abort()
     this.chatId = id
-    this.activeGeneration += 1
 
     if (id) this.openRequest.fetch(id)
   }
 
   public unmount(): void {
     this.chat?.setAutoRead(false)
-    this.activeGeneration += 1
     this.lease?.release()
     this.lease = undefined
     this.openRequest.abort()
@@ -46,19 +43,18 @@ export class AssistantPageViewModel {
   }
 
   private async openDialogue(id: string): Promise<void> {
-    const generation = this.activeGeneration
     this.lease?.release()
     const lease = this.engine.open(id)
     this.lease = lease
     await lease.ready
 
-    if (!this.isCurrentLease(lease, generation, id)) return
+    if (!this.isCurrentLease(lease, id)) return
 
     lease.dialogue.setAutoRead(true)
   }
 
-  private isCurrentLease(lease: ReturnType<DialogueEngine['open']>, generation: number, id: string): boolean {
-    return this.activeGeneration === generation && this.lease === lease && this.chatId === id
+  private isCurrentLease(lease: ReturnType<DialogueEngine['open']>, id: string): boolean {
+    return this.lease === lease && this.chatId === id
   }
 
   private get chat() {
