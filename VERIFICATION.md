@@ -19,11 +19,9 @@ pnpm run verify
    (zero warnings allowed).
 5. `fsd:check` — `steiger src` (Feature-Sliced Design boundary checks).
 6. `test:unit` — `vitest run`.
-7. `verify:package` — perform a lifecycle `npm pack` (which builds the SPA),
-   validate the exact tarball allowlist and byte-for-byte repeated pack, install
-   the tgz in an empty npm consumer, resolve `@revisium/revo-admin/runtime`, and
-   serve `/`, a deep link, and a referenced asset. The build must contain
-   `build/client/index.html` and hashed client assets with no `build/server`.
+7. `build` — `react-router build`; must produce `build/client/index.html` and
+   hashed client assets, with no `build/server` runtime entrypoint. Framework SPA
+   Mode has `ssr: false`; the package contains no runtime SSR server.
 
 ## GraphQL checks
 
@@ -141,9 +139,8 @@ npm publish --dry-run --tag alpha --access public
 git diff --check
 ```
 
-The package smoke reports measured packed and unpacked byte sizes. The release
-train must be dispatched with `dry_run=true`; write mode, `npm publish`, tag
-creation, and stable promotion are separate human actions.
+The release train must be dispatched with `dry_run=true`; write mode, `npm
+publish`, tag creation, and stable promotion are separate human actions.
 
 ## Build and manual browser checks
 

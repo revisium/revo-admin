@@ -80,9 +80,5 @@ Run `pnpm run verify` before handoff. See [VERIFICATION.md](VERIFICATION.md)
 for the gates and [REPOSITORY.md](REPOSITORY.md) for architecture and
 boundaries.
 
-`pnpm run build` creates the self-contained static client. `pnpm run
-verify:package` performs a lifecycle `npm pack`, checks the exact tarball
-allowlist and reproducibility, installs the tgz into an empty npm consumer, and
-tests `/`, a deep link, and a referenced asset through a minimal HTTP host.
-`ssr` is disabled in `react-router.config.ts`; this package has no runtime SSR
-or admin server.
+`pnpm run build` creates the self-contained static client. `ssr` is disabled in
+`react-router.config.ts`; this package has no runtime SSR or admin server.

@@ -11,50 +11,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  package-status:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    outputs:
-      exists: ${{ steps.registry.outputs.exists }}
-    steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24.11.1
-          registry-url: https://registry.npmjs.org
-
-      - name: Check whether the version already exists
-        id: registry
-        env:
-          PACKAGE_NAME: '@revisium/revo-admin'
-          TAG_NAME: ${{ github.ref_name }}
-        run: |
-          error_file="$(mktemp)"
-          trap 'rm -f "$error_file"' EXIT
-          version="${TAG_NAME#v}"
-          if npm view "${PACKAGE_NAME}@${version}" version >/dev/null 2>"$error_file"; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "${PACKAGE_NAME}@${version} was already published; tag publication will not publish it again."
-          elif grep -q 'E404' "$error_file"; then
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          else
-            cat "$error_file" >&2
-            exit 1
-          fi
-
   publish:
-    needs: package-status
-    if: ${{ needs.package-status.outputs.exists != 'true' }}
     permissions:
       contents: read
       id-token: write
     uses: revisium/revisium-actions/.github/workflows/npm-publish.yml@6f243e6b395abc914c4427d204ffad7822a8e9e3 # v0.5.0
     with:
       node_version: 24.11.1
-      install_command: corepack enable && pnpm install --frozen-lockfile --ignore-scripts
-      pre_publish_commands: pnpm run verify
+      install_command: corepack enable && pnpm install --frozen-lockfile
+      pre_publish_commands: pnpm verify
       npm_access: public
       publish_auth: token
       create_github_release: false

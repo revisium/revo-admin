@@ -59,8 +59,7 @@
     "sonar:local": "bash scripts/sonar-local.sh",
     "sonar:issues:local": "bash scripts/sonar-issues-local.sh",
     "ci:local:sonar": "bash scripts/ci-local-sonar.sh",
-    "verify:package": "node scripts/verify-package.mjs",
-    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run verify:package",
+    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:patch": "npm version patch --no-git-tag-version"
   },

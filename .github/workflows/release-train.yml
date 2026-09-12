@@ -45,7 +45,7 @@ jobs:
       base_branch: master
       node_version: 24.11.1
       package_manager: pnpm
-      install_command: pnpm install --frozen-lockfile --ignore-scripts
-      validate_command: pnpm run verify
+      install_command: pnpm install --frozen-lockfile
+      validate_command: pnpm verify
     secrets:
       RELEASE_BOT_PRIVATE_KEY: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
