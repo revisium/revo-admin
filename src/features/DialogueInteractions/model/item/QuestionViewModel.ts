@@ -79,10 +79,6 @@ export class QuestionViewModel {
     this.value = value
   }
 
-  public setSelected(values: string[]): void {
-    this.selected = values
-  }
-
   public setOther(value: string): void {
     this.other = value
   }
