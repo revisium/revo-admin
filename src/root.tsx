@@ -19,8 +19,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   // Theme is hard-forced light with no toggle. Render the light color-mode
-  // markup statically so server and client agree on the first render and
-  // React 19 reports no hydration mismatch on <html>.
+  // markup statically so the initial document stays deterministic.
   return (
     <html lang="en" className="light" style={{ colorScheme: 'light' }}>
       <head>
@@ -35,6 +34,14 @@ export function Layout({ children }: LayoutProps) {
         <Scripts />
       </body>
     </html>
+  )
+}
+
+export function HydrateFallback() {
+  return (
+    <main>
+      <p>Loading Revo Admin…</p>
+    </main>
   )
 }
 

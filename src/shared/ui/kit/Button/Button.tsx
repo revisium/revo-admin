@@ -42,8 +42,8 @@ export const Button = ({
   const internalRef = useRef<HTMLButtonElement | null>(null)
   const [restingWidth, setRestingWidth] = useState<number | undefined>(undefined)
 
-  // useEffect, not useLayoutEffect: this app renders under React Router v7 SSR,
-  // where useLayoutEffect warns on the server.
+  // useEffect keeps width measurement out of the initial render and works for
+  // both the static build and browser hydration.
   // This only captures a width while idle, so a button that mounts already busy never gets one
   // and the minWidth guard below does nothing for it — correctly, since it had no prior idle
   // width to preserve.

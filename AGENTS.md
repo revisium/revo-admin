@@ -16,8 +16,6 @@ Revisium workspace and follows the canonical agent playbook in the workspace
 
 - `REPOSITORY.md` — structure and source-of-truth order.
 - `VERIFICATION.md` — exact verification commands and quality gates.
-- `REVIEW.md` — review policy.
-- `docs/adr/` — architecture decision records.
 
 ## Pull requests
 
@@ -79,6 +77,9 @@ Use these references from `../agent-playbook` for this repository:
 
 ## Boundaries
 
+- This app uses React Router Framework SPA Mode v8 with `ssr: false`. The
+  Framework root owns document metadata, hydration fallback, and route error UI;
+  there is no runtime SSR entrypoint or admin server in this package.
 - Use same-origin `/graphql` for backend access. Local development proxies that
   path to `revo serve`; production embedding mounts GraphQL on the same host.
 - Keep general-purpose GraphQL transport in `src/shared/api/graphql`. Feature/page code must go
@@ -145,6 +146,6 @@ Use these references from `../agent-playbook` for this repository:
 - Do not import `@revisium/client` or read Revisium/DBOS state directly from the
   admin app.
 - xyflow and other DOM-measuring widgets live only in `*.client.tsx` modules and
-  are never imported server-side (see `docs/adr/0001`).
+  are loaded lazily from browser-only wrappers.
 - Theme via Chakra props and `system` tokens / `textStyles`; forced light, no
   color-mode toggle.

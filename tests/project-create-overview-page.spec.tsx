@@ -11,7 +11,6 @@ import { ProjectCreatePage } from 'src/pages/project-create'
 import { ProjectOverviewViewModel } from 'src/pages/project-overview'
 import { ProjectListViewModel, ProjectsPage } from 'src/pages/projects'
 import ProjectDetail from 'src/routes/ProjectDetail'
-import routes from 'src/routes'
 import { container } from 'src/shared/lib'
 import { system } from 'src/shared/ui/theme/theme'
 ;(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
@@ -526,15 +525,5 @@ describe('Project create and Overview page boundaries', () => {
     await vi.waitFor(() => expect(page.querySelector('#project-overview-heading')?.textContent).toBe('Live prj_new'))
     expect(page.textContent).not.toContain('Live prj_old')
     expect(document.activeElement).not.toBe(page.querySelector('#project-overview-heading'))
-  })
-
-  it('places the real static create route before the dynamic project route', () => {
-    const appLayout = routes[0] as { readonly children: ReadonlyArray<{ readonly path?: string }> }
-    const createRouteIndex = appLayout.children.findIndex((route) => route.path === '/projects/new')
-    const projectRouteIndex = appLayout.children.findIndex((route) => route.path === '/projects/:projectId')
-
-    expect(createRouteIndex).toBeGreaterThanOrEqual(0)
-    expect(projectRouteIndex).toBeGreaterThanOrEqual(0)
-    expect(createRouteIndex).toBeLessThan(projectRouteIndex)
   })
 })

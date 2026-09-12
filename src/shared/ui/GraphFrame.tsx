@@ -11,9 +11,8 @@ interface GraphFrameProps {
 
 const FULL_PERCENT = 100
 
-// Bordered, SSR-safe surface for a client-only xyflow canvas. The server emits
-// this box with the spinner placeholder; the real graph mounts into it after
-// hydration. Warm surface + dotgrid background to match the prototype DAG frame.
+// Bordered, deterministic surface for a client-only xyflow canvas. The initial
+// render shows the spinner placeholder; the real graph mounts after hydration.
 export const GraphFrame = ({ height, children, contentWidth, framed = true }: GraphFrameProps) => {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const thumbRef = useRef<HTMLDivElement | null>(null)

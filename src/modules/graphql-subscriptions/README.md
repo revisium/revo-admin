@@ -2,7 +2,7 @@
 
 The application DI container provides one `GraphqlSubscriptions` singleton per browser tab.
 It uses the official `graphql-sse` client at same-origin `/graphql/stream`; queries and mutations
-continue using `/graphql`. Construction and SSR perform no IO. The first lease connects;
+continue using `/graphql`. Construction and the initial render perform no IO. The first lease connects;
 the last release closes the stream after a short grace period.
 
 ## Adding a subscription

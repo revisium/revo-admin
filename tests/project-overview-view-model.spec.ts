@@ -37,7 +37,7 @@ describe('ProjectOverviewViewModel', () => {
     vi.restoreAllMocks()
   })
 
-  it('shows loading during SSR setup without IO, then loads the route project on mount', async () => {
+  it('shows loading during setup without IO, then loads the route project on mount', async () => {
     const get = vi.fn().mockResolvedValue(project('prj_1'))
     const model = new ProjectOverviewViewModel({ get } as unknown as ProjectService)
 
