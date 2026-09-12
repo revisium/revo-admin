@@ -3,6 +3,7 @@ fragment DialogueSummaryFields on DialogueSummaryModel {
   title
   agentId
   agentVersion
+  agentInstallationId
   agentConfiguration
   status
   progress

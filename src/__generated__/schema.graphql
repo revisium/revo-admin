@@ -1,3 +1,9 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
 input AdrAlternativeInput {
   summary: String!
   title: String!
@@ -158,6 +164,7 @@ type AgentLaunchEvidenceModel {
 
 type AgentRefModel {
   id: String!
+  installationId: String!
   version: String!
 }
 
@@ -268,6 +275,7 @@ enum CatalogTable {
 input CreateDialogueInput {
   agentConfiguration: JSON
   agentId: String!
+  agentInstallationId: String!
   agentVersion: String!
   metadata: JSON
   systemContext: String
@@ -361,6 +369,7 @@ type DialogueSummaryModel {
   activeTurnId: ID
   agentConfiguration: JSON!
   agentId: String!
+  agentInstallationId: String!
   agentVersion: String!
   contextMode: String!
   createdAt: DateTime!
@@ -695,7 +704,7 @@ input ProjectUpdateInput {
 
 type Query {
   agentConfigurations: AgentConfigurationsModel!
-  agentDefinition(agentId: String!, agentVersion: String!): AgentDescriptorModel
+  agentDefinition(agentId: String!, agentVersion: String!, installationId: String!): AgentDescriptorModel
   agentDefinitions(after: String, first: Int): AgentDefinitionConnectionModel!
   catalogChangeSet(after: String, first: Int!): CatalogChangeEntryConnection!
   catalogSnapshot(revisionId: ID!): CatalogSnapshotModel!
@@ -706,7 +715,6 @@ type Query {
   dialogueInteractions(after: String, dialogueId: ID!, first: Int): DialogueInteractionConnectionModel!
   dialogueTurns(after: String, dialogueId: ID!, first: Int): DialogueTurnConnectionModel!
   dialogues(after: String, first: Int): DialogueSummaryConnectionModel!
-  inspectAgentConfiguration(agentId: String!, agentVersion: String!): AgentConfigurationCatalogModel!
   launchProfile(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileModel!
   launchProfiles(after: String, first: Int!, pipelineId: ID, revisionId: ID, scope: CatalogScope! = HEAD): LaunchProfileConnection!
   methodDocument(id: ID!, revisionId: ID, scope: CatalogScope! = HEAD): MethodDocumentModel!

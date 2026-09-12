@@ -3,6 +3,7 @@ export interface DialogueSummary {
   title: string
   agentId: string
   agentVersion: string
+  agentInstallationId: string
   agentConfiguration: unknown
   status: string
   progress: string

@@ -5,7 +5,7 @@ import type { AgentConfigurationsTransport } from '../contracts/transport'
 import type { AgentConfigurationsSnapshot } from '../contracts/types'
 
 const catalog = (revision: string, currentValue = 'balanced') => ({
-  agent: { id: 'agent', version: '1' },
+  agent: { id: 'agent', version: '1', installationId: 'installation-agent' },
   catalogRevision: revision,
   definitionDigest: `digest-${revision}`,
   launch: { executable: 'agent', reportedVersion: '1.0.0' },
@@ -38,9 +38,16 @@ class ControlledTransport implements AgentConfigurationsTransport {
       items: after
         ? []
         : [
-            { id: 'agent', version: '1', name: 'Agent', description: '' },
-            { id: 'other', version: '1', name: 'Other', description: '' },
-            { id: 'failed', version: '1', name: 'Failed', description: '' },
+            { id: 'agent', version: '1', installationId: 'installation-agent', name: 'Agent', description: '' },
+            {
+              id: 'agent',
+              version: '1',
+              installationId: 'installation-agent-two',
+              name: 'Agent',
+              description: '',
+            },
+            { id: 'other', version: '1', installationId: 'installation-other', name: 'Other', description: '' },
+            { id: 'failed', version: '1', installationId: 'installation-failed', name: 'Failed', description: '' },
           ],
       next: undefined,
     })
@@ -72,6 +79,36 @@ describe('AgentConfigurationsService', () => {
     expect(service.catalogsSnapshot).toHaveLength(1)
   })
 
+  it('keeps configuration catalogs separate for two installations of the same agent version', async () => {
+    const transport = new ControlledTransport()
+    const service = new AgentConfigurationsService(transport)
+    service.start()
+    await transport.prepares[0]()
+    transport.snapshots[0]({
+      status: 'READY',
+      catalogs: [
+        catalog('one'),
+        {
+          ...catalog('two', 'fast'),
+          agent: { id: 'agent', version: '1', installationId: 'installation-agent-two' },
+          launch: { executable: 'agent-two', reportedVersion: '2.0.0' },
+        },
+      ],
+    })
+    const selection = new AgentSelectionModel(service)
+    selection.start()
+
+    expect(selection.agents.map((agent) => agent.installationId)).toEqual([
+      'installation-agent',
+      'installation-agent-two',
+    ])
+
+    selection.selectAgent('agent@1@installation-agent-two')
+
+    expect(selection.selectedAgent?.installationId).toBe('installation-agent-two')
+    expect(selection.configuration).toEqual({ catalogRevision: 'two', selections: { quality: 'fast' } })
+  })
+
   it('retains edited values for the same catalog revision', async () => {
     const transport = new ControlledTransport()
     const service = new AgentConfigurationsService(transport)
@@ -81,7 +118,7 @@ describe('AgentConfigurationsService', () => {
     const selection = new AgentSelectionModel(service)
     selection.start()
 
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
     selection.selectOption('quality', 'fast')
     transport.snapshots[0]({ status: 'READY', catalogs: [catalog('one', 'balanced')] })
 
@@ -96,7 +133,7 @@ describe('AgentConfigurationsService', () => {
     transport.snapshots[0]({ status: 'READY', catalogs: [catalog('one')] })
     const selection = new AgentSelectionModel(service)
     selection.start()
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
     selection.selectOption('quality', 'fast')
 
     transport.snapshots[0]({ status: 'LOADING', catalogs: [catalog('two', 'balanced')] })
@@ -105,7 +142,7 @@ describe('AgentConfigurationsService', () => {
     expect(() => selection.configuration).toThrow('not ready')
 
     transport.snapshots[0]({ status: 'READY', catalogs: [catalog('two', 'balanced')] })
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
     expect(selection.options[0]?.currentValue).toBe('balanced')
   })
 
@@ -117,7 +154,7 @@ describe('AgentConfigurationsService', () => {
     transport.snapshots[0]({ status: 'READY', catalogs: [catalog('one')] })
     const selection = new AgentSelectionModel(service)
     selection.start()
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
 
     transport.states[0]({ status: 'Offline', error: 'Browser is offline.' })
 
@@ -133,19 +170,22 @@ describe('AgentConfigurationsService', () => {
     await transport.prepares[0]()
     transport.snapshots[0]({
       status: 'READY',
-      catalogs: [catalog('one'), { ...catalog('other'), agent: { id: 'other', version: '1' } }],
+      catalogs: [
+        catalog('one'),
+        { ...catalog('other'), agent: { id: 'other', version: '1', installationId: 'installation-other' } },
+      ],
     })
     const selection = new AgentSelectionModel(service)
     selection.start()
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
 
     transport.snapshots[0]({
       status: 'READY',
-      catalogs: [{ ...catalog('other'), agent: { id: 'other', version: '1' } }],
+      catalogs: [{ ...catalog('other'), agent: { id: 'other', version: '1', installationId: 'installation-other' } }],
     })
 
-    expect(selection.agentKey).toBe('other@1')
-    expect(selection.selectedAgent?.key).toBe('other@1')
+    expect(selection.agentKey).toBe('other@1@installation-other')
+    expect(selection.selectedAgent?.key).toBe('other@1@installation-other')
     expect(selection.ready).toBe(true)
   })
 
@@ -157,7 +197,7 @@ describe('AgentConfigurationsService', () => {
     transport.snapshots[0]({ status: 'READY', catalogs: [catalog('one')] })
     const selection = new AgentSelectionModel(service)
     selection.start()
-    selection.selectAgent('agent@1')
+    selection.selectAgent('agent@1@installation-agent')
     selection.selectOption('quality', 'fast')
     selection.dispose()
 

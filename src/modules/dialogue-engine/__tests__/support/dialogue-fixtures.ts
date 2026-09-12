@@ -6,6 +6,7 @@ export function dialogueSummary(id: string, title: string, overrides: Partial<Di
     title,
     agentId: 'test',
     agentVersion: '1',
+    agentInstallationId: 'installation-test',
     agentConfiguration: {},
     status: 'READY',
     progress: '',

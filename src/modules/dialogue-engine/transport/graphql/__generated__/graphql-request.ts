@@ -183,6 +183,7 @@ export type AgentLaunchEvidenceModel = {
 
 export type AgentRefModel = {
   id: Scalars['String']['output'];
+  installationId: Scalars['String']['output'];
   version: Scalars['String']['output'];
 };
 
@@ -293,6 +294,7 @@ export enum CatalogTable {
 export type CreateDialogueInput = {
   agentConfiguration?: InputMaybe<Scalars['JSON']['input']>;
   agentId: Scalars['String']['input'];
+  agentInstallationId: Scalars['String']['input'];
   agentVersion: Scalars['String']['input'];
   metadata?: InputMaybe<Scalars['JSON']['input']>;
   systemContext?: InputMaybe<Scalars['String']['input']>;
@@ -381,6 +383,7 @@ export type DialogueSummaryModel = {
   activeTurnId?: Maybe<Scalars['ID']['output']>;
   agentConfiguration: Scalars['JSON']['output'];
   agentId: Scalars['String']['output'];
+  agentInstallationId: Scalars['String']['output'];
   agentVersion: Scalars['String']['output'];
   contextMode: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -1038,7 +1041,6 @@ export type Query = {
   dialogueInteractions: DialogueInteractionConnectionModel;
   dialogueTurns: DialogueTurnConnectionModel;
   dialogues: DialogueSummaryConnectionModel;
-  inspectAgentConfiguration: AgentConfigurationCatalogModel;
   launchProfile: LaunchProfileModel;
   launchProfiles: LaunchProfileConnection;
   methodDocument: MethodDocumentModel;
@@ -1069,6 +1071,7 @@ export type Query = {
 export type QueryAgentDefinitionArgs = {
   agentId: Scalars['String']['input'];
   agentVersion: Scalars['String']['input'];
+  installationId: Scalars['String']['input'];
 };
 
 
@@ -1124,12 +1127,6 @@ export type QueryDialogueTurnsArgs = {
 export type QueryDialoguesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryInspectAgentConfigurationArgs = {
-  agentId: Scalars['String']['input'];
-  agentVersion: Scalars['String']['input'];
 };
 
 
@@ -1615,13 +1612,13 @@ export enum WorkPlanStatus {
   Ready = 'ready'
 }
 
-export type DialogueSummaryFieldsFragment = { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null };
+export type DialogueSummaryFieldsFragment = { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null };
 
 export type DialogueItemFieldsFragment = { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean };
 
 export type DialogueTurnFieldsFragment = { id: string, dialogueId: string, commandId: string, userItemId: string, status: string, dispatchState: string, cancelRequested: boolean, completedAt?: string | null, endItemSequence?: string | null, outcome?: unknown | null };
 
-export type DialogueChangeFieldsFragment = { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null };
+export type DialogueChangeFieldsFragment = { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null };
 
 export type DialogueListQueryVariables = Exact<{
   first: Scalars['Int']['input'];
@@ -1629,14 +1626,14 @@ export type DialogueListQueryVariables = Exact<{
 }>;
 
 
-export type DialogueListQuery = { dialogues: { snapshotCursor: string, totalCount: number, edges: Array<{ cursor: string, node: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
+export type DialogueListQuery = { dialogues: { snapshotCursor: string, totalCount: number, edges: Array<{ cursor: string, node: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } }>, pageInfo: { endCursor?: string | null, hasNextPage: boolean } } };
 
 export type DialogueDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type DialogueDetailsQuery = { dialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+export type DialogueDetailsQuery = { dialogue: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
 export type DialogueHistoryQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -1678,7 +1675,7 @@ export type CreateDialogueMutationVariables = Exact<{
 }>;
 
 
-export type CreateDialogueMutation = { createDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+export type CreateDialogueMutation = { createDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
 export type SendDialogueMutationVariables = Exact<{
   input: SendDialogueInput;
@@ -1708,21 +1705,21 @@ export type ReadDialogueMutationVariables = Exact<{
 }>;
 
 
-export type ReadDialogueMutation = { markDialogueRead: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+export type ReadDialogueMutation = { markDialogueRead: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
 export type ReopenDialogueMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ReopenDialogueMutation = { reopenDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+export type ReopenDialogueMutation = { reopenDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
 export type ForkDialogueMutationVariables = Exact<{
   input: ForkDialogueInput;
 }>;
 
 
-export type ForkDialogueMutation = { forkDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
+export type ForkDialogueMutation = { forkDialogue: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } };
 
 export type DialogueEventsSubscriptionVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
@@ -1730,7 +1727,7 @@ export type DialogueEventsSubscriptionVariables = Exact<{
 }>;
 
 
-export type DialogueEventsSubscription = { dialogueChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
+export type DialogueEventsSubscription = { dialogueChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
 
 export type DialogueSummariesSubscriptionVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
@@ -1738,7 +1735,7 @@ export type DialogueSummariesSubscriptionVariables = Exact<{
 }>;
 
 
-export type DialogueSummariesSubscription = { dialogueSummaryChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
+export type DialogueSummariesSubscription = { dialogueSummaryChanges: { cursor: string, dialogueId: string, kind: string, itemId?: string | null, itemVersion?: string | null, baseItemVersion?: string | null, itemSequence?: string | null, turnId?: string | null, itemKind?: string | null, itemSource?: string | null, textDelta?: string | null, item?: { id: string, dialogueId: string, sequence: string, turnId?: string | null, kind: string, source: string, text: string, payload?: unknown | null, status: string, version: string, createdAt: string, historical: boolean } | null, summary?: { id: string, title: string, agentId: string, agentVersion: string, agentInstallationId: string, agentConfiguration: unknown, status: string, progress: string, pendingCount: number, lastOutcome?: string | null, activeTurnId?: string | null, createdAt: string, updatedAt: string, version: string, significantSequence: string, readSignificantSequence: string, unreadCount: number, contextMode: string, originDialogueId?: string | null, originTurnId?: string | null } | null } };
 
 
 

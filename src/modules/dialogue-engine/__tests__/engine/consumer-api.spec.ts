@@ -305,7 +305,7 @@ describe('Consumer API', () => {
 
   it('retains the draft for retry after losing the send acknowledgement', async () => {
     scenario = dialogueScenario()
-    const input = { title: 'Planning', agentId: 'test', agentVersion: '1' }
+    const input = { title: 'Planning', agentId: 'test', agentVersion: '1', agentInstallationId: 'installation-test' }
     const draft = scenario.engine.createDraft()
     scenario.backend.loseNextSendAcknowledgement = true
 
@@ -320,7 +320,7 @@ describe('Consumer API', () => {
 
   it('does not offer retry when dialogue creation is uncertain', async () => {
     scenario = dialogueScenario()
-    const input = { title: 'Planning', agentId: 'test', agentVersion: '1' }
+    const input = { title: 'Planning', agentId: 'test', agentVersion: '1', agentInstallationId: 'installation-test' }
     const draft = scenario.engine.createDraft()
     scenario.backend.loseNextCreateAcknowledgement = true
 

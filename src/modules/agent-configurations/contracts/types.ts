@@ -3,6 +3,7 @@ export type AgentConfigurationsStatus = 'NOT_INITIALIZED' | 'LOADING' | 'READY'
 export interface AgentConfigurationAgent {
   readonly id: string
   readonly version: string
+  readonly installationId: string
 }
 
 export interface AgentConfigurationGroup {
@@ -70,6 +71,7 @@ export interface AgentConfigurationCatalog {
 export interface AgentDefinition {
   readonly id: string
   readonly version: string
+  readonly installationId: string
   readonly name: string
   readonly description: string
 }
