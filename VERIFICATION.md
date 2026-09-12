@@ -19,10 +19,8 @@ pnpm run verify
    (zero warnings allowed).
 5. `fsd:check` — `steiger src` (Feature-Sliced Design boundary checks).
 6. `test:unit` — `vitest run`.
-7. `build` — `react-router build`; must produce `build/client/index.html` and hashed
-   client assets, and must not leave a required `build/server` runtime entrypoint.
-8. `smoke:static` — Node built-ins serve `build/client` and verify index, hashed assets,
-   admin deep-link fallback, protected backend namespaces, and missing assets.
+7. `build` — `tsc --noEmit && vite build`; must produce `dist/index.html` and hashed
+   client assets. The package contains no runtime server entrypoint.
 
 ## GraphQL checks
 
@@ -126,15 +124,16 @@ Quality blockers:
 - Local SonarCloud runs: copy `.env.sonar.example` to `.env.sonar`, then
   `pnpm run sonar:local` / `pnpm run sonar:issues:local` (requires Docker).
 
-## Static smoke and manual browser checks
+## Build and manual browser checks
 
-Run `pnpm run smoke:static` after a clean build. It starts a temporary Node built-ins
-server and checks `/`, `/projects`, `/runs`, `/runs/manual-smoke`, hashed JS/CSS assets,
-and that `/graphql`, `/graphql/stream`, `/api`, `/mcp`, and `/health` do not receive the
-HTML fallback. It also checks that `/assets/does-not-exist.js` is a non-HTML 404.
+After a clean build, confirm `dist/index.html` and hashed JS/CSS assets exist and
+that neither `dist/server` nor a runtime server entrypoint is required. For build-time
+configuration, run `REACT_APP_GRAPHQL_SERVER_URL=/graphql-custom pnpm run build` and
+confirm `/graphql-custom` appears in the generated client assets.
 
-With the backend running, open the embedded dashboard in a browser and check `/`,
+With the backend running, open the Vite dashboard in a browser and check `/`,
 `/projects`, `/runs`, and `/runs/manual-smoke`; navigate between them and reload each
 deep link. Confirm GraphQL requests use same-origin `/graphql`, SSE uses
-`/graphql/stream`, and DOM-dependent graphs appear after hydration. Verify backend
-health/API/MCP endpoints still return their own responses rather than `index.html`.
+`/graphql/stream`, and DOM-dependent graphs appear after lazy loading. The embedding
+backend is responsible for reserving `/graphql`, `/api`, `/mcp`, and `/health` before
+its SPA fallback.

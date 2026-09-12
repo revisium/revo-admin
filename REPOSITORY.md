@@ -1,11 +1,11 @@
 # Repository: revo-admin
 
-Admin UI for the Revisium agent orchestrator. React Router v7 static SPA, Chakra UI v3,
+Admin UI for the Revisium agent orchestrator. React Router 8 static SPA, Chakra UI v3,
 MobX, `@xyflow/react`, organized with Feature-Sliced Design (FSD).
 
 ## Stack
 
-- React 19 + React Router v7 Framework Mode with static SPA output (`ssr: false`).
+- React 19 + React Router 8 Declarative Mode with static Vite output.
 - Chakra UI v3 + Emotion; forced-light via Chakra props/system tokens (no color-mode toggle).
 - MobX + `mobx-react-lite` and the `src/shared/lib/DIContainer` infrastructure are
   available for GraphQL-backed live state. The current prototype still contains
@@ -19,9 +19,10 @@ MobX, `@xyflow/react`, organized with Feature-Sliced Design (FSD).
 
 ```text
 src/
-  root.tsx                 App shell: Chakra forced light, ErrorBoundary
-  routes.ts                Route table (layout + all page routes)
-  routes/                  Thin RR7 route modules (render page components)
+  main.tsx                 Browser entry point; mounts the app with createRoot
+  root.tsx                 App shell: Chakra forced light and route tree
+  routes.tsx               Declarative route table (layout + all page routes)
+  routes/                  Thin route modules (render page components)
   pages/                   Page slices (ui/ + index.ts), presentational only
     dashboard/ runs-board/ run-create/ run-detail/
     inbox/ inbox-item/
@@ -52,11 +53,9 @@ imports go through `index.ts`, enforced by Steiger.
 ## Client-only boundary
 
 DOM-measuring / browser-only widgets (xyflow) live in `*.client.tsx`. A thin
-`*.tsx` wrapper renders an initial-render-safe placeholder and mounts the `.client`
-module after hydration. Never import a `.client` module from a route module or
-any initial-render-reachable module. See
-`docs/adr/0002-static-spa.md` (which supersedes the historical
-`docs/adr/0001-ssr-engine-and-client-only-graphs.md`).
+`*.tsx` wrapper renders a placeholder and mounts the `.client` module lazily in
+the browser. Keep these boundaries so loading a route does not eagerly load
+DOM-heavy graph code.
 
 ## Backend boundary
 
@@ -64,18 +63,16 @@ Use GraphQL over same-origin `/graphql`.
 
 - Local dev: Vite proxies `/graphql` HTTP requests and `/graphql/stream` multiplex SSE to the backend host.
 - Production embedding: `@revisium/orchestrator` owns the HTTP server, mounts
-  GraphQL and backend namespaces first, then serves the static admin assets and
-  guarded SPA fallback. No admin runtime server or separate admin port is needed.
+  GraphQL and backend namespaces first, then serves `dist/` and its guarded SPA
+  fallback. No admin runtime server or separate admin port is needed.
 - Do not import `@revisium/client` or use Revisium/DBOS storage APIs from this
   app. The admin talks to the orchestrator GraphQL front door only.
 
 ## Source of truth (order)
 
-1. `docs/adr/` — architecture decisions.
-2. `VERIFICATION.md` — gate commands.
-3. `REVIEW.md` — review policy.
-4. This file — structure and conventions.
-5. Workspace `../agent-playbook` — canonical roles, pipelines, method.
+1. `VERIFICATION.md` — gate commands.
+2. This file — structure, stack, and conventions.
+3. Workspace `../agent-playbook` — canonical roles, pipelines, method.
 
 ## Independent modules
 

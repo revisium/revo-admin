@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv } from 'vite'
-import { reactRouter } from '@react-router/dev/vite'
+import react from '@vitejs/plugin-react-swc'
 import checker from 'vite-plugin-checker'
 import { resolve } from 'node:path'
 
@@ -35,12 +35,11 @@ export default defineConfig(({ mode }) => {
   const backend = graphqlBackend(process.env) ??
     graphqlBackend(fileEnv) ?? {
       target: `http://127.0.0.1:${DEFAULT_GRAPHQL_PORT}`,
-      endpoint: `http://127.0.0.1:${DEFAULT_GRAPHQL_PORT}/graphql`,
     }
 
   return {
     plugins: [
-      reactRouter(),
+      react(),
       checker({
         typescript: true,
       }),

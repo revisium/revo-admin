@@ -1,8 +1,7 @@
 node_modules/
-build/
 dist/
 coverage/
-.react-router/
+.pnpm-store/
 .sonar/
 .scannerwork/
 .revo/

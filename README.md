@@ -1,15 +1,13 @@
 # revo-admin
 
-The Revo admin UI, built with React Router, Chakra UI, and MobX.
+Static SPA admin UI for the Revisium agent orchestrator, built with React,
+React Router Declarative Mode, Chakra UI, and MobX.
 
 ## Local development
 
-Use Node 24 and Corepack. Run [revo-core](https://github.com/revisium/revo-core#local-development)
-separately on its default `http://127.0.0.1:19222`. Its README covers PostgreSQL,
-migrations, and agent authentication. Both repositories install their runtime dependencies
-from npm; no sibling package builds are needed.
-
-In this repository:
+Use Node 24 and Corepack. Run
+[revo-core](https://github.com/revisium/revo-core#local-development) separately
+on `http://127.0.0.1:19222`.
 
 ```sh
 nvm install 24
@@ -19,50 +17,37 @@ pnpm install --frozen-lockfile
 pnpm run dev
 ```
 
-Open `http://localhost:5173`. No environment prefixes are needed: Vite proxies `/graphql`
-and `/graphql/stream` to the backend on port **19222**. The browser uses the same-origin
-backend boundary in development and production.
-Each browser tab shares one SSE connection across feature subscriptions.
+Open `http://localhost:5173`. Vite proxies `/graphql` and
+`/graphql/stream` to the local backend. The browser uses the same-origin
+GraphQL boundary in development and in production.
 
-To open the UI from another device on your local network:
+## Configuration
 
-```sh
-pnpm run dev --host 0.0.0.0
-```
-
-Visit `http://<computer-ip>:5173`. The backend can stay on `127.0.0.1`; the dev server
-forwards browser requests.
-
-## Local configuration
-
-Defaults live in `.env/.env.development`. Override them in the ignored
-`.env/.env.development.local`; restart the dev server after changes.
+Defaults live in `.env/.env.development`. Put local overrides in the ignored
+`.env/.env.development.local` file:
 
 ```sh
 cp .env/.env.development.local.example .env/.env.development.local
 ```
 
 - `REVO_DEV_GRAPHQL_PORT`: local backend port, default `19222`.
-- `REVO_ADMIN_GRAPHQL_TARGET`: backend origin when a different host is needed.
-- `REVO_ADMIN_GRAPHQL_ENDPOINT` or `REVO_ADMIN_GRAPHQL_HTTP_URL`: explicit GraphQL URL ending in `/graphql`.
-- `REVO_ADMIN_PORT`: frontend port, default `5173`.
+- `REVO_ADMIN_GRAPHQL_TARGET`: backend origin for the development proxy.
+- `REVO_ADMIN_PORT`: Vite port, default `5173`.
+- `REACT_APP_GRAPHQL_SERVER_URL`: public GraphQL URL embedded at build time,
+  default `/graphql`.
 
-Process environment overrides local files. Backend settings apply to the development proxy
-and schema downloads; they are not exposed as browser environment variables.
-The older `dev:full` and `backend:*` helpers are for an `agent-orchestrator` checkout,
-not the two-repository setup above.
+Backend proxy variables are used by Vite only. The public variable is the
+only GraphQL setting exposed to browser code.
 
-## Development contracts
+## Verification and packaging
 
-Run `pnpm run verify` before handoff. See [VERIFICATION.md](VERIFICATION.md) for gates,
-[REPOSITORY.md](REPOSITORY.md) for boundaries, and the
-[subscription guide](src/modules/graphql-subscriptions/README.md) for adding a subscription.
-React components use registered services and view models rather than calling GraphQL directly.
+Run `pnpm run verify` before handoff. See [VERIFICATION.md](VERIFICATION.md)
+for the gates and [REPOSITORY.md](REPOSITORY.md) for architecture and
+boundaries.
 
-GraphQL schemas and SDKs are checked in. Run `pnpm run gql:codegen` after editing operations.
-With Core running, `pnpm run gql:codegen:download` refreshes the schema from port 19222.
-
-`pnpm run build` produces `build/client/index.html` and hashed client assets. An embedding
-host serves those static assets and returns `index.html` for admin deep links, after
-letting `/graphql`, `/graphql/stream`, `/api`, `/mcp`, and `/health` reach backend handlers.
-The frontend build does not start a backend or require an admin runtime server.
+`pnpm run build` creates a self-contained static `dist/` directory containing
+`index.html` and hashed assets. The embedding backend serves those files and
+owns SPA fallback after reserving `/graphql`, `/graphql/stream`, `/api`,
+`/mcp`, and `/health`. Published package consumers can address those assets via
+the `@revisium/revo-admin/client/*` export. This package has no runtime admin
+server.

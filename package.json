@@ -16,27 +16,26 @@
     "node": ">=24.11.1 <25"
   },
   "files": [
-    "build/",
+    "dist",
     "README.md",
     "LICENSE"
   ],
   "exports": {
-    "./client/*": "./build/client/*"
+    "./client/*": "./dist/*"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "dev": "react-router dev",
+    "dev": "vite",
     "dev:full": "node scripts/revo-dev.mjs dev",
     "backend:start": "node scripts/revo-dev.mjs start",
     "backend:serve": "node scripts/revo-dev.mjs serve",
     "backend:stop": "node scripts/revo-dev.mjs stop",
     "backend:status": "node scripts/revo-dev.mjs status",
     "backend:logs": "node scripts/revo-dev.mjs logs",
-    "build": "react-router build",
+    "build": "tsc --noEmit && vite build",
     "prepublishOnly": "pnpm run build",
-    "smoke:static": "node scripts/static-smoke.mjs",
     "lint:ci": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0 --fix",
     "fsd:check": "CHOKIDAR_USEPOLLING=1 steiger src",
@@ -50,7 +49,7 @@
     "sonar:local": "bash scripts/sonar-local.sh",
     "sonar:issues:local": "bash scripts/sonar-issues-local.sh",
     "ci:local:sonar": "bash scripts/ci-local-sonar.sh",
-    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build && pnpm run smoke:static",
+    "verify": "pnpm run format:check && pnpm run gql:codegen:check && pnpm run ts:check && pnpm run lint:ci && pnpm run fsd:check && pnpm run test:unit && pnpm run build",
     "version:minor": "npm version minor --no-git-tag-version",
     "version:patch": "npm version patch --no-git-tag-version"
   },
@@ -68,10 +67,10 @@
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "nanoid": "^3.3.7",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "react-markdown": "^10.1.0",
-    "react-router": "^7.13.2",
+    "react-router": "8.3.1",
     "react-virtuoso": "^4.18.13",
     "remark-gfm": "^4.0.1"
   },
@@ -85,11 +84,10 @@
     "@graphql-codegen/typescript": "4.0.6",
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.2.0",
-    "@react-router/dev": "^7.13.2",
-    "@react-router/node": "^7.13.2",
+    "@vitejs/plugin-react-swc": "4.3.3",
     "@types/node": "^25.5.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

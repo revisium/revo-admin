@@ -6,9 +6,8 @@ const INBOX = '/inbox'
 const METHOD = '/method'
 const UI_KIT_PREVIEW = '/ui-kit-preview'
 
-// Route templates feed the router config; builders feed links and navigation. Both come from
-// the same constants, so a renamed segment cannot leave one of them behind. Templates nested
-// under a layout stay relative, exactly as the router expects them.
+// Route templates feed the declarative route tree; builders feed links and navigation. Both
+// come from the same constants, so a renamed segment cannot leave one of them behind.
 export const routePaths = {
   assistant: ASSISTANT,
   chat: `${ASSISTANT}/:chatId`,

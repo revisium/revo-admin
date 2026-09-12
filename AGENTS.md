@@ -16,8 +16,6 @@ Revisium workspace and follows the canonical agent playbook in the workspace
 
 - `REPOSITORY.md` — structure and source-of-truth order.
 - `VERIFICATION.md` — exact verification commands and quality gates.
-- `REVIEW.md` — review policy.
-- `docs/adr/` — architecture decision records.
 
 ## Pull requests
 
@@ -145,7 +143,6 @@ Use these references from `../agent-playbook` for this repository:
 - Do not import `@revisium/client` or read Revisium/DBOS state directly from the
   admin app.
 - xyflow and other DOM-measuring widgets live only in `*.client.tsx` modules and
-  are never imported during the build-time initial render (see
-  `docs/adr/0002-static-spa.md`).
+  are loaded lazily from browser-only wrappers.
 - Theme via Chakra props and `system` tokens / `textStyles`; forced light, no
   color-mode toggle.

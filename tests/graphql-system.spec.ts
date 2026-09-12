@@ -1,6 +1,5 @@
-import { parse } from 'graphql'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { GraphqlService, GraphqlSubscriptions, resolveGraphqlHttpUrl, resolveGraphqlSseUrl } from 'src/shared/api'
+import { GraphqlService, resolveGraphqlHttpUrl, resolveGraphqlSseUrl } from 'src/shared/api'
 
 const GRAPHQL_ENDPOINT = 'http://admin.test/graphql'
 const HTTP_ORIGIN = 'http://127.0.0.1:5173/runs'
@@ -12,8 +11,7 @@ const SYSTEM_INFO_RESPONSE = { data: { systemInfo: SYSTEM_INFO } }
 
 afterEach(() => {
   vi.restoreAllMocks()
-  delete process.env.REVO_ADMIN_GRAPHQL_HTTP_URL
-  delete process.env.REVO_ADMIN_GRAPHQL_ENDPOINT
+  vi.unstubAllEnvs()
 })
 
 describe('GraphQL endpoints', () => {
@@ -23,11 +21,11 @@ describe('GraphQL endpoints', () => {
     expect(resolveGraphqlSseUrl(HTTPS_ORIGIN)).toBe('https://admin.revisium.test/graphql/stream')
   })
 
-  it('uses explicit GraphQL environment overrides', () => {
-    process.env.REVO_ADMIN_GRAPHQL_HTTP_URL = GRAPHQL_ENDPOINT
+  it('uses the public build-time GraphQL URL override', () => {
+    vi.stubEnv('REACT_APP_GRAPHQL_SERVER_URL', GRAPHQL_ENDPOINT)
 
-    expect(resolveGraphqlHttpUrl(HTTP_ORIGIN)).toBe(GRAPHQL_ENDPOINT)
-    expect(resolveGraphqlSseUrl(HTTP_ORIGIN)).toBe('http://admin.test/graphql/stream')
+    expect(resolveGraphqlHttpUrl()).toBe(GRAPHQL_ENDPOINT)
+    expect(resolveGraphqlSseUrl()).toBe('http://admin.test/graphql/stream')
   })
 })
 
@@ -45,21 +43,5 @@ describe('GraphqlService', () => {
 
     await expect(graphql.client.SystemInfo()).resolves.toEqual({ systemInfo: SYSTEM_INFO })
     expect(fetchMock).toHaveBeenCalledWith(GRAPHQL_ENDPOINT, expect.objectContaining({ method: 'POST' }))
-  })
-})
-
-describe('Shared subscription composition', () => {
-  it('does not connect during server-side rendering', async () => {
-    const fetch = vi.fn()
-    const service = new GraphqlSubscriptions({ endpoint: GRAPHQL_ENDPOINT, fetch })
-    const controller = new AbortController()
-    const lease = service.subscribe(parse('subscription { ping }'), {
-      signal: controller.signal,
-      prepare: () => ({}),
-      next: vi.fn(),
-    })
-    await lease.done
-    expect(fetch).not.toHaveBeenCalled()
-    service.dispose()
   })
 })
