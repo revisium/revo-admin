@@ -16,25 +16,25 @@
     "node": ">=24.11.1 <25"
   },
   "files": [
-    "dist",
+    "build/",
     "README.md",
     "LICENSE"
   ],
   "exports": {
-    "./client/*": "./dist/*"
+    "./client/*": "./build/client/*"
   },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "react-router dev",
     "dev:full": "node scripts/revo-dev.mjs dev",
     "backend:start": "node scripts/revo-dev.mjs start",
     "backend:serve": "node scripts/revo-dev.mjs serve",
     "backend:stop": "node scripts/revo-dev.mjs stop",
     "backend:status": "node scripts/revo-dev.mjs status",
     "backend:logs": "node scripts/revo-dev.mjs logs",
-    "build": "tsc --noEmit && vite build",
+    "build": "react-router build",
     "prepublishOnly": "pnpm run build",
     "lint:ci": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"{src,tests}/**/*.{ts,tsx}\" --max-warnings 0 --fix",
@@ -72,7 +72,8 @@
     "react-markdown": "^10.1.0",
     "react-router": "8.3.1",
     "react-virtuoso": "^4.18.13",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "isbot": "^5"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^3.0.0",
@@ -84,7 +85,8 @@
     "@graphql-codegen/typescript": "4.0.6",
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.2.0",
-    "@vitejs/plugin-react-swc": "4.3.3",
+    "@react-router/dev": "8.3.1",
+    "@react-router/node": "8.3.1",
     "@types/node": "^25.5.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

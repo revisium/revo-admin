@@ -5,23 +5,24 @@ MobX, `@xyflow/react`, organized with Feature-Sliced Design (FSD).
 
 ## Stack
 
-- React 19 + React Router 8 Declarative Mode with static Vite output.
+- React 19 + React Router 8 Framework SPA Mode (`ssr: false`) with static
+  `build/client` output and no runtime SSR.
 - Chakra UI v3 + Emotion; forced-light via Chakra props/system tokens (no color-mode toggle).
 - MobX + `mobx-react-lite` and the `src/shared/lib/DIContainer` infrastructure are
   available for GraphQL-backed live state. The current prototype still contains
   presentational/static areas, but new live admin state must go through services
   and view models rather than direct component-owned IO.
 - `@xyflow/react` for run-progress graphs, isolated to `*.client.tsx` modules.
-- Vite 7 build; Vitest for unit tests; ESLint + Prettier + Steiger (FSD) gates.
+- Vite 7 via the React Router Framework plugin; Vitest for unit tests; ESLint +
+  Prettier + Steiger (FSD) gates.
 - Package manager is pnpm 11.5.2. Do not reintroduce `package-lock.json`.
 
 ## Layout (FSD)
 
 ```text
 src/
-  main.tsx                 Browser entry point; mounts the app with createRoot
-  root.tsx                 App shell: Chakra forced light and route tree
-  routes.tsx               Declarative route table (layout + all page routes)
+  root.tsx                 Framework document, app shell, and route error UI
+  routes.ts                Framework route config (layout + all page routes)
   routes/                  Thin route modules (render page components)
   pages/                   Page slices (ui/ + index.ts), presentational only
     dashboard/ runs-board/ run-create/ run-detail/
@@ -61,10 +62,12 @@ DOM-heavy graph code.
 
 Use GraphQL over same-origin `/graphql`.
 
-- Local dev: Vite proxies `/graphql` HTTP requests and `/graphql/stream` multiplex SSE to the backend host.
+- Local dev: React Router's Vite dev server proxies `/graphql` HTTP requests
+  and `/graphql/stream` multiplex SSE to the backend host.
 - Production embedding: `@revisium/orchestrator` owns the HTTP server, mounts
-  GraphQL and backend namespaces first, then serves `dist/` and its guarded SPA
-  fallback. No admin runtime server or separate admin port is needed.
+  GraphQL and backend namespaces first, then serves `build/client/` and its
+  guarded SPA fallback. No admin runtime server or separate admin port is
+  needed; Framework SPA Mode has `ssr: false` and emits no `build/server`.
 - Do not import `@revisium/client` or use Revisium/DBOS storage APIs from this
   app. The admin talks to the orchestrator GraphQL front door only.
 

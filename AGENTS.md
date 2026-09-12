@@ -77,6 +77,9 @@ Use these references from `../agent-playbook` for this repository:
 
 ## Boundaries
 
+- This app uses React Router Framework SPA Mode v8 with `ssr: false`. The
+  Framework root owns document metadata, hydration fallback, and route error UI;
+  there is no runtime SSR entrypoint or admin server in this package.
 - Use same-origin `/graphql` for backend access. Local development proxies that
   path to `revo serve`; production embedding mounts GraphQL on the same host.
 - Keep general-purpose GraphQL transport in `src/shared/api/graphql`. Feature/page code must go

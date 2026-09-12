@@ -19,8 +19,9 @@ pnpm run verify
    (zero warnings allowed).
 5. `fsd:check` — `steiger src` (Feature-Sliced Design boundary checks).
 6. `test:unit` — `vitest run`.
-7. `build` — `tsc --noEmit && vite build`; must produce `dist/index.html` and hashed
-   client assets. The package contains no runtime server entrypoint.
+7. `build` — `react-router build`; must produce `build/client/index.html` and
+   hashed client assets, with no `build/server` runtime entrypoint. Framework SPA
+   Mode has `ssr: false`; the package contains no runtime SSR server.
 
 ## GraphQL checks
 
@@ -54,9 +55,10 @@ and GraphQL codegen:
 - `.env/.env.development.local` and other `*.local` env overrides are ignored.
 
 The standard development backend is `revo-core` on port `19222`; start it using
-its README. `pnpm run dev` proxies GraphQL from these env
-files. Process environment values take precedence. The legacy `backend:*` and
-`dev:full` helpers target an adjacent `agent-orchestrator` checkout instead.
+its README. `pnpm run dev` starts the React Router Vite dev server and proxies
+GraphQL from these env files. Process environment values take precedence. The
+legacy `backend:*` and `dev:full` helpers target an adjacent
+`agent-orchestrator` checkout instead.
 
 ## Frontend MVVM checks
 
@@ -126,14 +128,14 @@ Quality blockers:
 
 ## Build and manual browser checks
 
-After a clean build, confirm `dist/index.html` and hashed JS/CSS assets exist and
-that neither `dist/server` nor a runtime server entrypoint is required. For build-time
-configuration, run `REACT_APP_GRAPHQL_SERVER_URL=/graphql-custom pnpm run build` and
-confirm `/graphql-custom` appears in the generated client assets.
+After a clean build, confirm `build/client/index.html` and hashed JS/CSS assets
+exist and that `build/server` is absent. For build-time configuration, run
+`REACT_APP_GRAPHQL_SERVER_URL=/graphql-custom pnpm run build` and confirm
+`/graphql-custom` appears in the generated client assets under `build/client`.
 
-With the backend running, open the Vite dashboard in a browser and check `/`,
+With the backend running, open the React Router dashboard in a browser and check `/`,
 `/projects`, `/runs`, and `/runs/manual-smoke`; navigate between them and reload each
 deep link. Confirm GraphQL requests use same-origin `/graphql`, SSE uses
-`/graphql/stream`, and DOM-dependent graphs appear after lazy loading. The embedding
-backend is responsible for reserving `/graphql`, `/api`, `/mcp`, and `/health` before
-its SPA fallback.
+`/graphql/stream`, and DOM-dependent graphs appear after lazy loading. Framework
+SPA Mode does not provide runtime SSR; the embedding backend is responsible for
+reserving `/graphql`, `/api`, `/mcp`, and `/health` before its SPA fallback.

@@ -175,8 +175,8 @@ async function devFull() {
   await startBackend()
 
   const graphql = spawnRevo(['serve', '--port', config.graphqlPort])
-  const adminCommand = commandForPnpm(['exec', 'vite', '--port', config.adminPort])
-  const admin = spawnLong('vite', adminCommand.command, adminCommand.args, { env: revoEnv })
+  const adminCommand = commandForPnpm(['exec', 'react-router', 'dev', '--port', config.adminPort])
+  const admin = spawnLong('react-router', adminCommand.command, adminCommand.args, { env: revoEnv })
 
   let shuttingDown = false
   const shutdown = async () => {
@@ -203,7 +203,7 @@ async function devFull() {
   }
 
   graphql.once('exit', () => shutdownAfterChildExit('GraphQL host'))
-  admin.once('exit', () => shutdownAfterChildExit('Vite dev server'))
+  admin.once('exit', () => shutdownAfterChildExit('React Router dev server'))
 
   process.once('SIGINT', () => {
     shutdown()
