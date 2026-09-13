@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import { resolve } from 'node:path'
 
 export default defineConfig({
@@ -9,5 +9,6 @@ export default defineConfig({
   },
   test: {
     watch: false,
+    exclude: [...configDefaults.exclude, '**/.revisium-actions/**'],
   },
 })
