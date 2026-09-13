@@ -106,7 +106,8 @@ describe('AgentConfigurationsService', () => {
     selection.selectAgent('agent@1@installation-agent-two')
 
     expect(selection.selectedAgent?.installationId).toBe('installation-agent-two')
-    expect(selection.configuration).toEqual({ catalogRevision: 'two', selections: { quality: 'fast' } })
+    expect(selection.configuration).toEqual({ catalogRevision: 'two', selections: {} })
+    expect(selection.options[0]?.currentValue).toBe('fast')
   })
 
   it('retains edited values for the same catalog revision', async () => {
@@ -205,5 +206,110 @@ describe('AgentConfigurationsService', () => {
     selection.start()
 
     expect(selection.options[0]?.currentValue).toBe('balanced')
+  })
+})
+
+const selectOption = (
+  id: string,
+  currentValue: string,
+  values: readonly string[],
+): AgentConfigurationsSnapshot['catalogs'][number]['options'][number] => ({
+  kind: 'select',
+  category: id,
+  currentValue,
+  description: null,
+  id,
+  name: id,
+  type: 'select',
+  values: values.map((value) => ({ name: value, value })),
+})
+
+const booleanOption = (
+  id: string,
+  currentValue: boolean,
+): AgentConfigurationsSnapshot['catalogs'][number]['options'][number] => ({
+  kind: 'boolean',
+  category: id,
+  currentValue,
+  description: null,
+  id,
+  name: id,
+  type: 'boolean',
+})
+
+const launchCatalog = () => ({
+  agent: { id: 'agent', version: '1', installationId: 'installation-agent' },
+  catalogRevision: 'rev',
+  definitionDigest: 'digest-rev',
+  launch: { executable: 'agent', reportedVersion: '1.0.0' },
+  model: null,
+  options: [
+    selectOption('mode', 'default', ['default', 'dontAsk']),
+    selectOption('model', 'default', ['default', 'haiku', 'sonnet']),
+    selectOption('effort', 'default', ['default', 'high']),
+    booleanOption('fast', false),
+  ],
+  schemaVersion: '1',
+})
+
+async function readyLaunch() {
+  const transport = new ControlledTransport()
+  const service = new AgentConfigurationsService(transport)
+  service.start()
+  await transport.prepares[0]()
+  transport.snapshots[0]({ status: 'READY', catalogs: [launchCatalog()] })
+  const selection = new AgentSelectionModel(service)
+  selection.start()
+  selection.selectAgent('agent@1@installation-agent')
+  return { service, selection }
+}
+
+describe('sparse launch selections', () => {
+  it('emits only an explicit model selection', async () => {
+    const { selection } = await readyLaunch()
+    selection.selectOption('model', 'haiku')
+
+    expect(selection.configuration).toEqual({ catalogRevision: 'rev', selections: { model: 'haiku' } })
+    expect(selection.options.map((option) => [option.id, option.currentValue])).toEqual([
+      ['mode', 'default'],
+      ['model', 'haiku'],
+      ['effort', 'default'],
+      ['fast', false],
+    ])
+  })
+
+  it('emits an empty object when the user has not selected options', async () => {
+    const { selection } = await readyLaunch()
+
+    expect(selection.configuration).toEqual({ catalogRevision: 'rev', selections: {} })
+    expect(selection.options.map((option) => [option.id, option.currentValue])).toEqual([
+      ['mode', 'default'],
+      ['model', 'default'],
+      ['effort', 'default'],
+      ['fast', false],
+    ])
+  })
+
+  it('retains explicit false and explicit default even when they match catalog defaults', async () => {
+    const { selection } = await readyLaunch()
+    selection.selectOption('fast', false)
+    selection.selectOption('mode', 'default')
+    selection.selectOption('effort', 'default')
+
+    expect(selection.configuration).toEqual({
+      catalogRevision: 'rev',
+      selections: { fast: false, mode: 'default', effort: 'default' },
+    })
+  })
+
+  it('rejects unknown keys, invalid values, and invalid types without dropping the choice', async () => {
+    const { service } = await readyLaunch()
+    const launch = (selections: Record<string, string | boolean>) =>
+      service.validateLaunchConfiguration('agent', '1', 'installation-agent', selections)
+
+    expect(() => launch({ unknown: 'haiku' })).toThrow('Unknown option unknown.')
+    expect(() => launch({ model: 'not-offered' })).toThrow('Unknown value for model.')
+    expect(() => launch({ fast: 'true' })).toThrow('Expected a boolean value for fast.')
+    expect(() => launch({ model: true })).toThrow('Unknown value for model.')
   })
 })
