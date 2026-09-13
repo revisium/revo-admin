@@ -79,12 +79,7 @@ export class AgentSelectionModel {
     const agent = this.selectedAgent
     if (!agent) throw new Error('Choose an agent first.')
 
-    const selections = Object.fromEntries(this.options.map((option) => [option.id, option.currentValue]))
-
-    return this.service.validateLaunchConfiguration(agent.id, agent.version, agent.installationId, {
-      ...selections,
-      ...this.selections,
-    })
+    return this.service.validateLaunchConfiguration(agent.id, agent.version, agent.installationId, this.selections)
   }
 
   public selectAgent(key: string): void {

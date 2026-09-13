@@ -75,20 +75,20 @@ export class AgentConfigurationsService {
 
     if (this.status !== 'READY' || !catalog) throw new Error('Agent configuration is not ready.')
 
-    const resolvedSelections = Object.fromEntries(
-      catalog.options.map((option) => [option.id, selections[option.id] ?? option.currentValue]),
-    )
+    const options = new Map(catalog.options.map((option) => [option.id, option]))
+    const resolvedSelections: Record<string, string | boolean> = {}
 
-    for (const option of catalog.options) {
-      const value = resolvedSelections[option.id]
+    for (const [id, value] of Object.entries(selections)) {
+      const option = options.get(id)
+      if (!option) throw new Error(`Unknown option ${id}.`)
 
-      if (option.kind === 'boolean' && typeof value !== 'boolean')
-        throw new Error(`Expected a boolean value for ${option.id}.`)
-      if (
-        option.kind === 'select' &&
-        (typeof value !== 'string' || !option.values.some((choice) => choice.value === value))
-      )
-        throw new Error(`Unknown value for ${option.id}.`)
+      if (option.kind === 'boolean') {
+        if (typeof value !== 'boolean') throw new Error(`Expected a boolean value for ${id}.`)
+      } else if (typeof value !== 'string' || !option.values.some((choice) => choice.value === value)) {
+        throw new Error(`Unknown value for ${id}.`)
+      }
+
+      resolvedSelections[id] = value
     }
 
     return { catalogRevision: catalog.catalogRevision, selections: resolvedSelections }
